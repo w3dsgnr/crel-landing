@@ -9,6 +9,8 @@ import { gsap } from "gsap";
 import { hero } from "@/content/shared";
 import type { LandingState } from "@/content/types";
 import { ensureEases } from "@/lib/easing";
+import { MockupStage } from "@/components/mockups/MockupStage";
+import { RampWidget } from "@/components/mockups/RampWidget";
 
 interface HeroProps {
   state: LandingState;
@@ -83,8 +85,16 @@ export function Hero({ state, argRef, cursorRef, subWrapRef }: HeroProps) {
           </div>
         </div>
       </div>
-      {/* слот состояния: services — воздух; platform — RampWidget (И4) */}
-      <div className="col-span-12 md:col-span-5" data-hero-slot={state} />
+      {/* слот состояния: services — воздух; platform — живой RampWidget */}
+      <div className="col-span-12 md:col-span-5" data-hero-slot={state}>
+        {state === "platform" && (
+          <div className="mx-auto mt-12 w-full max-w-[380px] md:mt-0 md:ml-auto">
+            <MockupStage key="hero-ramp">
+              <RampWidget />
+            </MockupStage>
+          </div>
+        )}
+      </div>
     </section>
   );
 }
