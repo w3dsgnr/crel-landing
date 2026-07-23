@@ -2,13 +2,16 @@
 // Имена и порядок зафиксированы docs/implementation-plan.md; менять только через план.
 import type { ComponentType } from "react";
 import type { LandingState } from "@/content/types";
-import { makeStub } from "@/components/sections/Stub";
 import { approach, servicesGrid, licensing, cases } from "@/content/services";
 import { capabilities, integration, useCases, partners } from "@/content/platform";
 import { Approach } from "@/components/sections/services/Approach";
 import { ServicesGrid } from "@/components/sections/services/ServicesGrid";
 import { LicensingStack } from "@/components/sections/services/LicensingStack";
 import { Cases } from "@/components/sections/services/Cases";
+import { Capabilities } from "@/components/sections/platform/Capabilities";
+import { Integration } from "@/components/sections/platform/Integration";
+import { UseCases } from "@/components/sections/platform/UseCases";
+import { Partners } from "@/components/sections/platform/Partners";
 
 export interface SectionDef {
   id: string;
@@ -25,9 +28,9 @@ export const registry: Record<LandingState, SectionDef[]> = {
     { id: "cases", label: cases.section.label, Component: Cases },
   ],
   platform: [
-    { id: "capabilities", label: capabilities.section.label, Component: makeStub(capabilities.section) },
-    { id: "integration", label: integration.section.label, Component: makeStub(integration.section) },
-    { id: "use-cases", label: useCases.section.label, Component: makeStub(useCases.section) },
-    { id: "partners", label: partners.section.label, Component: makeStub(partners.section) },
+    { id: "capabilities", label: capabilities.section.label, Component: Capabilities },
+    { id: "integration", label: integration.section.label, Component: Integration },
+    { id: "use-cases", label: useCases.section.label, Component: UseCases },
+    { id: "partners", label: partners.section.label, Component: Partners },
   ],
 };
