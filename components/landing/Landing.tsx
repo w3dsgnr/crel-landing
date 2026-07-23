@@ -10,6 +10,7 @@ import type { LandingState } from "@/content/types";
 import { initLenis } from "@/lib/lenis";
 import { useTypewriter } from "@/lib/useTypewriter";
 import { useSwitchOrchestrator } from "@/lib/useSwitchOrchestrator";
+import { useReveal } from "@/lib/reveal";
 
 const STATES: LandingState[] = ["services", "platform"];
 
@@ -44,6 +45,9 @@ export function Landing({ initial }: { initial: LandingState }) {
   useEffect(() => {
     initLenis();
   }, []);
+
+  // Единая reveal-грамматика; реинициализация при смене состояния
+  useReveal(mainRef, state);
 
   // Фон шапки: прозрачный → --bg с хайрлайном. Без scroll-листенера — IO-сентинел.
   useEffect(() => {
