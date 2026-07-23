@@ -1,14 +1,15 @@
 "use client";
 
-// Владелец состояния лендинга. И1: переключение мгновенное (без «Перепечатки»),
-// pushState/popstate, title swap, скролл-сброс. И2 подключит useSwitchOrchestrator.
+// Владелец состояния лендинга. И2: переключение — полная «Перепечатка»
+// (useSwitchOrchestrator), popstate проигрывает тот же переход.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Header } from "./Header";
+import { Hero } from "./Hero";
 import { SectionRenderer } from "./SectionRenderer";
-import { hero } from "@/content/shared";
-import { meta } from "@/content/meta";
 import type { LandingState } from "@/content/types";
-import { initLenis, scrollToTopInstant } from "@/lib/lenis";
+import { initLenis } from "@/lib/lenis";
+import { useTypewriter } from "@/lib/useTypewriter";
+import { useSwitchOrchestrator } from "@/lib/useSwitchOrchestrator";
 
 const STATES: LandingState[] = ["services", "platform"];
 
@@ -21,6 +22,24 @@ export function Landing({ initial }: { initial: LandingState }) {
   const [state, setState] = useState<LandingState>(initial);
   const [scrolled, setScrolled] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
+  const caretRef = useRef<HTMLDivElement>(null);
+  const argRef = useRef<HTMLSpanElement>(null);
+  const cursorRef = useRef<HTMLSpanElement>(null);
+  const subWrapRef = useRef<HTMLDivElement>(null);
+
+  const typewriter = useTypewriter(argRef, cursorRef);
+
+  const applyState = useCallback((next: LandingState) => setState(next), []);
+
+  const { switchTo } = useSwitchOrchestrator({
+    state,
+    applyState,
+    typewriter,
+    caretRef,
+    mainRef,
+    subWrapRef,
+  });
 
   useEffect(() => {
     initLenis();
@@ -35,51 +54,26 @@ export function Landing({ initial }: { initial: LandingState }) {
     return () => io.disconnect();
   }, []);
 
-  const applyState = useCallback((next: LandingState) => {
-    setState(next);
-    document.title = meta[next].title;
-  }, []);
-
-  const switchTo = useCallback(
-    (next: LandingState) => {
-      if (next === state) return;
-      history.pushState({ crel: next }, "", `/${next}`);
-      // Правило скролла: сброс только если ушли глубже первого вьюпорта
-      if (window.scrollY > window.innerHeight) scrollToTopInstant();
-      applyState(next);
-    },
-    [state, applyState]
-  );
-
+  // popstate: back/forward проигрывают тот же переход (без своего pushState)
   useEffect(() => {
     const onPop = () => {
       const next = stateFromPath(location.pathname) ?? initial;
-      if (window.scrollY > window.innerHeight) scrollToTopInstant();
-      applyState(next);
+      switchTo(next, { push: false });
     };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
-  }, [initial, applyState]);
+  }, [initial, switchTo]);
 
   return (
     <>
       <div ref={sentinelRef} aria-hidden className="absolute top-0 h-px w-px" />
-      <Header state={state} onSwitch={switchTo} scrolled={scrolled} />
+      <Header state={state} onSwitch={switchTo} scrolled={scrolled} caretRef={caretRef} />
       {/* aria-live анонс состояния для скринридеров */}
       <p aria-live="polite" className="sr-only">
         {state}
       </p>
-      <main className="flex-1">
-        {/* Временный hero-блок И1: только команда статикой. Полный Hero — И2 */}
-        <section className="mx-auto flex min-h-[60dvh] max-w-[1200px] flex-col justify-center px-5 md:px-12">
-          <h1 className="text-display">
-            c:{hero[state].commandArg}
-            <span className="cursor-blink">_</span>
-          </h1>
-          <p className="mt-8 max-w-[52ch] text-[1.0625rem] leading-relaxed text-ink-soft">
-            {hero[state].subtitle}
-          </p>
-        </section>
+      <main ref={mainRef} className="flex-1">
+        <Hero state={state} argRef={argRef} cursorRef={cursorRef} subWrapRef={subWrapRef} />
         <SectionRenderer state={state} />
       </main>
     </>
