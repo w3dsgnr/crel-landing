@@ -30,7 +30,7 @@ export function FinalCta({ state }: { state: LandingState }) {
   const c = finalCta[state];
   return (
     <section id="contact" className="bg-ink text-ink-invert">
-      <div className="mx-auto max-w-[1200px] px-5 py-28 md:px-12 md:py-40">
+      <div className="mx-auto max-w-[1200px] px-5 py-24 md:px-12 md:py-36">
         <h2 data-reveal className="text-h2 max-w-[18ch]">
           {c.title}
         </h2>

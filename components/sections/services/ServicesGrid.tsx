@@ -99,7 +99,7 @@ function MobileUiFragment() {
 export function ServicesGrid() {
   return (
     <section className="bg-bg">
-      <div className="mx-auto max-w-[1200px] px-5 pb-28 md:px-12 md:pb-40">
+      <div className="mx-auto max-w-[1200px] px-5 pb-24 md:px-12 md:pb-36">
         <p className="text-label text-ink-soft">{servicesGrid.section.label}</p>
         <h2 className="text-h2 mt-6 max-w-[16ch]">{servicesGrid.section.title}</h2>
         <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-3">

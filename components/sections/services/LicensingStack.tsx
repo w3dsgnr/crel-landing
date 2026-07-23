@@ -51,7 +51,7 @@ export function LicensingStack() {
 
   return (
     <section className="bg-bg-alt">
-      <div className="mx-auto max-w-[1200px] px-5 pt-28 md:px-12 md:pt-40">
+      <div className="mx-auto max-w-[1200px] px-5 pt-24 md:px-12 md:pt-36">
         <p className="text-label text-ink-soft">{licensing.section.label}</p>
         <h2 className="text-h2 mt-6 max-w-[18ch]">{licensing.section.title}</h2>
       </div>

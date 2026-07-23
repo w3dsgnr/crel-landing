@@ -5,7 +5,7 @@ import { cases } from "@/content/services";
 export function Cases() {
   return (
     <section className="bg-bg">
-      <div className="mx-auto max-w-[1200px] px-5 py-28 md:px-12 md:py-40">
+      <div className="mx-auto max-w-[1200px] px-5 py-24 md:px-12 md:py-36">
         <p className="text-label text-ink-soft">{cases.section.label}</p>
         <h2 className="text-h2 mt-6 max-w-[16ch]">{cases.section.title}</h2>
         <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-3">
