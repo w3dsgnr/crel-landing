@@ -5,7 +5,7 @@ import { partners } from "@/content/platform";
 export function Partners() {
   return (
     <section className="bg-bg">
-      <div className="mx-auto max-w-[1200px] px-5 pb-24 md:px-12 md:pb-36">
+      <div className="mx-auto max-w-[1200px] px-5 pb-28 md:px-12 md:pb-40">
         <p className="text-label text-ink-soft">{partners.section.label}</p>
         <h2 className="text-h2 mt-6 max-w-[16ch]">{partners.section.title}</h2>
         <div className="mt-16 grid grid-cols-2 gap-4 md:grid-cols-4" data-reveal>

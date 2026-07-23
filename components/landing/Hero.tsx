@@ -65,35 +65,37 @@ export function Hero({ state, argRef, cursorRef, subWrapRef }: HeroProps) {
   }, [subWrapRef]);
 
   return (
-    <section className="mx-auto grid min-h-[70dvh] w-full max-w-[1200px] grid-cols-12 items-center gap-6 px-5 md:px-12">
-      <div className="col-span-12 md:col-span-7">
-        {/* декоративная команда; смысл несёт h1 ниже */}
-        <div aria-hidden className="text-display select-none">
-          c:
-          <span ref={argRef}>{content.commandArg}</span>
-          <span ref={cursorRef} className="cursor-blink">
-            _
-          </span>
-        </div>
-        <div ref={subWrapRef} className="mt-8">
-          <h1 className="max-w-[52ch] text-[1.0625rem] leading-relaxed font-normal text-ink-soft">
+    <section className="mx-auto w-full max-w-[1200px] px-5 pt-20 pb-16 md:px-12 md:pt-28 md:pb-24">
+      {/* командная строка на линейке: терминальный ввод, прочитанный по-швейцарски.
+          Линия полноширинная — организует весь первый экран; курсор стоит на ней. */}
+      <div aria-hidden className="text-display select-none border-b border-line pb-5 md:pb-7">
+        c:
+        <span ref={argRef}>{content.commandArg}</span>
+        <span ref={cursorRef} className="cursor-blink">
+          _
+        </span>
+      </div>
+      <div className="mt-8 grid grid-cols-12 items-start gap-6 md:mt-10">
+        <div ref={subWrapRef} className="col-span-12 md:col-span-7">
+          {/* смысл несёт h1; команда выше — декоративная */}
+          <h1 className="max-w-[44ch] text-[1.125rem] leading-relaxed font-normal text-ink-soft md:text-[1.1875rem]">
             {content.subtitle}
           </h1>
-          <div className="mt-8 flex items-center gap-4">
+          <div className="mt-8 flex flex-wrap items-center gap-4">
             <Cta label={content.ctaPrimary} primary />
             {content.ctaSecondary && <Cta label={content.ctaSecondary} primary={false} />}
           </div>
         </div>
-      </div>
-      {/* слот состояния: services — воздух; platform — живой RampWidget */}
-      <div className="col-span-12 md:col-span-5" data-hero-slot={state}>
-        {state === "platform" && (
-          <div className="mx-auto mt-12 w-full max-w-[380px] md:mt-0 md:ml-auto">
-            <MockupStage key="hero-ramp">
-              <RampWidget />
-            </MockupStage>
-          </div>
-        )}
+        {/* слот состояния: services — воздух; platform — живой RampWidget */}
+        <div className="col-span-12 md:col-span-5" data-hero-slot={state}>
+          {state === "platform" && (
+            <div className="mx-auto mt-8 w-full max-w-[380px] md:mt-0 md:ml-auto">
+              <MockupStage key="hero-ramp">
+                <RampWidget />
+              </MockupStage>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );
