@@ -18,40 +18,68 @@ const MOCKUPS = {
   iban: IbanAccount,
 } as const;
 
-function Cell({ cell }: { cell: (typeof capabilities.cells)[number] }) {
+function Cell({ cell, wide = false }: { cell: (typeof capabilities.cells)[number]; wide?: boolean }) {
   const Mockup = cell.mockup ? MOCKUPS[cell.mockup] : null;
-  return (
-    <div data-reveal className="flex flex-col rounded-(--radius-l) bg-bg-alt p-8">
-      <h3 className="text-card-title">{cell.title}</h3>
-      <p className="mt-4 text-[0.9375rem] leading-relaxed text-ink-soft">{cell.body}</p>
-      {Mockup && (
-        <div className="mt-8 flex-1">
-          {/* карты — статика (hover-жизнь), остальные — прогон по очереди */}
-          <MockupStage isStatic={cell.mockup === "cards"}>
-            <Mockup />
-          </MockupStage>
+  const stage = Mockup && (
+    /* карты — статика (hover-жизнь), остальные — прогон по очереди */
+    <MockupStage isStatic={cell.mockup === "cards"}>
+      <Mockup />
+    </MockupStage>
+  );
+
+  if (wide && Mockup) {
+    // широкая ячейка (2/3): текст слева, мокап справа — визуалу есть куда дышать
+    return (
+      <div data-reveal className="grid grid-cols-1 items-center gap-8 rounded-(--radius-l) bg-bg-alt p-8 md:col-span-2 md:grid-cols-2 md:p-10">
+        <div>
+          <h3 className="text-card-title">{cell.title}</h3>
+          <p className="mt-4 text-[0.9375rem] leading-relaxed text-ink-soft">{cell.body}</p>
         </div>
-      )}
+        <div className="w-full max-w-[400px] md:justify-self-end">{stage}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      data-reveal
+      className={`flex flex-col rounded-(--radius-l) bg-bg-alt p-8 ${wide ? "md:col-span-2 justify-center" : ""}`}
+    >
+      <h3 className="text-card-title">{cell.title}</h3>
+      <p className={`mt-4 text-[0.9375rem] leading-relaxed text-ink-soft ${wide ? "max-w-[52ch]" : ""}`}>
+        {cell.body}
+      </p>
+      {stage && <div className="mt-8 flex-1">{stage}</div>}
     </div>
   );
 }
 
 export function Capabilities() {
-  const [row1, row2] = [capabilities.cells.slice(0, 2), capabilities.cells.slice(2)];
+  const cells = capabilities.cells;
+  const byMockup = (id: string | null) => cells.find((c) => c.mockup === id)!;
+  const [kyc, ramp] = [byMockup("kyc"), byMockup("ramp")];
+  const [iban, cards, terminal, widget] = [
+    byMockup("iban"),
+    byMockup("cards"),
+    byMockup("terminal"),
+    byMockup(null),
+  ];
   return (
     <section className="bg-bg">
       <div className="mx-auto max-w-[1200px] px-5 py-24 md:px-12 md:py-36">
         <p className="text-label text-ink-soft">{capabilities.section.label}</p>
         <h2 className="text-h2 mt-6 max-w-[18ch]">{capabilities.section.title}</h2>
+        {/* ряд 1: 1/2 + 1/2 */}
         <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-2">
-          {row1.map((cell) => (
-            <Cell key={cell.title} cell={cell} />
-          ))}
+          <Cell cell={kyc} />
+          <Cell cell={ramp} />
         </div>
-        <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {row2.map((cell) => (
-            <Cell key={cell.title} cell={cell} />
-          ))}
+        {/* ряды 2-3: бенто 2/3 + 1/3 с чередованием — визуалы не зажаты */}
+        <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3">
+          <Cell cell={iban} wide />
+          <Cell cell={cards} />
+          <Cell cell={terminal} />
+          <Cell cell={widget} wide />
         </div>
       </div>
     </section>
