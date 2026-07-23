@@ -5,6 +5,10 @@ import type { LandingState } from "@/content/types";
 import { makeStub } from "@/components/sections/Stub";
 import { approach, servicesGrid, licensing, cases } from "@/content/services";
 import { capabilities, integration, useCases, partners } from "@/content/platform";
+import { Approach } from "@/components/sections/services/Approach";
+import { ServicesGrid } from "@/components/sections/services/ServicesGrid";
+import { LicensingStack } from "@/components/sections/services/LicensingStack";
+import { Cases } from "@/components/sections/services/Cases";
 
 export interface SectionDef {
   id: string;
@@ -12,13 +16,13 @@ export interface SectionDef {
   Component: ComponentType;
 }
 
-// И1: все Component — заглушки. И3/И4 заменяют их по одному, не меняя id/порядок.
+// И3: services — реальные секции. И4 заменит заглушки platform.
 export const registry: Record<LandingState, SectionDef[]> = {
   services: [
-    { id: "approach", label: approach.section.label, Component: makeStub(approach.section) },
-    { id: "services", label: servicesGrid.section.label, Component: makeStub(servicesGrid.section) },
-    { id: "licensing", label: licensing.section.label, Component: makeStub(licensing.section) },
-    { id: "cases", label: cases.section.label, Component: makeStub(cases.section) },
+    { id: "approach", label: approach.section.label, Component: Approach },
+    { id: "services", label: servicesGrid.section.label, Component: ServicesGrid },
+    { id: "licensing", label: licensing.section.label, Component: LicensingStack },
+    { id: "cases", label: cases.section.label, Component: Cases },
   ],
   platform: [
     { id: "capabilities", label: capabilities.section.label, Component: makeStub(capabilities.section) },
