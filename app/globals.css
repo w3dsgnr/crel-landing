@@ -78,6 +78,30 @@ body {
   text-transform: lowercase;
 }
 
+/* Маркиза ленты логотипов: единственная на страницу, ~40s, пауза на hover */
+@keyframes crel-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.logo-marquee {
+  animation: crel-marquee 40s linear infinite;
+}
+
+.logo-marquee-wrap:hover .logo-marquee {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-marquee {
+    animation: none;
+  }
+}
+
 /* Грамматика курсора: жёсткий blink step-start, только в паузе */
 @keyframes blink {
   0%,
