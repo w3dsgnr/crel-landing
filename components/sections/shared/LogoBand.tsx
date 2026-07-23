@@ -12,7 +12,7 @@ export function LogoBand() {
           items={PLACEHOLDERS.map((i) => (
             <div
               key={i}
-              className="flex h-10 w-[132px] items-center justify-center rounded-(--radius-m) bg-bg-alt text-label text-ink-soft"
+              className="flex h-10 w-[132px] items-center justify-center rounded-(--radius-m) bg-bg-alt text-label text-ink"
             >
               [logo]
             </div>
