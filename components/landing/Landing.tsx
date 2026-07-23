@@ -6,6 +6,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Header } from "./Header";
 import { Hero } from "./Hero";
 import { SectionRenderer } from "./SectionRenderer";
+import { LogoBand } from "@/components/sections/shared/LogoBand";
+import { FinalCta } from "@/components/sections/shared/FinalCta";
+import { Footer } from "@/components/sections/shared/Footer";
 import type { LandingState } from "@/content/types";
 import { initLenis } from "@/lib/lenis";
 import { useTypewriter } from "@/lib/useTypewriter";
@@ -78,8 +81,12 @@ export function Landing({ initial }: { initial: LandingState }) {
       </p>
       <main ref={mainRef} className="flex-1">
         <Hero state={state} argRef={argRef} cursorRef={cursorRef} subWrapRef={subWrapRef} />
+        {/* общий каркас: лента логотипов под hero, CTA и футер — persistent */}
+        <LogoBand />
         <SectionRenderer state={state} />
+        <FinalCta state={state} />
       </main>
+      <Footer />
     </>
   );
 }
