@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
+// Variable-шрифт: плавное перетекание веса в тумблере (400↔500) без подмены глифов
 const grotesk = Space_Grotesk({
   variable: "--font-grotesk",
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
   display: "swap",
 });
 
