@@ -7,6 +7,7 @@ import { gsap } from "gsap";
 import { mockups } from "@/content/platform";
 import { useMockupStage } from "./MockupStage";
 import { ensureEases } from "@/lib/easing";
+import { chipToneClass } from "@/lib/chipTone";
 
 export function KycFlow() {
   const { stage, complete } = useMockupStage();
@@ -39,7 +40,7 @@ export function KycFlow() {
             className="flex items-center justify-between py-2.5 text-[0.8125rem] lowercase not-last:border-b not-last:border-line"
           >
             <span className="text-ink-soft">{s.label}</span>
-            <span className="kyc-chip rounded-(--radius-s) border border-line px-2 py-0.5 text-[0.75rem]">
+            <span className={`kyc-chip rounded-(--radius-s) border px-2 py-0.5 text-[0.75rem] ${chipToneClass(s.chip)}`}>
               {s.chip}
             </span>
           </div>

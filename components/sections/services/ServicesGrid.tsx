@@ -2,6 +2,7 @@
 // Разнообразие фонов: ячейка лицензирования — мини-мокап статусов,
 // ячейка mobile — фрагмент UI на --surface (единственные тени — у мокапов).
 import { servicesGrid } from "@/content/services";
+import { chipToneClass } from "@/lib/chipTone";
 
 function StatusMiniMockup({ rows }: { rows: { label: string; chip: string }[] }) {
   return (
@@ -15,7 +16,7 @@ function StatusMiniMockup({ rows }: { rows: { label: string; chip: string }[] })
           className="flex items-center justify-between py-2 text-[0.8125rem] lowercase not-last:border-b not-last:border-line"
         >
           <span className="text-ink-soft">{r.label}</span>
-          <span className="rounded-(--radius-s) border border-line px-2 py-0.5 text-[0.75rem]">
+          <span className={`rounded-(--radius-s) border px-2 py-0.5 text-[0.75rem] ${chipToneClass(r.chip)}`}>
             {r.chip}
           </span>
         </div>
@@ -46,7 +47,7 @@ function CompareMiniMockup({
           <span className="flex items-center gap-2">
             <span className="tabular-nums">{r.fee}</span>
             {r.selected && (
-              <span className="rounded-(--radius-s) border border-line px-1.5 py-0.5 text-[0.6875rem]">
+              <span className={`rounded-(--radius-s) border px-1.5 py-0.5 text-[0.6875rem] ${chipToneClass("selected")}`}>
                 selected
               </span>
             )}

@@ -18,11 +18,15 @@ export function CardDuo() {
             {m.virtualPan}
           </p>
         </div>
-        {/* plastic — залитая --ink, впереди */}
+        {/* plastic — залитая --ink, впереди; зоны настоящей карты:
+            бренд ↖, контурный чип слева-в-середине, PAN группами ↙, expiry ↘ */}
         <div className="absolute bottom-0 left-0 aspect-[1.586] w-[72%] rounded-(--radius-l) bg-ink p-3 text-ink-invert transition-transform duration-(--d-quick) hover:-translate-y-1">
           <p className="text-[0.9375rem] font-medium lowercase">{m.plasticBrand}</p>
-          <div className="absolute bottom-3 left-3 right-3 flex items-baseline justify-between text-[0.8125rem] tabular-nums">
-            <span>{m.plasticPan}</span>
+          <div aria-hidden className="absolute left-3 top-[42%] h-5 w-7 rounded-(--radius-s) border border-ink-invert/40">
+            <div className="mx-auto mt-[7px] h-px w-4 bg-ink-invert/40" />
+          </div>
+          <div className="absolute bottom-3 left-3 right-3 flex items-baseline justify-between tabular-nums">
+            <span className="text-[0.8125rem] tracking-[0.14em]">{m.plasticPan}</span>
             <span className="text-[0.6875rem] opacity-70">{m.plasticExpiry}</span>
           </div>
         </div>

@@ -8,6 +8,7 @@ import { gsap } from "gsap";
 import { mockups } from "@/content/platform";
 import { useMockupStage } from "./MockupStage";
 import { ensureEases } from "@/lib/easing";
+import { chipToneClass } from "@/lib/chipTone";
 
 const GROUP_MS = 120;
 
@@ -61,7 +62,7 @@ export function IbanAccount() {
               <span>{row.name}</span>
               <span
                 ref={i === 0 ? chipRef : undefined}
-                className="rounded-(--radius-s) border border-line px-1.5 py-0.5 text-[0.6875rem] lowercase"
+                className={`rounded-(--radius-s) border px-1.5 py-0.5 text-[0.6875rem] lowercase ${chipToneClass(row.chip)}`}
               >
                 {row.chip}
               </span>

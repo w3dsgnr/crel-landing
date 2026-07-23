@@ -16,9 +16,10 @@ const Ctx = createContext<{ stage: MockupStagePhase; complete: () => void }>({
 
 export const useMockupStage = () => useContext(Ctx);
 
-// глобальная очередь прогонов
+// глобальная очередь прогонов («один живой одновременно»); экспортируется
+// для не-surface участников очереди (код-сниппет)
 let chain: Promise<void> = Promise.resolve();
-function enqueue(run: () => Promise<void>) {
+export function enqueue(run: () => Promise<void>) {
   chain = chain.then(run, run);
 }
 

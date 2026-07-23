@@ -36,7 +36,7 @@ function Word({
       {/* курсор: ширина зарезервирована всегда — слова не двигаются */}
       <span
         aria-hidden
-        className={`transition-opacity duration-(--d-quick) ${
+        className={`text-accent transition-opacity duration-(--d-quick) ${
           active ? "opacity-100" : "opacity-0 group-hover:opacity-60"
         }`}
       >

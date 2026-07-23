@@ -51,7 +51,7 @@ export function Header({ state, onSwitch, scrolled, caretRef }: HeaderProps) {
       <div
         ref={caretRef}
         aria-hidden
-        className="pointer-events-none absolute bottom-0 left-0 h-[2px] w-[140px] bg-ink opacity-0"
+        className="pointer-events-none absolute bottom-0 left-0 h-[2px] w-[140px] bg-accent opacity-0"
       />
     </header>
   );

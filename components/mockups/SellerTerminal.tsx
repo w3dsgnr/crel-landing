@@ -8,6 +8,7 @@ import { mockups } from "@/content/platform";
 import { useMockupStage } from "./MockupStage";
 import { CountUp } from "@/components/vendor/CountUp";
 import { ensureEases } from "@/lib/easing";
+import { chipToneClass } from "@/lib/chipTone";
 
 const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "<"];
 
@@ -52,7 +53,10 @@ export function SellerTerminal() {
           className="mt-2 flex items-center justify-center gap-2 rounded-(--radius-m) bg-ink py-2 text-[0.8125rem] text-ink-invert"
         >
           {m.button}
-          <span ref={paidRef} className="rounded-(--radius-s) border border-ink-invert/40 px-1.5 text-[0.6875rem] lowercase">
+          <span
+            ref={paidRef}
+            className={`rounded-(--radius-s) border px-1.5 text-[0.6875rem] lowercase ${chipToneClass(m.paidStatus, true)}`}
+          >
             {m.paidStatus}
           </span>
         </div>

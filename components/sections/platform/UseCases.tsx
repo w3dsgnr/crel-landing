@@ -109,7 +109,7 @@ export function UseCases() {
               {t.id}
             </button>
           ))}
-          <div ref={underlineRef} aria-hidden className="absolute bottom-0 left-0 h-[2px] bg-ink" />
+          <div ref={underlineRef} aria-hidden className="absolute bottom-0 left-0 h-[2px] bg-accent" />
         </div>
 
         <div

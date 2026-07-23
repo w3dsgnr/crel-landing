@@ -4,6 +4,7 @@
 import { integration } from "@/content/platform";
 import { MockupStage } from "@/components/mockups/MockupStage";
 import { RampWidget } from "@/components/mockups/RampWidget";
+import { CodeSnippet } from "@/components/mockups/CodeSnippet";
 
 function Checks({ items }: { items: string[] }) {
   return (
@@ -39,13 +40,7 @@ export function Integration() {
             <p className="mt-3 text-[0.9375rem] text-ink-soft">{integration.api.lead}</p>
             <Checks items={integration.api.checks} />
             <div className="mt-8 rounded-(--radius-xl) bg-ink p-6 text-ink-invert">
-              <pre className="overflow-x-auto font-mono text-[0.8125rem] leading-relaxed">
-                {integration.snippet.map((line, i) => (
-                  <span key={i} data-reveal className="block min-h-[1.2em]">
-                    {line}
-                  </span>
-                ))}
-              </pre>
+              <CodeSnippet lines={integration.snippet} />
             </div>
           </div>
         </div>

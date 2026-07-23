@@ -65,13 +65,14 @@ export function Hero({ state, argRef, cursorRef, subWrapRef }: HeroProps) {
   }, [subWrapRef]);
 
   return (
-    <section className="mx-auto grid min-h-[70dvh] w-full max-w-[1200px] grid-cols-12 items-center gap-6 px-5 md:px-12">
+    // 1а: контент прижат к верху (§4.7), воздух уходит вниз
+    <section className="mx-auto grid min-h-[60dvh] w-full max-w-[1200px] grid-cols-12 items-start gap-6 px-5 pt-16 pb-12 md:px-12 md:pt-24 md:pb-16">
       <div className="col-span-12 md:col-span-7">
-        {/* декоративная команда; смысл несёт h1 ниже */}
+        {/* декоративная команда; смысл несёт h1 ниже; курсор — акцент «живого» */}
         <div aria-hidden className="text-display select-none">
           c:
           <span ref={argRef}>{content.commandArg}</span>
-          <span ref={cursorRef} className="cursor-blink">
+          <span ref={cursorRef} className="cursor-blink text-accent">
             _
           </span>
         </div>
