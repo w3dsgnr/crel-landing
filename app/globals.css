@@ -48,6 +48,16 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Видимый клавиатурный фокус — качество-пол, в языке токенов (ink + offset) */
+:where(a, button):focus-visible {
+  outline: 1px solid var(--color-ink);
+  outline-offset: 3px;
+}
+
+.bg-ink :where(a, button):focus-visible {
+  outline-color: var(--color-ink-invert);
+}
+
 /* Типографическая шкала (design-direction §1) */
 .text-display {
   /* нижняя граница подобрана так, чтобы c:platform_ не переносился на 360px */

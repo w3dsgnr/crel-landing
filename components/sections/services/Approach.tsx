@@ -5,7 +5,7 @@ import { approach } from "@/content/services";
 export function Approach() {
   return (
     <section className="bg-bg">
-      <div className="mx-auto max-w-[1200px] px-5 py-24 md:px-12 md:py-36">
+      <div className="mx-auto max-w-[1200px] px-5 py-28 md:px-12 md:py-40">
         <p className="text-label text-ink-soft">{approach.section.label}</p>
         <h2 className="text-h2 mt-6 max-w-[16ch]">{approach.section.title}</h2>
         <div className="mt-16 md:mt-20">
