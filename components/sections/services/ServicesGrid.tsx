@@ -77,21 +77,19 @@ function StatusFeedMockup({ rows }: { rows: { label: string; value: string }[] }
 }
 
 function MobileUiFragment() {
-  // декоративный фрагмент интерфейса мобильного приложения (right-bleed крой)
+  // фрагмент интерфейса мобильного приложения — целиком в ячейке, без обреза цифр
   return (
-    <div aria-hidden className="relative mt-8 h-[132px] overflow-hidden">
-      <div className="absolute left-0 top-0 w-[115%] rounded-(--radius-xl) bg-surface p-4 shadow-(--shadow-mockup)">
-        <div className="flex items-baseline justify-between">
-          <span className="text-[0.75rem] lowercase text-ink-soft">balance</span>
-          <span className="text-[1.25rem] font-medium tabular-nums">1 480.00</span>
+    <div aria-hidden className="mt-8 rounded-(--radius-xl) bg-surface p-4 shadow-(--shadow-mockup)">
+      <div className="flex items-baseline justify-between">
+        <span className="text-[0.75rem] lowercase text-ink-soft">balance</span>
+        <span className="text-[1.25rem] font-medium tabular-nums">1 480.00</span>
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        <div className="rounded-(--radius-m) bg-ink px-3 py-2 text-center text-[0.75rem] lowercase text-ink-invert">
+          send
         </div>
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <div className="rounded-(--radius-m) bg-ink px-3 py-2 text-center text-[0.75rem] lowercase text-ink-invert">
-            send
-          </div>
-          <div className="rounded-(--radius-m) border border-line px-3 py-2 text-center text-[0.75rem] lowercase">
-            receive
-          </div>
+        <div className="rounded-(--radius-m) border border-line px-3 py-2 text-center text-[0.75rem] lowercase">
+          receive
         </div>
       </div>
     </div>

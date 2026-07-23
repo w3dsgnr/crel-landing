@@ -31,6 +31,12 @@ export const servicesGrid = {
     {
       title: "Platform implementation",
       body: "Crel Platform deployment and integration with your existing back office. Custom modules where the standard ones stop.",
+      // чек-лист модулей деплоя (образец данных)
+      miniMockup: [
+        { label: "qasis kyc", chip: "enabled" },
+        { label: "onramp / offramp", chip: "enabled" },
+        { label: "custom module: payouts", chip: "in build" },
+      ],
     },
     {
       title: "Architecture consulting",
