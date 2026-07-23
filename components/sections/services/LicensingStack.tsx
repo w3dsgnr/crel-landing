@@ -30,17 +30,19 @@ export function LicensingStack() {
           pin: true,
           pinSpacing: false,
         });
-        gsap.to(card, {
-          scale: 0.92,
-          opacity: 0.55,
-          ease: "none",
-          scrollTrigger: {
-            trigger: cards[i + 1],
-            start: "top bottom",
-            end: "top top",
-            scrub: true,
-          },
-        });
+        // Уходящая карточка остаётся НЕПРОЗРАЧНОЙ: сжатие + скрим цвета фона
+        // секции поверх (никакого element-opacity — без грязного просвечивания).
+        const scrim = card.querySelector(".lic-scrim");
+        const trigger = {
+          trigger: cards[i + 1],
+          start: "top bottom",
+          end: "top top",
+          scrub: true,
+        };
+        gsap.to(card, { scale: 0.92, ease: "none", scrollTrigger: trigger });
+        if (scrim) {
+          gsap.to(scrim, { opacity: 0.55, ease: "none", scrollTrigger: { ...trigger } });
+        }
       });
     });
 
@@ -60,7 +62,9 @@ export function LicensingStack() {
             className="lic-card flex items-center px-5 py-6 md:min-h-[100dvh] md:px-12 md:py-0"
           >
             <div className="mx-auto w-full max-w-[1200px]">
-              <div className="rounded-(--radius-l) bg-bg p-8 md:p-14">
+              <div className="relative overflow-hidden rounded-(--radius-l) bg-bg p-8 md:p-14">
+                {/* скрим: гасит уходящую карточку цветом фона секции (см. эффект выше) */}
+                <div aria-hidden className="lic-scrim pointer-events-none absolute inset-0 bg-bg-alt opacity-0" />
                 {/* единственный CLI-акцент экрана — статус-строка трека */}
                 <p className="text-label text-ink-soft">{card.track}</p>
                 <h3 className="mt-6 text-[clamp(1.75rem,3vw,2.5rem)] font-medium tracking-[-0.01em]">

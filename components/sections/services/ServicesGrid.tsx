@@ -24,6 +24,58 @@ function StatusMiniMockup({ rows }: { rows: { label: string; chip: string }[] })
   );
 }
 
+function CompareMiniMockup({
+  rows,
+}: {
+  rows: { name: string; fee: string; selected: boolean }[];
+}) {
+  // рифма с smart-routing карточкой OnRamper: список котировок, лучшая выделена
+  return (
+    <div
+      aria-hidden
+      className="mt-8 rounded-(--radius-xl) bg-surface p-4 shadow-(--shadow-mockup)"
+    >
+      {rows.map((r) => (
+        <div
+          key={r.name}
+          className={`flex items-center justify-between rounded-(--radius-m) px-2 py-2 text-[0.8125rem] lowercase ${
+            r.selected ? "bg-bg-deep" : "text-ink-soft"
+          }`}
+        >
+          <span>{r.name}</span>
+          <span className="flex items-center gap-2">
+            <span className="tabular-nums">{r.fee}</span>
+            {r.selected && (
+              <span className="rounded-(--radius-s) border border-line px-1.5 py-0.5 text-[0.6875rem]">
+                selected
+              </span>
+            )}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function StatusFeedMockup({ rows }: { rows: { label: string; value: string }[] }) {
+  return (
+    <div
+      aria-hidden
+      className="mt-8 rounded-(--radius-xl) bg-surface p-4 shadow-(--shadow-mockup)"
+    >
+      {rows.map((r) => (
+        <div
+          key={r.label}
+          className="flex items-center justify-between py-2 text-[0.8125rem] lowercase not-last:border-b not-last:border-line"
+        >
+          <span className="text-ink-soft">{r.label}</span>
+          <span className="tabular-nums">{r.value}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function MobileUiFragment() {
   // декоративный фрагмент интерфейса мобильного приложения (right-bleed крой)
   return (
@@ -63,6 +115,8 @@ export function ServicesGrid() {
               <p className="mt-4 text-[0.9375rem] leading-relaxed text-ink-soft">{cell.body}</p>
               {"miniMockup" in cell && cell.miniMockup && <StatusMiniMockup rows={cell.miniMockup} />}
               {"hasUiFragment" in cell && cell.hasUiFragment && <MobileUiFragment />}
+              {"miniCompare" in cell && cell.miniCompare && <CompareMiniMockup rows={cell.miniCompare} />}
+              {"statusFeed" in cell && cell.statusFeed && <StatusFeedMockup rows={cell.statusFeed} />}
             </div>
           ))}
         </div>

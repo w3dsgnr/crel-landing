@@ -48,6 +48,12 @@ export const servicesGrid = {
     {
       title: "Vendor selection",
       body: "Shortlists, pricing negotiations, coverage and SLA comparison, onboarding and due diligence. Run for you, decided with you.",
+      // мини-сравнение провайдеров (образец данных, не реальные тарифы)
+      miniCompare: [
+        { name: "provider a", fee: "0.85%", selected: true },
+        { name: "provider b", fee: "1.10%", selected: false },
+        { name: "provider c", fee: "1.24%", selected: false },
+      ],
     },
     {
       title: "Mobile apps",
@@ -57,6 +63,12 @@ export const servicesGrid = {
     {
       title: "Ongoing support",
       body: "Monitoring, reconciliation, incident response and the rollout of new corridors and currencies.",
+      // статус-лента (образец данных)
+      statusFeed: [
+        { label: "reconciliation", value: "2 431 / 2 431" },
+        { label: "corridor chf → eur", value: "live" },
+        { label: "incidents", value: "0 open" },
+      ],
     },
   ],
 };
