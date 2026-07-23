@@ -19,7 +19,8 @@ export function Footer() {
             {footer.email}
           </a>
         </div>
-        <p className="mt-10 text-[0.75rem] text-ink-invert/40">{footer.copyright}</p>
+        {/* /55 вместо /40: контраст мелкого текста на --ink должен проходить AA */}
+        <p className="mt-10 text-[0.75rem] text-ink-invert/55">{footer.copyright}</p>
       </div>
     </footer>
   );
