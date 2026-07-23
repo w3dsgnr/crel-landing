@@ -37,7 +37,7 @@ export function UseCases() {
     if (!btn || !line) return;
     ensureEases();
     const target = { x: btn.offsetLeft, width: btn.offsetWidth };
-    if (!mounted.current) {
+    if (!mounted.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       gsap.set(line, target);
       return;
     }
@@ -88,7 +88,7 @@ export function UseCases() {
             e.preventDefault();
             setActive((a) => (a + dir + useCases.tabs.length) % useCases.tabs.length);
           }}
-          className="relative mt-16 flex gap-6 overflow-x-auto border-b border-line pb-3"
+          className="relative mt-16 flex snap-x snap-mandatory gap-6 overflow-x-auto border-b border-line pb-3"
         >
           {useCases.tabs.map((t, i) => (
             <button
@@ -102,7 +102,7 @@ export function UseCases() {
               aria-controls={`panel-${t.id}`}
               tabIndex={i === active ? 0 : -1}
               onClick={() => setActive(i)}
-              className={`whitespace-nowrap text-[0.9375rem] lowercase transition-colors duration-(--d-quick) ${
+              className={`snap-start whitespace-nowrap py-2 text-[0.9375rem] lowercase transition-colors duration-(--d-quick) ${
                 i === active ? "text-ink" : "text-ink-soft hover:text-ink"
               }`}
             >

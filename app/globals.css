@@ -50,10 +50,12 @@ body {
 
 /* Типографическая шкала (design-direction §1) */
 .text-display {
-  font-size: clamp(3.5rem, 9vw, 7rem);
+  /* нижняя граница подобрана так, чтобы c:platform_ не переносился на 360px */
+  font-size: clamp(2.5rem, 11vw, 7rem);
   line-height: 1;
   letter-spacing: -0.02em;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .text-h2 {

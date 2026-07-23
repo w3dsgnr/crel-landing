@@ -37,7 +37,7 @@ export function FinalCta({ state }: { state: LandingState }) {
         <p data-reveal className="mt-6 max-w-[48ch] text-[1.0625rem] leading-relaxed text-ink-invert/60">
           {c.sub}
         </p>
-        <div data-reveal className="mt-10 flex items-center gap-4">
+        <div data-reveal className="mt-10 flex flex-wrap items-center gap-4">
           <DarkCta label={c.ctaPrimary} primary />
           {c.ctaSecondary && <DarkCta label={c.ctaSecondary} primary={false} />}
         </div>

@@ -21,7 +21,7 @@ export function Header({ state, onSwitch, scrolled, caretRef }: HeaderProps) {
         scrolled ? "bg-bg border-b border-line" : "bg-transparent border-b border-transparent"
       }`}
     >
-      <div className="mx-auto flex h-full max-w-[1200px] items-center gap-8 px-5 md:px-12">
+      <div className="mx-auto flex h-full max-w-[1200px] items-center gap-4 px-5 md:gap-8 md:px-12">
         <a href={`/${state}`} className="text-[1.15rem] font-bold tracking-[-0.02em]">
           c:rel<span className="inline-block">_</span>
         </a>
@@ -42,7 +42,7 @@ export function Header({ state, onSwitch, scrolled, caretRef }: HeaderProps) {
 
         <a
           href="#contact"
-          className="rounded-(--radius-m) border border-ink px-4 py-2 text-[0.8125rem] tracking-[0.08em] lowercase transition-colors duration-200 hover:bg-ink hover:text-ink-invert"
+          className="hidden rounded-(--radius-m) border border-ink px-4 py-2 text-[0.8125rem] tracking-[0.08em] lowercase transition-colors duration-200 hover:bg-ink hover:text-ink-invert md:inline-flex"
         >
           {hero[state].ctaPrimary.replace("_", "")}
         </a>
