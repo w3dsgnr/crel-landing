@@ -11,6 +11,7 @@ import type { LandingState } from "@/content/types";
 import { ensureEases } from "@/lib/easing";
 import { MockupStage } from "@/components/mockups/MockupStage";
 import { RampWidget } from "@/components/mockups/RampWidget";
+import { CursorGrid } from "@/components/vendor/CursorGrid";
 
 interface HeroProps {
   state: LandingState;
@@ -34,7 +35,12 @@ function Cta({ label, primary }: { label: string; primary: boolean }) {
     >
       {text}
       {hasCursor && (
-        <span aria-hidden className="opacity-0 transition-opacity duration-(--d-quick) group-hover:opacity-100">
+        <span
+          aria-hidden
+          className={`opacity-0 transition-opacity duration-(--d-quick) group-hover:opacity-100 ${
+            primary ? "text-accent-bright" : "text-accent"
+          }`}
+        >
           _
         </span>
       )}
@@ -65,36 +71,40 @@ export function Hero({ state, argRef, cursorRef, subWrapRef }: HeroProps) {
   }, [subWrapRef]);
 
   return (
-    // 1а: контент прижат к верху (§4.7), воздух уходит вниз
-    <section className="mx-auto grid min-h-[60dvh] w-full max-w-[1200px] grid-cols-12 items-start gap-6 px-5 pt-16 pb-12 md:px-12 md:pt-24 md:pb-16">
-      <div className="col-span-12 md:col-span-7">
-        {/* декоративная команда; смысл несёт h1 ниже; курсор — акцент «живого» */}
-        <div aria-hidden className="text-display select-none">
-          c:
-          <span ref={argRef}>{content.commandArg}</span>
-          <span ref={cursorRef} className="cursor-blink text-accent">
-            _
-          </span>
-        </div>
-        <div ref={subWrapRef} className="mt-8">
-          <h1 className="max-w-[52ch] text-[1.0625rem] leading-relaxed font-normal text-ink-soft">
-            {content.subtitle}
-          </h1>
-          <div className="mt-8 flex items-center gap-4">
-            <Cta label={content.ctaPrimary} primary />
-            {content.ctaSecondary && <Cta label={content.ctaSecondary} primary={false} />}
+    // 1а: контент прижат к верху (§4.7), воздух уходит вниз.
+    // Фон обоих состояний — cursor-grid во всю ширину секции (серебро --grid).
+    <section className="relative isolate">
+      <CursorGrid />
+      <div className="mx-auto grid min-h-[60dvh] w-full max-w-[1200px] grid-cols-12 items-start gap-6 px-5 pt-16 pb-12 md:px-12 md:pt-24 md:pb-16">
+        <div className="col-span-12 md:col-span-7">
+          {/* декоративная команда; смысл несёт h1 ниже; курсор — акцент «живого» */}
+          <div aria-hidden className="text-display select-none">
+            c:
+            <span ref={argRef}>{content.commandArg}</span>
+            <span ref={cursorRef} className="cursor-blink text-accent">
+              _
+            </span>
+          </div>
+          <div ref={subWrapRef} className="mt-8">
+            <h1 className="max-w-[52ch] text-[1.0625rem] leading-relaxed font-normal text-ink-soft">
+              {content.subtitle}
+            </h1>
+            <div className="mt-8 flex items-center gap-4">
+              <Cta label={content.ctaPrimary} primary />
+              {content.ctaSecondary && <Cta label={content.ctaSecondary} primary={false} />}
+            </div>
           </div>
         </div>
-      </div>
-      {/* слот состояния: services — воздух; platform — живой RampWidget */}
-      <div className="col-span-12 md:col-span-5" data-hero-slot={state}>
-        {state === "platform" && (
-          <div className="mx-auto mt-12 w-full max-w-[380px] md:mt-0 md:ml-auto">
-            <MockupStage key="hero-ramp">
-              <RampWidget />
-            </MockupStage>
-          </div>
-        )}
+        {/* слот состояния: services — воздух; platform — живой RampWidget */}
+        <div className="col-span-12 md:col-span-5" data-hero-slot={state}>
+          {state === "platform" && (
+            <div className="mx-auto mt-12 w-full max-w-[380px] md:mt-0 md:ml-auto">
+              <MockupStage key="hero-ramp">
+                <RampWidget />
+              </MockupStage>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );

@@ -33,7 +33,7 @@ export function Header({ state, onSwitch, scrolled, caretRef }: HeaderProps) {
             <a
               key={anchor}
               href={`#${anchor.replace(" ", "-")}`}
-              className="text-[0.875rem] lowercase text-ink-soft transition-colors duration-200 hover:text-ink"
+              className="text-[0.875rem] lowercase text-ink-soft underline-offset-[6px] decoration-2 transition-colors duration-200 hover:text-ink hover:underline hover:decoration-accent"
             >
               {anchor}
             </a>

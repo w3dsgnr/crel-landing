@@ -5,15 +5,18 @@
   Значения: docs/design-direction.md §1. Ничего вне этой шкалы.
 */
 @theme {
-  /* палитра */
+  /* палитра — рама: белый + холодная лаванда-адаптация (наша сдержанная версия
+     OnRamper #EFEEF3: серые уведены в синеву, не хроматичны). Цвет v2 §Рама. */
   --color-bg: #ffffff;
-  --color-bg-alt: #f5f5f7;
-  --color-bg-deep: #ececef;
+  --color-bg-alt: #f3f2f7; /* чередование секций, плоские карты (холодный лавандовый) */
+  --color-bg-deep: #eae9f0; /* второй шаг чередования, подложки */
   --color-surface: #fcfcfd;
   --color-ink: #111111;
+  --color-ink-900: #0a0a0a; /* футер — на шаг темнее CTA (кульминация → чёрный) */
   --color-ink-soft: #6a6a70;
   --color-ink-invert: #ffffff;
   --color-line: rgb(17 17 17 / 0.14);
+  --color-grid: #bfbeca; /* серебро cursor-grid декора hero: только canvas-линии, не UI */
 
   /* Акцент «живого»: курсор, каретка, underline, статусы-успехи.
      Терминальный зелёный, дозированный; НЕ для текста/кнопок/рамок. */
@@ -54,14 +57,44 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Видимый клавиатурный фокус — качество-пол, в языке токенов (ink + offset) */
+/* Видимый клавиатурный фокус — вольтаж по роли «интерактив» (Цвет v2 §вопрос 3):
+   зелёный на светлом (3.3:1), яркий зелёный на тёмных плоскостях/окнах. */
 :where(a, button):focus-visible {
-  outline: 1px solid var(--color-ink);
-  outline-offset: 3px;
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
-.bg-ink :where(a, button):focus-visible {
-  outline-color: var(--color-ink-invert);
+.bg-ink :where(a, button):focus-visible,
+.grad-window-signal :where(a, button):focus-visible,
+.grad-cta :where(a, button):focus-visible {
+  outline-color: var(--color-accent-bright);
+}
+
+/* ── Цвет v2: градиентные «окна» (дозированный слой глубины) ───────────────
+   Тёмное ink-окно с зелёным ЛИТ-краем в углу (наш аналог cyan-диска OnRamper).
+   Зелёный — только бликом из угла, не заливкой: рама остаётся спокойной. */
+.grad-window-ink {
+  background:
+    radial-gradient(120% 90% at 100% 100%, rgb(0 163 68 / 0.14), rgb(0 163 68 / 0) 46%),
+    linear-gradient(150deg, #151515, #0a0a0a);
+}
+.grad-window-signal {
+  background:
+    radial-gradient(115% 85% at 100% 100%, rgb(0 163 68 / 0.5), rgb(0 163 68 / 0) 44%),
+    linear-gradient(150deg, #171717, #0a0a0a);
+}
+/* финальный CTA, вариант B («Заряд») — единственный полный разлив на страницу;
+   текст живёт на тёмных 2/3 (лево/верх), зелёный блик уводится в дальний угол. */
+.grad-cta {
+  background:
+    radial-gradient(85% 120% at 100% 100%, rgb(0 163 68 / 0.62), rgb(0 163 68 / 0) 40%),
+    linear-gradient(120deg, #0a0a0a 0%, #05231a 58%, #063a20 100%);
+}
+/* слабый одноцветный подтёк-настроение из угла белой карты (аналог bleeds OnRamper) */
+.wash-signal {
+  background:
+    radial-gradient(80% 70% at 100% 0%, rgb(0 163 68 / 0.07), rgb(0 163 68 / 0) 55%),
+    var(--color-surface);
 }
 
 /* Типографическая шкала (design-direction §1) */

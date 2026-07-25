@@ -25,7 +25,7 @@ export function Integration() {
         <p className="text-label text-ink-soft">{integration.section.label}</p>
         <h2 className="text-h2 mt-6 max-w-[16ch]">{integration.section.title}</h2>
         <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div data-reveal className="rounded-(--radius-l) bg-bg p-8 md:p-10">
+          <div data-reveal className="rounded-(--radius-l) border border-line bg-bg p-8 md:p-10">
             <h3 className="text-card-title">{integration.widget.title}</h3>
             <p className="mt-3 text-[0.9375rem] text-ink-soft">{integration.widget.lead}</p>
             <Checks items={integration.widget.checks} />
@@ -35,11 +35,12 @@ export function Integration() {
               </MockupStage>
             </div>
           </div>
-          <div data-reveal className="rounded-(--radius-l) bg-bg p-8 md:p-10">
+          <div data-reveal className="rounded-(--radius-l) border border-line bg-bg p-8 md:p-10">
             <h3 className="text-card-title">{integration.api.title}</h3>
             <p className="mt-3 text-[0.9375rem] text-ink-soft">{integration.api.lead}</p>
             <Checks items={integration.api.checks} />
-            <div className="mt-8 rounded-(--radius-xl) bg-ink p-6 text-ink-invert">
+            {/* Цвет v2: тёмное код-окно — grad-window-ink (зелёный лит-край вместо плоского #111) */}
+            <div className="grad-window-ink mt-8 rounded-(--radius-xl) p-6 text-ink-invert">
               <CodeSnippet lines={integration.snippet} />
             </div>
           </div>

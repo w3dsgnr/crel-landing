@@ -21,8 +21,8 @@ const MOCKUPS = {
 function Cell({ cell, wide = false }: { cell: (typeof capabilities.cells)[number]; wide?: boolean }) {
   const Mockup = cell.mockup ? MOCKUPS[cell.mockup] : null;
   const stage = Mockup && (
-    /* карты — статика (hover-жизнь), остальные — прогон по очереди */
-    <MockupStage isStatic={cell.mockup === "cards"}>
+    /* все мокапы в очереди прогонов + idle-цикл (карты — подъём-такт) */
+    <MockupStage>
       <Mockup />
     </MockupStage>
   );
@@ -30,7 +30,7 @@ function Cell({ cell, wide = false }: { cell: (typeof capabilities.cells)[number
   if (wide && Mockup) {
     // широкая ячейка (2/3): текст слева, мокап справа — визуалу есть куда дышать
     return (
-      <div data-reveal className="grid grid-cols-1 items-center gap-8 rounded-(--radius-l) bg-bg-alt p-8 md:col-span-2 md:grid-cols-2 md:p-10">
+      <div data-reveal className="grid grid-cols-1 items-center gap-8 rounded-(--radius-l) border border-line bg-bg-alt p-8 md:col-span-2 md:grid-cols-2 md:p-10">
         <div>
           <h3 className="text-card-title">{cell.title}</h3>
           <p className="mt-4 text-[0.9375rem] leading-relaxed text-ink-soft">{cell.body}</p>
@@ -40,13 +40,25 @@ function Cell({ cell, wide = false }: { cell: (typeof capabilities.cells)[number
     );
   }
 
+  // Цвет v2: типографическая ячейка без мокапа (widget/headless API) — единственное
+  // градиентное окно бенто: тёмное с зелёным лит-краем, «терминальный» финал ряда.
+  const isSignal = !Mockup && wide;
   return (
     <div
       data-reveal
-      className={`flex flex-col rounded-(--radius-l) bg-bg-alt p-8 ${wide ? "md:col-span-2 justify-center" : ""}`}
+      className={`flex flex-col rounded-(--radius-l) p-8 ${
+        isSignal ? "grad-window-signal text-ink-invert" : "border border-line bg-bg-alt"
+      } ${wide ? "md:col-span-2 justify-center" : ""}`}
     >
-      <h3 className="text-card-title">{cell.title}</h3>
-      <p className={`mt-4 text-[0.9375rem] leading-relaxed text-ink-soft ${wide ? "max-w-[52ch]" : ""}`}>
+      {/* фокус-окно ряда: заголовок крупнее сиблингов — намеренный слом иерархии */}
+      <h3 className={isSignal ? "text-[clamp(1.75rem,2.6vw,2.25rem)] font-medium tracking-[-0.01em]" : "text-card-title"}>
+        {cell.title}
+      </h3>
+      <p
+        className={`mt-4 text-[0.9375rem] leading-relaxed ${isSignal ? "text-ink-invert/70" : "text-ink-soft"} ${
+          wide ? "max-w-[52ch]" : ""
+        }`}
+      >
         {cell.body}
       </p>
       {stage && <div className="mt-8 flex-1">{stage}</div>}

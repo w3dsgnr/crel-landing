@@ -27,6 +27,8 @@ export function KycFlow() {
     });
     return () => {
       tween.kill();
+      // срыв прогона (вкладка ушла в фон) — не оставляем чипы полускрытыми
+      gsap.set(chips, { clearProps: "opacity,visibility,transform" });
     };
   }, [stage, complete]);
 

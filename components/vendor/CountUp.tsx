@@ -4,6 +4,8 @@
 // проект держит один анимационный движок (у React Bits — Motion-спрингс с
 // овершутом; здесь — crelOut без овершута, по Global Constraints плана).
 // Всегда tabular-nums, формат "1 000.00" (пробел-разделитель тысяч).
+// Ревизия «живые карточки»: play может переключаться много раз (idle-цикл
+// MockupStage) — каждый true-фронт запускает тик заново.
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ensureEases } from "@/lib/easing";
@@ -18,26 +20,27 @@ export function CountUp({
   to,
   play,
   duration = 0.7,
+  delay = 0,
   decimals = 2,
   className = "",
 }: {
   to: number;
   play: boolean;
   duration?: number;
+  delay?: number;
   decimals?: number;
   className?: string;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const started = useRef(false);
 
   useEffect(() => {
-    if (!play || started.current) return;
-    started.current = true;
+    if (!play) return;
     ensureEases();
     const proxy = { v: 0 };
     const tween = gsap.to(proxy, {
       v: to,
       duration,
+      delay,
       ease: "crelOut",
       onUpdate() {
         if (ref.current) ref.current.textContent = format(proxy.v, decimals);
@@ -45,8 +48,10 @@ export function CountUp({
     });
     return () => {
       tween.kill();
+      // срыв прогона (анмаунт/скип) — фиксируем конечное значение
+      if (ref.current) ref.current.textContent = format(to, decimals);
     };
-  }, [play, to, duration, decimals]);
+  }, [play, to, duration, delay, decimals]);
 
   // SSR/статика: сразу конечное значение (прогон перепишет с нуля)
   return (

@@ -4,7 +4,7 @@ import { footer } from "@/content/shared";
 
 export function Footer() {
   return (
-    <footer className="border-t border-ink-invert/15 bg-ink text-ink-invert">
+    <footer className="border-t border-ink-invert/15 bg-[#0a0a0a] text-ink-invert">
       <div className="mx-auto max-w-[1200px] px-5 py-12 md:px-12">
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           <p className="text-[1.05rem] font-bold tracking-[-0.02em]">c:rel_</p>

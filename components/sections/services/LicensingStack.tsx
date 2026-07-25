@@ -62,7 +62,7 @@ export function LicensingStack() {
             className="lic-card flex items-center px-5 py-6 md:min-h-[100dvh] md:px-12 md:py-0"
           >
             <div className="mx-auto w-full max-w-[1200px]">
-              <div className="relative overflow-hidden rounded-(--radius-l) bg-bg p-8 md:p-14">
+              <div className="relative overflow-hidden rounded-(--radius-l) border border-line bg-bg p-8 md:p-14">
                 {/* скрим: гасит уходящую карточку цветом фона секции (см. эффект выше) */}
                 <div aria-hidden className="lic-scrim pointer-events-none absolute inset-0 bg-bg-alt opacity-0" />
                 {/* единственный CLI-акцент экрана — статус-строка трека */}
