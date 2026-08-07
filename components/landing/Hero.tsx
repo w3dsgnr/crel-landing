@@ -1,7 +1,7 @@
 "use client";
 
 // Hero-каркас (общий для состояний): слева команда-display + смысловой h1 + CTA,
-// справа — слот состояния (И4: RampWidget для platform). SSG отдаёт полный текст
+// справа — слот состояния (RampWidget, всегда). SSG отдаёт полный текст
 // команды — на загрузке ничего не перепечатывается (LCP, CLS=0).
 import { useEffect, useRef } from "react";
 import type { RefObject } from "react";
@@ -14,7 +14,7 @@ import { RampWidget } from "@/components/mockups/RampWidget";
 import { CursorGrid } from "@/components/vendor/CursorGrid";
 
 interface HeroProps {
-  state: LandingState;
+  selected: LandingState | null;
   argRef: RefObject<HTMLSpanElement | null>;
   cursorRef: RefObject<HTMLSpanElement | null>;
   /** обёртка h1+CTA — crossfade при переключении (оркестратор) */
@@ -48,8 +48,7 @@ function Cta({ label, primary }: { label: string; primary: boolean }) {
   );
 }
 
-export function Hero({ state, argRef, cursorRef, subWrapRef }: HeroProps) {
-  const content = hero[state];
+export function Hero({ selected, argRef, cursorRef, subWrapRef }: HeroProps) {
   const entered = useRef(false);
 
   // Вход при загрузке: только подзаголовок и CTA (fade + rise), команда статична.
@@ -81,30 +80,33 @@ export function Hero({ state, argRef, cursorRef, subWrapRef }: HeroProps) {
           {/* декоративная команда; смысл несёт h1 ниже; курсор — акцент «живого» */}
           <div aria-hidden className="text-display select-none">
             c:
-            <span ref={argRef}>{content.commandArg}</span>
+            {/* Значение в JSX намеренно константно: после монтирования этим узлом владеет
+                useTypewriter (пишет в textContent напрямую). Если подставить сюда selected,
+                React перезапишет текст в момент applySelected — аргумент сменится мгновенно,
+                а следом typewriter начнёт стирать и печатать его заново. */}
+            <span ref={argRef} suppressHydrationWarning>
+              {hero.restArg}
+            </span>
             <span ref={cursorRef} className="cursor-blink text-accent">
               _
             </span>
           </div>
           <div ref={subWrapRef} className="mt-8">
             <h1 className="max-w-[52ch] text-[1.0625rem] leading-relaxed font-normal text-ink-soft">
-              {content.subtitle}
+              {hero.subtitle}
             </h1>
             <div className="mt-8 flex items-center gap-4">
-              <Cta label={content.ctaPrimary} primary />
-              {content.ctaSecondary && <Cta label={content.ctaSecondary} primary={false} />}
+              <Cta label={hero.ctaPrimary} primary />
             </div>
           </div>
         </div>
-        {/* слот состояния: services — воздух; platform — живой RampWidget */}
-        <div className="col-span-12 md:col-span-5" data-hero-slot={state}>
-          {state === "platform" && (
-            <div className="mx-auto mt-12 w-full max-w-[380px] md:mt-0 md:ml-auto">
-              <MockupStage key="hero-ramp">
-                <RampWidget />
-              </MockupStage>
-            </div>
-          )}
+        {/* слот состояния: RampWidget показан всегда — баланс сетки 7/5 */}
+        <div className="col-span-12 md:col-span-5">
+          <div className="mx-auto mt-12 w-full max-w-[380px] md:mt-0 md:ml-auto">
+            <MockupStage key="hero-ramp">
+              <RampWidget />
+            </MockupStage>
+          </div>
         </div>
       </div>
     </section>

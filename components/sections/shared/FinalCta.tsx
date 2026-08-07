@@ -3,7 +3,6 @@
 // от текста (транспозиция правила OnRamper «цвет уводится от текста»).
 // Развилка A/B v2 снята решением v3. Один CTA-интент на страницу.
 import { finalCta } from "@/content/shared";
-import type { LandingState } from "@/content/types";
 
 function CtaButton({ label, primary }: { label: string; primary: boolean }) {
   const text = label.endsWith("_") ? label.slice(0, -1) : label;
@@ -33,22 +32,20 @@ function CtaButton({ label, primary }: { label: string; primary: boolean }) {
   );
 }
 
-export function FinalCta({ state }: { state: LandingState }) {
-  const c = finalCta[state];
+export function FinalCta() {
   return (
     <section id="contact" className="grad-cta-signal text-ink-invert">
       <div className="mx-auto max-w-[1200px] px-5 py-28 md:px-12 md:py-40">
         {/* текст держим на тёмных 2/3; насыщенный teal-край — в дальнем углу */}
         <div className="md:max-w-[62%]">
           <h2 data-reveal className="text-h2 max-w-[18ch]">
-            {c.title}
+            {finalCta.title}
           </h2>
           <p data-reveal className="mt-6 max-w-[48ch] text-[1.0625rem] leading-relaxed text-ink-invert/75">
-            {c.sub}
+            {finalCta.sub}
           </p>
           <div data-reveal className="mt-10 flex flex-wrap items-center gap-4">
-            <CtaButton label={c.ctaPrimary} primary />
-            {c.ctaSecondary && <CtaButton label={c.ctaSecondary} primary={false} />}
+            <CtaButton label={finalCta.ctaPrimary} primary />
           </div>
         </div>
       </div>

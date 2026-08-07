@@ -11,13 +11,13 @@ import type { LandingState } from "@/content/types";
 import { Toggle } from "./Toggle";
 
 interface HeaderProps {
-  state: LandingState;
+  selected: LandingState | null;
   onSwitch: (next: LandingState) => void;
   scrolled: boolean;
   caretRef: RefObject<HTMLDivElement | null>;
 }
 
-export function Header({ state, onSwitch, scrolled, caretRef }: HeaderProps) {
+export function Header({ selected, onSwitch, scrolled, caretRef }: HeaderProps) {
   return (
     <header className="fixed inset-x-0 top-0 z-40 px-3 pt-3 md:px-6 md:pt-5">
       <div
@@ -25,20 +25,20 @@ export function Header({ state, onSwitch, scrolled, caretRef }: HeaderProps) {
           scrolled ? "shadow-[0_16px_48px_rgb(4_41_27/0.14)]" : ""
         }`}
       >
-        <a href={`/${state}`} className="text-[1.15rem] font-bold tracking-[-0.02em]">
+        <a href="/" className="text-[1.15rem] font-bold tracking-[-0.02em]">
           c:rel<span className="inline-block">_</span>
         </a>
 
-        <Toggle state={state} onSwitch={onSwitch} />
+        <Toggle selected={selected} onSwitch={onSwitch} />
 
         <nav className="ml-auto hidden items-center gap-6 md:flex">
-          {navAnchors[state].map((anchor) => (
+          {navAnchors.map(({ label, id }) => (
             <a
-              key={anchor}
-              href={`#${anchor.replace(" ", "-")}`}
+              key={id}
+              href={`#${id}`}
               className="text-[0.875rem] lowercase text-ink-soft underline-offset-[6px] decoration-2 transition-colors duration-200 hover:text-ink hover:underline hover:decoration-accent"
             >
-              {anchor}
+              {label}
             </a>
           ))}
         </nav>
@@ -47,7 +47,7 @@ export function Header({ state, onSwitch, scrolled, caretRef }: HeaderProps) {
           href="#contact"
           className="ml-auto inline-flex h-10 items-center rounded-(--radius-pill) bg-ink px-5 text-[0.8125rem] tracking-[0.08em] text-ink-invert lowercase transition-[box-shadow,transform,background-color] duration-(--d-quick) hover:-translate-y-px hover:bg-ink/90 hover:shadow-(--glow-m) md:ml-0"
         >
-          {hero[state].ctaPrimary.replace("_", "")}
+          {hero.ctaPrimary.replace("_", "")}
         </a>
       </div>
       {/* каретка «Перепечатки»: 140×2px, проезжает по вьюпорту при переключении */}

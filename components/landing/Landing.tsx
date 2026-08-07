@@ -15,8 +15,8 @@ import { useTypewriter } from "@/lib/useTypewriter";
 import { useSwitchOrchestrator } from "@/lib/useSwitchOrchestrator";
 import { useReveal } from "@/lib/reveal";
 
-export function Landing({ initial }: { initial: LandingState }) {
-  const [state, setState] = useState<LandingState>(initial);
+export function Landing() {
+  const [selected, setSelected] = useState<LandingState | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLElement>(null);
@@ -27,11 +27,11 @@ export function Landing({ initial }: { initial: LandingState }) {
 
   const typewriter = useTypewriter(argRef, cursorRef);
 
-  const applyState = useCallback((next: LandingState) => setState(next), []);
+  const applySelected = useCallback((next: LandingState) => setSelected(next), []);
 
   const { switchTo } = useSwitchOrchestrator({
-    selected: state,
-    applySelected: applyState,
+    selected,
+    applySelected,
     typewriter,
     caretRef,
   });
@@ -55,17 +55,17 @@ export function Landing({ initial }: { initial: LandingState }) {
   return (
     <>
       <div ref={sentinelRef} aria-hidden className="absolute top-0 h-px w-px" />
-      <Header state={state} onSwitch={switchTo} scrolled={scrolled} caretRef={caretRef} />
+      <Header selected={selected} onSwitch={switchTo} scrolled={scrolled} caretRef={caretRef} />
       {/* aria-live анонс состояния для скринридеров */}
       <p aria-live="polite" className="sr-only">
-        {state}
+        {selected}
       </p>
       <main ref={mainRef} className="flex-1">
-        <Hero state={state} argRef={argRef} cursorRef={cursorRef} subWrapRef={subWrapRef} />
+        <Hero selected={selected} argRef={argRef} cursorRef={cursorRef} subWrapRef={subWrapRef} />
         {/* общий каркас: лента логотипов под hero, CTA и футер — persistent */}
         <LogoBand />
         <SectionRenderer />
-        <FinalCta state={state} />
+        <FinalCta />
       </main>
       <Footer />
     </>

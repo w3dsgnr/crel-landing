@@ -1,39 +1,24 @@
 // Тексты: docs/content.md §ОБЩЕЕ — дословно. Правки только после вычитки заказчиком.
-import type { FinalCtaContent, HeroContent } from "./types";
+import type { FinalCtaContent, HeroContent, LandingState } from "./types";
 
 export const toggle = {
   words: ["services", "platform"] as const,
   ariaLabel: "Choose direction: services or platform",
 };
 
-export const hero: Record<"services" | "platform", HeroContent> = {
-  services: {
-    commandArg: "services",
-    subtitle:
-      "Swiss consulting and engineering for digital asset products: architecture, licensing and implementation, from first audit to running rail.",
-    ctaPrimary: "Talk to us_",
-  },
-  platform: {
-    commandArg: "platform",
-    subtitle:
-      "The digital asset rail for financial applications: KYC, ramps, accounts, cards and payments behind one API.",
-    ctaPrimary: "Talk to us_",
-    ctaSecondary: "Read the docs", // [VERIFY: доки публичны к запуску?]
-  },
+// Hero объединённой страницы: команда в покое — c:rel_, подзаголовок держит
+// оба направления одной строкой (content.md §ОБЩЕЕ, вариант A).
+export const hero: HeroContent = {
+  restArg: "rel",
+  subtitle:
+    "Crel builds and runs digital asset infrastructure: a Swiss consulting practice and a platform, sharing one rail.",
+  ctaPrimary: "Talk to us_",
 };
 
-export const finalCta: Record<"services" | "platform", FinalCtaContent> = {
-  services: {
-    title: "Tell us what you are building", // V2: "Start with the audit"
-    sub: "First call is a working session on your stack, not a pitch.",
-    ctaPrimary: "Talk to us_",
-  },
-  platform: {
-    title: "Put the rail under your product", // V2: "One integration away from live"
-    sub: "Sandbox access and integration plan follow the first technical call.", // [VERIFY: sandbox]
-    ctaPrimary: "Talk to us_",
-    ctaSecondary: "Read the docs",
-  },
+export const finalCta: FinalCtaContent = {
+  title: "Tell us what you are building",
+  sub: "First call is a working session on your stack, not a pitch.",
+  ctaPrimary: "Talk to us_",
 };
 
 export const footer = {
@@ -45,7 +30,17 @@ export const footer = {
   copyright: "© Crel 2026",
 };
 
-export const navAnchors: Record<"services" | "platform", string[]> = {
-  services: ["approach", "services", "licensing", "contact"],
-  platform: ["capabilities", "integration", "use cases", "contact"],
+// Якоря шапки: label — то, что видит человек; id — идентификатор секции.
+// Разведены намеренно: вычислять id из текста нельзя (см. Header.tsx).
+export const navAnchors: { label: string; id: string }[] = [
+  { label: "the rail", id: "the-rail" },
+  { label: "two ways in", id: "two-ways-in" },
+  { label: "compliance", id: "compliance" },
+  { label: "contact", id: "contact" },
+];
+
+// Заголовки веток развилки — единственный новый копирайт слияния (спека §3)
+export const branchLabels: Record<LandingState, string> = {
+  platform: "Take the platform",
+  services: "Take the team",
 };

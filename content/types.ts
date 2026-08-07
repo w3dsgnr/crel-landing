@@ -1,11 +1,10 @@
 export type LandingState = "services" | "platform";
 
 export interface HeroContent {
-  /** аргумент команды после "c:" — печатается typewriter-ом */
-  commandArg: LandingState;
+  /** аргумент команды в покое: выбор ветки ещё не сделан */
+  restArg: string;
   subtitle: string;
   ctaPrimary: string;
-  ctaSecondary?: string;
 }
 
 export interface SectionCopy {
@@ -19,5 +18,4 @@ export interface FinalCtaContent {
   title: string;
   sub: string;
   ctaPrimary: string;
-  ctaSecondary?: string;
 }

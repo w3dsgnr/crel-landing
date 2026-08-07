@@ -7,7 +7,7 @@ import { toggle } from "@/content/shared";
 import type { LandingState } from "@/content/types";
 
 interface ToggleProps {
-  state: LandingState;
+  selected: LandingState | null;
   onSwitch: (next: LandingState) => void;
 }
 
@@ -46,8 +46,8 @@ function Word({
   );
 }
 
-export function Toggle({ state, onSwitch }: ToggleProps) {
-  const other: LandingState = state === "services" ? "platform" : "services";
+export function Toggle({ selected, onSwitch }: ToggleProps) {
+  const other: LandingState = selected === "services" ? "platform" : "services";
 
   return (
     <div
@@ -61,12 +61,20 @@ export function Toggle({ state, onSwitch }: ToggleProps) {
       }}
       className="flex h-10 items-center rounded-(--radius-pill) bg-ink/[0.05] px-3.5 md:h-9"
     >
-      <Word word="services" active={state === "services"} onSelect={() => onSwitch("services")} />
+      <Word
+        word="services"
+        active={selected === "services"}
+        onSelect={() => onSwitch("services")}
+      />
       {/* ось: двоеточие принадлежит системе, не словам */}
       <span aria-hidden className="mx-2 text-ink">
         :
       </span>
-      <Word word="platform" active={state === "platform"} onSelect={() => onSwitch("platform")} />
+      <Word
+        word="platform"
+        active={selected === "platform"}
+        onSelect={() => onSwitch("platform")}
+      />
     </div>
   );
 }
