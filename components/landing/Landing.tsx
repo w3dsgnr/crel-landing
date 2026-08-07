@@ -83,7 +83,7 @@ export function Landing({ initial }: { initial: LandingState }) {
         <Hero state={state} argRef={argRef} cursorRef={cursorRef} subWrapRef={subWrapRef} />
         {/* общий каркас: лента логотипов под hero, CTA и футер — persistent */}
         <LogoBand />
-        <SectionRenderer state={state} />
+        <SectionRenderer />
         <FinalCta state={state} />
       </main>
       <Footer />
