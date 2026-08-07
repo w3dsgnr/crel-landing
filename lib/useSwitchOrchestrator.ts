@@ -1,55 +1,39 @@
 "use client";
 
-// Оркестратор «Перепечатки» — покадровый таймлайн landing-concept §1.1.
-// Бюджет ≤900ms до полной читабельности. Правила:
-//  - «последний клик побеждает»: никакой очереди, kill всего активного;
-//  - reduced-motion: мгновенная замена + crossfade <main> 150ms;
-//  - скролл-сброс instant только если ушли глубже первого вьюпорта.
-import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
+// Оркестратор выбора ветки. После слияния (спека §5) он больше не меняет состав
+// секций и не трогает историю: адрес один, title один. Осталось три действия —
+// перепечатка аргумента команды, проезд каретки и доводка скролла к развилке.
+//  - «последний клик побеждает»: повторный клик мгновенно доводит до цели;
+//  - reduced-motion: без печати и каретки, мгновенная доводка.
+import { useCallback, useEffect, useRef } from "react";
 import type { RefObject } from "react";
 import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { LandingState } from "@/content/types";
 import type { TypewriterHandle } from "./useTypewriter";
 import { ensureEases } from "./easing";
-import { scrollToTopInstant } from "./lenis";
-import { meta } from "@/content/meta";
+import { scrollToBranch } from "./scrollToBranch";
 
-// Таймлайн (ms) — зеркалит таблицу landing-concept §1.1
-const ERASE_DELAY = 80;
-const STATE_SWAP_AT = 200; // React-замена секций под покровом exit-каскада
-const ENTER_AT = 280;
-const EXIT_DUR = 0.12;
-const EXIT_STAGGER = 0.04;
-const ENTER_DUR = 0.4;
-const ENTER_STAGGER = 0.06;
+const ERASE_DELAY = 80; // пауза перед началом перепечатки
 const CARET_DUR = 0.4;
-const HERO_SWAP_DUR = 0.2;
-const ENTER_VISIBLE_COUNT = 3; // анимируются только первые видимые секции
 
 interface OrchestratorArgs {
-  state: LandingState;
-  applyState: (next: LandingState) => void;
+  selected: LandingState | null;
+  applySelected: (next: LandingState) => void;
   typewriter: TypewriterHandle;
   caretRef: RefObject<HTMLDivElement | null>;
-  mainRef: RefObject<HTMLElement | null>;
-  subWrapRef: RefObject<HTMLDivElement | null>;
 }
 
 export function useSwitchOrchestrator({
-  state,
-  applyState,
+  selected,
+  applySelected,
   typewriter,
   caretRef,
-  mainRef,
-  subWrapRef,
 }: OrchestratorArgs) {
   const animating = useRef(false);
-  const pendingEnter = useRef(false);
   const timeouts = useRef<number[]>([]);
   const tweens = useRef<gsap.core.Tween[]>([]);
-  const stateRef = useRef(state);
-  stateRef.current = state;
+  const selectedRef = useRef(selected);
+  selectedRef.current = selected;
 
   const clearAll = useCallback(() => {
     timeouts.current.forEach((t) => window.clearTimeout(t));
@@ -67,70 +51,44 @@ export function useSwitchOrchestrator({
     return t;
   }, []);
 
-  const sections = useCallback((): HTMLElement[] => {
-    return Array.from(mainRef.current?.querySelectorAll<HTMLElement>("[data-section-index]") ?? []);
-  }, [mainRef]);
-
-  const visibleSections = useCallback((): HTMLElement[] => {
-    const vh = window.innerHeight;
-    return sections().filter((el) => {
-      const r = el.getBoundingClientRect();
-      return r.bottom > 0 && r.top < vh;
-    });
-  }, [sections]);
-
+  // скип: мгновенно в конечное состояние цели (никогда не блокируем клик)
   const finishInstantly = useCallback(
     (target: LandingState) => {
       clearAll();
       typewriter.skipTo(target);
-      gsap.set([...sections(), subWrapRef.current].filter(Boolean), {
-        clearProps: "all",
-      });
       if (caretRef.current) gsap.set(caretRef.current, { autoAlpha: 0 });
-      pendingEnter.current = false;
       animating.current = false;
-      applyState(target);
-      requestAnimationFrame(() => {
-        // после мгновенного монтажа — сбросить возможные inline-стили новых секций
-        gsap.set(sections(), { clearProps: "all" });
-        ScrollTrigger.refresh();
-      });
+      applySelected(target);
+      scrollToBranch(target, { instant: true });
     },
-    [applyState, caretRef, clearAll, sections, subWrapRef, typewriter]
+    [applySelected, caretRef, clearAll, typewriter]
   );
 
   const switchTo = useCallback(
-    (next: LandingState, opts: { push?: boolean } = {}) => {
-      const { push = true } = opts;
-      if (next === stateRef.current && !animating.current) return;
+    (next: LandingState) => {
+      if (next === selectedRef.current && !animating.current) {
+        // ветка уже выбрана — повторный клик просто возвращает к развилке
+        scrollToBranch(next);
+        return;
+      }
 
-      if (push) history.pushState({ crel: next }, "", `/${next}`);
-      document.title = meta[next].title;
-
-      // Скип: «последний клик побеждает» — мгновенно в конечное состояние цели
       if (animating.current) {
         finishInstantly(next);
         return;
       }
 
-      // Reduced-motion ветка: без печати/каскадов/каретки
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
         typewriter.skipTo(next);
-        if (window.scrollY > window.innerHeight) scrollToTopInstant();
-        applyState(next);
-        if (mainRef.current) {
-          gsap.fromTo(mainRef.current, { opacity: 0 }, { opacity: 1, duration: 0.15 });
-        }
+        applySelected(next);
+        scrollToBranch(next, { instant: true });
         return;
       }
 
       ensureEases();
       animating.current = true;
+      applySelected(next);
 
-      // t=0: скролл-сброс (мгновенный, до каскадов)
-      if (window.scrollY > window.innerHeight) scrollToTopInstant();
-
-      // t=0: каретка 140×2px под шапкой
+      // каретка 140×2px проезжает по вьюпорту — маркер перехода
       if (caretRef.current) {
         track(
           gsap.fromTo(
@@ -142,96 +100,20 @@ export function useSwitchOrchestrator({
               ease: "crelSwap",
               onComplete: () => {
                 if (caretRef.current) gsap.set(caretRef.current, { autoAlpha: 0 });
+                animating.current = false;
               },
             }
           )
         );
+      } else {
+        animating.current = false;
       }
 
-      // t=0: exit-каскад видимых секций (сверху вниз) + hero-обёртка
-      const exiting = visibleSections();
-      if (exiting.length) {
-        track(
-          gsap.to(exiting, {
-            y: 12,
-            autoAlpha: 0,
-            duration: EXIT_DUR,
-            stagger: EXIT_STAGGER,
-            ease: "crelSwap",
-          })
-        );
-      }
-      if (subWrapRef.current) {
-        track(gsap.to(subWrapRef.current, { autoAlpha: 0, duration: EXIT_DUR, ease: "crelSwap" }));
-      }
-
-      // t=80: backspace → набор нового аргумента (320+320ms при 8 символах)
       later(() => typewriter.retype(next), ERASE_DELAY);
-
-      // t=200: React-замена секций; enter-каскад запустит layout-эффект
-      later(() => {
-        pendingEnter.current = true;
-        applyState(next);
-      }, STATE_SWAP_AT);
+      scrollToBranch(next);
     },
-    [applyState, caretRef, finishInstantly, later, mainRef, subWrapRef, track, typewriter, visibleSections]
+    [applySelected, caretRef, finishInstantly, later, track, typewriter]
   );
-
-  // Enter-стадия: после монтажа секций нового состояния (t=280 от клика)
-  useLayoutEffect(() => {
-    if (!pendingEnter.current) return;
-    pendingEnter.current = false;
-
-    const all = sections();
-    const vh = window.innerHeight;
-    const entering = all
-      .filter((el) => {
-        const r = el.getBoundingClientRect();
-        return r.top < vh;
-      })
-      .slice(0, ENTER_VISIBLE_COUNT);
-
-    // ниже фолда — мгновенно, без анимации
-    gsap.set(all.filter((el) => !entering.includes(el)), { clearProps: "all" });
-
-    if (entering.length) {
-      gsap.set(entering, { y: -16, autoAlpha: 0 });
-    }
-    if (subWrapRef.current) gsap.set(subWrapRef.current, { autoAlpha: 0, y: -8 });
-
-    const startDelay = (ENTER_AT - STATE_SWAP_AT) / 1000;
-    if (entering.length) {
-      track(
-        gsap.to(entering, {
-          y: 0,
-          autoAlpha: 1,
-          duration: ENTER_DUR,
-          stagger: ENTER_STAGGER,
-          delay: startDelay,
-          ease: "crelOut",
-          clearProps: "all",
-          onComplete: () => {
-            animating.current = false;
-            ScrollTrigger.refresh();
-          },
-        })
-      );
-    } else {
-      animating.current = false;
-    }
-    if (subWrapRef.current) {
-      track(
-        gsap.to(subWrapRef.current, {
-          autoAlpha: 1,
-          y: 0,
-          duration: HERO_SWAP_DUR,
-          delay: startDelay,
-          ease: "crelOut",
-          clearProps: "all",
-        })
-      );
-    }
-  }, [state, sections, subWrapRef, track]);
 
   useEffect(() => clearAll, [clearAll]);
 

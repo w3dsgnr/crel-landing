@@ -1,7 +1,7 @@
 "use client";
 
-// Владелец состояния лендинга. И2: переключение — полная «Перепечатка»
-// (useSwitchOrchestrator), popstate проигрывает тот же переход.
+// Владелец состояния лендинга. Переключение — «Перепечатка» через
+// useSwitchOrchestrator; один адрес, история не трогается.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Header } from "./Header";
 import { Hero } from "./Hero";
@@ -14,13 +14,6 @@ import { initLenis } from "@/lib/lenis";
 import { useTypewriter } from "@/lib/useTypewriter";
 import { useSwitchOrchestrator } from "@/lib/useSwitchOrchestrator";
 import { useReveal } from "@/lib/reveal";
-
-const STATES: LandingState[] = ["services", "platform"];
-
-function stateFromPath(pathname: string): LandingState | null {
-  const seg = pathname.replaceAll("/", "");
-  return (STATES as string[]).includes(seg) ? (seg as LandingState) : null;
-}
 
 export function Landing({ initial }: { initial: LandingState }) {
   const [state, setState] = useState<LandingState>(initial);
@@ -37,12 +30,10 @@ export function Landing({ initial }: { initial: LandingState }) {
   const applyState = useCallback((next: LandingState) => setState(next), []);
 
   const { switchTo } = useSwitchOrchestrator({
-    state,
-    applyState,
+    selected: state,
+    applySelected: applyState,
     typewriter,
     caretRef,
-    mainRef,
-    subWrapRef,
   });
 
   useEffect(() => {
@@ -60,16 +51,6 @@ export function Landing({ initial }: { initial: LandingState }) {
     io.observe(el);
     return () => io.disconnect();
   }, []);
-
-  // popstate: back/forward проигрывают тот же переход (без своего pushState)
-  useEffect(() => {
-    const onPop = () => {
-      const next = stateFromPath(location.pathname) ?? initial;
-      switchTo(next, { push: false });
-    };
-    window.addEventListener("popstate", onPop);
-    return () => window.removeEventListener("popstate", onPop);
-  }, [initial, switchTo]);
 
   return (
     <>
