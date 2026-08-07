@@ -2,42 +2,68 @@
 
 /*
   Crel design tokens — единственный источник стиля.
-  Значения: docs/design-direction.md §1. Ничего вне этой шкалы.
+  Значения: docs/design-direction.md «Слой v3: необанкинг». Ничего вне этой шкалы.
 */
 @theme {
-  /* палитра — рама: белый + холодная лаванда-адаптация (наша сдержанная версия
-     OnRamper #EFEEF3: серые уведены в синеву, не хроматичны). Цвет v2 §Рама. */
+  /* нейтрали v3.1 — плоскости с холодным зелёным подтоном (ахромат рядом
+     с насыщенным зелёным читается как грязь; хрома минимальная) */
   --color-bg: #ffffff;
-  --color-bg-alt: #f3f2f7; /* чередование секций, плоские карты (холодный лавандовый) */
-  --color-bg-deep: #eae9f0; /* второй шаг чередования, подложки */
-  --color-surface: #fcfcfd;
-  --color-ink: #111111;
-  --color-ink-900: #0a0a0a; /* футер — на шаг темнее CTA (кульминация → чёрный) */
-  --color-ink-soft: #6a6a70;
+  --color-bg-alt: #f4f7f5; /* чередование секций */
+  --color-bg-mist: #eef3f0; /* подложки светлых плиток, ячейки списков */
+  --color-surface: #ffffff; /* подложки UI-мокапов: мокап = продукт, всегда чисто-белый */
+  --color-ink: #0b1210; /* зелёно-чёрный, не нейтральный */
+  --color-ink-900: #04150e; /* = pine-900 (наследуемое имя) */
+  --color-ink-forest: #052318; /* текст на светлых цветных заливках (--grad-halo) */
+  --color-ink-soft: #5c6a64;
   --color-ink-invert: #ffffff;
-  --color-line: rgb(17 17 17 / 0.14);
-  --color-grid: #bfbeca; /* серебро cursor-grid декора hero: только canvas-линии, не UI */
+  /* 1px-линии разрешены ТОЛЬКО внутри UI-мокапов (v3.5) — в языке сайта их нет */
+  --color-line: rgb(11 18 16 / 0.12);
+  --color-grid: #bfcac4; /* серебро cursor-grid декора hero: только canvas-линии, не UI */
 
-  /* Акцент «живого»: курсор, каретка, underline, статусы-успехи.
-     Терминальный зелёный, дозированный; НЕ для текста/кнопок/рамок. */
-  --color-accent: #00a344; /* глифы и линии на светлом (3:1+) */
-  --color-accent-deep: #067d3f; /* мелкий текст статусов на светлом (AA) */
-  --color-accent-bright: #2bd576; /* на тёмных плоскостях */
+  /* зелёная семья v3.1: pine → вольтаж → jade → teal → cyan-glow.
+     Ядро идентичности --accent без изменений; циан — НЕ бренд-цвет:
+     только дальний стоп градиентов, свечение и rim-light. */
+  --color-pine-900: #04150e; /* глубочайший якорь: футер, тёмные плитки */
+  --color-pine-800: #04291b; /* тёмный край градиентов (белый текст 15.7:1) */
+  --color-pine-600: #067d3f; /* мелкий текст статусов на светлом (5.2:1 AA) */
+  --color-accent: #00a344; /* курсор, интерактив, глифы */
+  --color-accent-deep: #067d3f; /* = pine-600 (наследуемое имя для чипов) */
+  --color-jade: #00b85c; /* средний стоп заливок, hover */
+  --color-accent-bright: #2bd576; /* вольтаж на тёмном, статусы live */
+  --color-teal: #00c9a7; /* переходный стоп градиентов */
+  --color-cyan-glow: #22e3d8; /* дальний стоп, rim-light, свечение */
 
-  /* геометрия */
-  --radius-s: 2px;
-  --radius-m: 4px;
-  --radius-l: 8px;
-  --radius-xl: 12px;
+  /* пластика v3.4 — мягкая шкала; кнопки, чипы, тумблер — pill */
+  --radius-s: 10px;
+  --radius-m: 16px;
+  --radius-l: 24px;
+  --radius-xl: 32px;
+  --radius-2xl: 40px;
+  --radius-pill: 999px;
+  /* алиасы переходного периода (ранняя v3-разметка) */
+  --radius-v3-s: 10px;
+  --radius-v3-m: 16px;
+  --radius-v3-l: 24px;
+  --radius-v3-xl: 32px;
 
-  /* единственная тень в системе — у плавающих UI-мокапов */
-  --shadow-mockup: 0 24px 64px rgb(17 17 17 / 0.1);
+  /* свечение v3.3 — glow = цветная тень; нейтральных теней в системе нет.
+     На светлых плоскостях α ≤ .16, на тёмном и заливках — до .45. */
+  --glow-s: 0 0 20px rgb(0 163 68 / 0.35); /* точка live, курсор на тёмном */
+  --glow-m: 0 12px 40px rgb(0 163 68 / 0.28); /* hover pill, мокап на заливке */
+  --glow-l: 0 32px 120px rgb(0 163 68 / 0.22); /* подъём градиентной карты */
+  --glow-soft: 0 24px 80px rgb(4 41 27 / 0.1); /* лифт светлого на светлом */
+
+  /* тень мокапов и парящих панелей — зелёная, не нейтральная (v3.3 §4) */
+  --shadow-mockup: 0 24px 64px rgb(4 41 27 / 0.12), 0 0 40px rgb(0 163 68 / 0.08);
+  --shadow-panel: 0 20px 44px rgb(4 21 14 / 0.16), 0 2px 6px rgb(4 21 14 / 0.06);
+  --shadow-panel-dark: 0 22px 52px rgb(0 0 0 / 0.5);
 
   /* easing */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-swap: cubic-bezier(0.65, 0, 0.35, 1);
 
   --font-sans: var(--font-grotesk);
+  --font-mono: var(--font-mono-data);
 }
 
 :root {
@@ -48,6 +74,12 @@
   --d-quick: 200ms;
   --d-base: 400ms;
   --d-page: 700ms;
+  --d-ambient: 16s; /* медленная скорость двухскоростной системы (v3.3 §5) */
+
+  /* шкала блюра v3.2 */
+  --blur-s: 12px;
+  --blur-m: 24px;
+  --blur-l: 40px;
 }
 
 body {
@@ -57,47 +89,153 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Видимый клавиатурный фокус — вольтаж по роли «интерактив» (Цвет v2 §вопрос 3):
-   зелёный на светлом (3.3:1), яркий зелёный на тёмных плоскостях/окнах. */
+/* шапка — плавающая капсула: якоря не ныряют под неё */
+[id] {
+  scroll-margin-top: 104px;
+}
+
+/* Видимый клавиатурный фокус — вольтаж по роли «интерактив»:
+   зелёный на светлом, яркий зелёный на тёмных плоскостях и заливках. */
 :where(a, button):focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
-.bg-ink :where(a, button):focus-visible,
-.grad-window-signal :where(a, button):focus-visible,
-.grad-cta :where(a, button):focus-visible {
+:where(.bg-ink, .bg-pine-900, .grad-abyss, .grad-signal, .grad-cta-signal, .card-pine, .glass-dark, .glass-panel-dark)
+  :where(a, button):focus-visible {
   outline-color: var(--color-accent-bright);
 }
 
-/* ── Цвет v2: градиентные «окна» (дозированный слой глубины) ───────────────
-   Тёмное ink-окно с зелёным ЛИТ-краем в углу (наш аналог cyan-диска OnRamper).
-   Зелёный — только бликом из угла, не заливкой: рама остаётся спокойной. */
-.grad-window-ink {
+/* ── v3.1: заливки плиток ──────────────────────────────────────────────────
+   Три градиента различаются не hue, а температурой и светлотой.
+   Ход по светлоте ≥45% + обязательный проход через pine или teal —
+   иначе средне-зелёная заливка читается как «аптека». */
+
+/* тёмная плитка, контраст-якорь (одна на секцию); циановый блик в дальнем углу */
+.grad-abyss {
   background:
-    radial-gradient(120% 90% at 100% 100%, rgb(0 163 68 / 0.14), rgb(0 163 68 / 0) 46%),
-    linear-gradient(150deg, #151515, #0a0a0a);
-}
-.grad-window-signal {
-  background:
-    radial-gradient(115% 85% at 100% 100%, rgb(0 163 68 / 0.5), rgb(0 163 68 / 0) 44%),
-    linear-gradient(150deg, #171717, #0a0a0a);
-}
-/* финальный CTA, вариант B («Заряд») — единственный полный разлив на страницу;
-   текст живёт на тёмных 2/3 (лево/верх), зелёный блик уводится в дальний угол. */
-.grad-cta {
-  background:
-    radial-gradient(85% 120% at 100% 100%, rgb(0 163 68 / 0.62), rgb(0 163 68 / 0) 40%),
-    linear-gradient(120deg, #0a0a0a 0%, #05231a 58%, #063a20 100%);
-}
-/* слабый одноцветный подтёк-настроение из угла белой карты (аналог bleeds OnRamper) */
-.wash-signal {
-  background:
-    radial-gradient(80% 70% at 100% 0%, rgb(0 163 68 / 0.07), rgb(0 163 68 / 0) 55%),
-    var(--color-surface);
+    radial-gradient(85% 70% at 100% 100%, rgb(34 227 216 / 0.22), rgb(34 227 216 / 0) 62%),
+    linear-gradient(145deg, #04150e 0%, #04291b 55%, #00693a 100%);
 }
 
-/* Типографическая шкала (design-direction §1) */
+/* «та самая уверенная заливка» — полный цвет от края до края; текст тёмный */
+.grad-signal {
+  background:
+    radial-gradient(70% 60% at 100% 0%, rgb(34 227 216 / 0.35), rgb(34 227 216 / 0) 58%),
+    linear-gradient(145deg, #067d3f 0%, #00b85c 52%, #00c9a7 100%);
+}
+
+/* светящаяся карта — самый яркий объект страницы; текст только --ink-forest */
+.grad-halo {
+  background: linear-gradient(160deg, #2bd576 0%, #00c9a7 48%, #22e3d8 100%);
+}
+
+/* тёмная плоскость-якорь второго типа: без cyan-угла, с тёплым teal-подъёмом
+   снизу-слева — чтобы не читалась копией abyss */
+.card-pine {
+  background:
+    radial-gradient(72% 88% at 6% 100%, rgb(0 201 167 / 0.2), rgb(0 201 167 / 0) 64%),
+    linear-gradient(160deg, #082016 0%, #04150e 100%);
+}
+
+/* финальный CTA: signal во всю ширину + pine-тень из угла текста —
+   белый display живёт на тёмной зоне, заливка остаётся насыщенной
+   (транспозиция правила «цвет уводится от текста») */
+.grad-cta-signal {
+  background:
+    radial-gradient(130% 150% at 0% 0%, rgb(4 41 27 / 0.88), rgb(4 41 27 / 0) 62%),
+    linear-gradient(145deg, #067d3f 0%, #00b85c 52%, #00c9a7 100%);
+}
+
+/* атмосферная плоскость — замена разделителя там, где тон не меняется (v3.5) */
+.bg-bloom {
+  background:
+    radial-gradient(800px 480px at 82% -10%, rgb(0 201 167 / 0.1), rgb(0 201 167 / 0) 70%),
+    var(--color-bg);
+}
+
+/* ── v3.2: стекло — три рецепта, больше не заводим ──────────────────────────
+   Внутреннее свечение inset по верхней кромке — обязательная часть рецепта:
+   оно даёт стеклу толщину, без него слой читается как «забыли залить фон».
+   Стекло живёт только там, где под ним есть что размывать. */
+.glass-light {
+  background: rgb(255 255 255 / 0.72);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgb(255 255 255 / 0.8);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    0 1px 0 rgb(4 41 27 / 0.04);
+}
+
+.glass-tint {
+  background: rgb(255 255 255 / 0.14);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgb(255 255 255 / 0.26);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.38);
+}
+
+.glass-dark {
+  background: rgb(4 21 14 / 0.58);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14);
+}
+
+/* парящие панели поверх ассетов (ранняя v3-разметка; блюр 14px — до 4-х в кадре) */
+.glass-panel {
+  background: rgb(255 255 255 / 0.82);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  backdrop-filter: blur(14px) saturate(180%);
+  border: 1px solid rgb(255 255 255 / 0.9);
+  box-shadow: var(--shadow-panel), inset 0 1px 0 rgb(255 255 255 / 0.95);
+}
+.glass-panel-dark {
+  background: rgb(4 21 14 / 0.58);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgb(255 255 255 / 0.14);
+  box-shadow: var(--shadow-panel-dark), inset 0 1px 0 rgb(255 255 255 / 0.16);
+}
+
+/* фолбэк обязателен: текст на стекле не теряет контраст ни в одном браузере */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-light,
+  .glass-panel {
+    background: rgb(255 255 255 / 0.96);
+  }
+  .glass-tint {
+    background: rgb(255 255 255 / 0.22);
+  }
+  .glass-dark,
+  .glass-panel-dark {
+    background: rgb(8 32 22 / 0.96);
+  }
+}
+
+/* Данные и статусы внутри панелей — моноширинный + tabular-nums;
+   подписи остаются гротеском (§правило мини-интерфейса) */
+.text-data {
+  font-family: var(--font-mono-data), ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Точка «живого» статуса: свечение = «горит», допустимо только на объектах ≤16px */
+.dot-live {
+  box-shadow:
+    0 0 0 3px rgb(0 163 68 / 0.12),
+    0 0 10px rgb(0 163 68 / 0.55);
+}
+.dot-live-bright {
+  box-shadow:
+    0 0 0 3px rgb(43 213 118 / 0.16),
+    0 0 12px rgb(43 213 118 / 0.6);
+}
+
+/* Типографическая шкала (design-direction §1; editorial-масштаб глав — v3.8) */
 .text-display {
   /* нижняя граница подобрана так, чтобы c:platform_ не переносился на 360px */
   font-size: clamp(2.5rem, 11vw, 7rem);
@@ -108,7 +246,7 @@ body {
 }
 
 .text-h2 {
-  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-size: clamp(2.5rem, 5vw, 4.25rem);
   line-height: 1.05;
   letter-spacing: -0.015em;
   font-weight: 500;
@@ -170,6 +308,29 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .cursor-blink {
+    animation: none;
+  }
+}
+
+/* ── v3.3 §5: ambient-дрейф — медленная скорость двухскоростной системы.
+   transform-only, амплитуда ≤ 4% вьюпорта, глушится reduced-motion. */
+@keyframes crel-ambient-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-2.5%, 2%, 0);
+  }
+}
+
+.ambient-drift {
+  animation: crel-ambient-drift var(--d-ambient) ease-in-out infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-drift {
     animation: none;
   }
 }

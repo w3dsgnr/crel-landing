@@ -132,7 +132,7 @@ export function MockupStage({
     <div
       ref={ref}
       aria-hidden
-      className={`rounded-(--radius-xl) bg-surface shadow-(--shadow-mockup) ${className}`}
+      className={`rounded-(--radius-l) bg-surface shadow-(--shadow-mockup) ${className}`}
     >
       <Ctx.Provider value={{ stage, complete }}>{children}</Ctx.Provider>
     </div>

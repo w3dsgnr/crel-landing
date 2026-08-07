@@ -59,7 +59,7 @@ export function Toggle({ state, onSwitch }: ToggleProps) {
           onSwitch(other);
         }
       }}
-      className="flex h-11 items-center rounded-(--radius-m) border border-line px-3 md:h-9"
+      className="flex h-10 items-center rounded-(--radius-pill) bg-ink/[0.05] px-3.5 md:h-9"
     >
       <Word word="services" active={state === "services"} onSelect={() => onSwitch("services")} />
       {/* ось: двоеточие принадлежит системе, не словам */}

@@ -1,10 +1,11 @@
 // Футер — общий, без анимаций. Юр. строка и комплаенс-полоса — видимые
 // [VERIFY]-плейсхолдеры до credentials от Roman (content.md).
+// v3: плоскость --pine-900 (глубочайший якорь семьи), отделение цветом — без линий.
 import { footer } from "@/content/shared";
 
 export function Footer() {
   return (
-    <footer className="border-t border-ink-invert/15 bg-[#0a0a0a] text-ink-invert">
+    <footer className="bg-pine-900 text-ink-invert">
       <div className="mx-auto max-w-[1200px] px-5 py-12 md:px-12">
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           <p className="text-[1.05rem] font-bold tracking-[-0.02em]">c:rel_</p>
@@ -19,7 +20,7 @@ export function Footer() {
             {footer.email}
           </a>
         </div>
-        {/* /55 вместо /40: контраст мелкого текста на --ink должен проходить AA */}
+        {/* /55: контраст мелкого текста на pine-900 проходит AA */}
         <p className="mt-10 text-[0.75rem] text-ink-invert/55">{footer.copyright}</p>
       </div>
     </footer>

@@ -1,11 +1,20 @@
 import type { Metadata } from "next";
-import { Space_Grotesk } from "next/font/google";
+import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
 // Variable-шрифт: плавное перетекание веса в тумблере (400↔500) без подмены глифов
 const grotesk = Space_Grotesk({
   variable: "--font-grotesk",
   subsets: ["latin"],
+  display: "swap",
+});
+
+// Моноширинный — только данные и статусы внутри мини-интерфейсов и код-блока.
+// В вёрстке страницы не появляется: гротеск остаётся единственным текстовым шрифтом.
+const mono = JetBrains_Mono({
+  variable: "--font-mono-data",
+  subsets: ["latin"],
+  weight: ["400", "500"],
   display: "swap",
 });
 
@@ -21,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${grotesk.variable} h-full antialiased`}>
+    <html lang="en" className={`${grotesk.variable} ${mono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

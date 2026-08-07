@@ -1,82 +1,73 @@
 "use client";
 
-// 03: licensing — pinned-момент Services. Sticky-stack по каноническому скелету:
-// start "top top", pin, pinSpacing off; уходящая карточка scale 0.92 + opacity 0.55
-// scrub-ом по приходу следующей. Пин только desktop + no-reduced-motion
-// (gsap.matchMedia); иначе — простые карточки, reveal делает своё.
-import { useEffect, useRef } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+// 03: licensing — sticky-stack на vendored ScrollStack (React Bits, кастомизация
+// v3 в components/vendor/ScrollStack.tsx: без собственного Lenis, чистый cleanup
+// при «Перепечатке»). Прежняя GSAP-пин-реализация снята.
+// Карточки: белые r-2xl с мягким зелёным лифтом; финальный трек — grad-abyss
+// (кульминация стека). Статус-трек — стеклянная пилюля со светящейся точкой (v3.7),
+// не голая CLI-строка.
+import ScrollStack, { ScrollStackItem } from "@/components/vendor/ScrollStack";
 import { licensing } from "@/content/services";
 
+function TrackPill({ label, onDark }: { label: string; onDark: boolean }) {
+  return (
+    <p
+      className={`inline-flex items-center gap-2.5 self-start rounded-(--radius-pill) px-4 py-2 text-label ${
+        onDark ? "glass-tint text-ink-invert" : "bg-bg-mist text-pine-600"
+      }`}
+    >
+      <span
+        aria-hidden
+        className={`size-1.5 rounded-full ${onDark ? "dot-live-bright bg-accent-bright" : "dot-live bg-accent"}`}
+      />
+      {label}
+    </p>
+  );
+}
+
 export function LicensingStack() {
-  const rootRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!root) return;
-    gsap.registerPlugin(ScrollTrigger);
-
-    const mm = gsap.matchMedia();
-    mm.add("(min-width: 768px) and (prefers-reduced-motion: no-preference)", () => {
-      const cards = gsap.utils.toArray<HTMLElement>(".lic-card", root);
-      cards.forEach((card, i) => {
-        if (i === cards.length - 1) return;
-        ScrollTrigger.create({
-          trigger: card,
-          start: "top top",
-          endTrigger: cards[cards.length - 1],
-          end: "top top",
-          pin: true,
-          pinSpacing: false,
-        });
-        // Уходящая карточка остаётся НЕПРОЗРАЧНОЙ: сжатие + скрим цвета фона
-        // секции поверх (никакого element-opacity — без грязного просвечивания).
-        const scrim = card.querySelector(".lic-scrim");
-        const trigger = {
-          trigger: cards[i + 1],
-          start: "top bottom",
-          end: "top top",
-          scrub: true,
-        };
-        gsap.to(card, { scale: 0.92, ease: "none", scrollTrigger: trigger });
-        if (scrim) {
-          gsap.to(scrim, { opacity: 0.55, ease: "none", scrollTrigger: { ...trigger } });
-        }
-      });
-    });
-
-    return () => mm.revert();
-  }, []);
-
+  const last = licensing.cards.length - 1;
   return (
     <section className="bg-bg-alt">
       <div className="mx-auto max-w-[1200px] px-5 pt-28 md:px-12 md:pt-40">
-        <p className="text-label text-ink-soft">{licensing.section.label}</p>
+        <p className="text-label text-pine-600">{licensing.section.label}</p>
         <h2 className="text-h2 mt-6 max-w-[18ch]">{licensing.section.title}</h2>
       </div>
-      <div ref={rootRef} className="pb-24 md:pb-0">
-        {licensing.cards.map((card) => (
-          <div
-            key={card.title}
-            className="lic-card flex items-center px-5 py-6 md:min-h-[100dvh] md:px-12 md:py-0"
-          >
-            <div className="mx-auto w-full max-w-[1200px]">
-              <div className="relative overflow-hidden rounded-(--radius-l) border border-line bg-bg p-8 md:p-14">
-                {/* скрим: гасит уходящую карточку цветом фона секции (см. эффект выше) */}
-                <div aria-hidden className="lic-scrim pointer-events-none absolute inset-0 bg-bg-alt opacity-0" />
-                {/* единственный CLI-акцент экрана — статус-строка трека */}
-                <p className="text-label text-ink-soft">{card.track}</p>
+      <div className="mx-auto max-w-[1200px] px-5 pt-16 md:px-12 md:pt-20">
+        <ScrollStack
+          itemDistance={56}
+          itemScale={0.03}
+          itemStackDistance={14}
+          stackPosition="16%"
+          scaleEndPosition="8%"
+          baseScale={0.9}
+        >
+          {licensing.cards.map((card, i) => {
+            const onDark = i === last;
+            return (
+              <ScrollStackItem
+                key={card.title}
+                itemClassName={`rounded-(--radius-2xl) p-8 md:p-14 min-h-[360px] flex flex-col justify-center ${
+                  onDark
+                    ? "grad-abyss text-ink-invert"
+                    : "bg-bg shadow-(--glow-soft)"
+                }`}
+              >
+                <TrackPill label={card.track} onDark={onDark} />
                 <h3 className="mt-6 text-[clamp(1.75rem,3vw,2.5rem)] font-medium tracking-[-0.01em]">
                   {card.title}
                 </h3>
-                <p className="mt-6 max-w-[52ch] text-[1.0625rem] leading-relaxed text-ink-soft">
+                <p
+                  className={`mt-6 max-w-[52ch] text-[1.0625rem] leading-relaxed ${
+                    onDark ? "text-ink-invert/70" : "text-ink-soft"
+                  }`}
+                >
                   {card.body}
                 </p>
-              </div>
-            </div>
-          </div>
-        ))}
+              </ScrollStackItem>
+            );
+          })}
+        </ScrollStack>
       </div>
     </section>
   );

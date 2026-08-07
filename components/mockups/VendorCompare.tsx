@@ -24,7 +24,7 @@ function Body({ rows }: { rows: CompareRow[] }) {
     const chip = rootRef.current.querySelector<HTMLElement>(".compare-chip");
     const selectedIdx = Math.max(0, rows.findIndex((r) => r.selected));
     const highlight = (on: number) =>
-      items.forEach((el, i) => el.classList.toggle("bg-bg-deep", i === on));
+      items.forEach((el, i) => el.classList.toggle("bg-bg-mist", i === on));
 
     const tl = gsap.timeline({ onComplete: complete });
     if (chip) tl.set(chip, { autoAlpha: 0 }, 0);
@@ -46,7 +46,7 @@ function Body({ rows }: { rows: CompareRow[] }) {
           key={r.name}
           data-row
           className={`flex items-center justify-between rounded-(--radius-m) px-2 py-2 text-[0.8125rem] lowercase ${
-            r.selected ? "bg-bg-deep" : "text-ink-soft"
+            r.selected ? "bg-bg-mist" : "text-ink-soft"
           }`}
         >
           <span>{r.name}</span>

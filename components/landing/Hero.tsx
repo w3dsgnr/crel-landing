@@ -27,10 +27,10 @@ function Cta({ label, primary }: { label: string; primary: boolean }) {
   return (
     <a
       href="#contact"
-      className={`group inline-flex items-baseline rounded-(--radius-m) px-6 py-3 text-[0.8125rem] lowercase tracking-[0.08em] transition-colors duration-(--d-quick) ${
+      className={`group inline-flex items-baseline rounded-(--radius-pill) px-7 py-3.5 text-[0.8125rem] lowercase tracking-[0.08em] transition-[background-color,box-shadow,transform,color] duration-(--d-quick) hover:-translate-y-px ${
         primary
-          ? "bg-ink text-ink-invert hover:bg-ink/90"
-          : "border border-ink text-ink hover:bg-ink hover:text-ink-invert"
+          ? "bg-ink text-ink-invert hover:bg-ink/90 hover:shadow-(--glow-m)"
+          : "bg-ink/[0.05] text-ink hover:bg-ink/[0.09]"
       }`}
     >
       {text}
@@ -73,9 +73,10 @@ export function Hero({ state, argRef, cursorRef, subWrapRef }: HeroProps) {
   return (
     // 1а: контент прижат к верху (§4.7), воздух уходит вниз.
     // Фон обоих состояний — cursor-grid во всю ширину секции (серебро --grid).
-    <section className="relative isolate">
+    <section className="bg-bloom relative isolate">
       <CursorGrid />
-      <div className="mx-auto grid min-h-[60dvh] w-full max-w-[1200px] grid-cols-12 items-start gap-6 px-5 pt-16 pb-12 md:px-12 md:pt-24 md:pb-16">
+      {/* pt считает клиренс плавающей стеклянной капсулы (fixed, ~76px) */}
+      <div className="mx-auto grid min-h-[60dvh] w-full max-w-[1200px] grid-cols-12 items-start gap-6 px-5 pt-28 pb-12 md:px-12 md:pt-36 md:pb-16">
         <div className="col-span-12 md:col-span-7">
           {/* декоративная команда; смысл несёт h1 ниже; курсор — акцент «живого» */}
           <div aria-hidden className="text-display select-none">
