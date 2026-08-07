@@ -3,13 +3,14 @@
 // Единая скролл-грамматика сайта: элементы с data-reveal появляются
 // fade + translateY 24→0, 600ms, crelOut, stagger 60ms, один раз.
 // Другой reveal-грамматики на сайте нет (принцип: один словарь движения).
+// Инициализируется один раз на монтирование — DOM секций больше не пересоздаётся.
 import { useEffect } from "react";
 import type { RefObject } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ensureEases } from "./easing";
 
-export function useReveal(rootRef: RefObject<HTMLElement | null>, stateKey: string) {
+export function useReveal(rootRef: RefObject<HTMLElement | null>) {
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
@@ -37,7 +38,6 @@ export function useReveal(rootRef: RefObject<HTMLElement | null>, stateKey: stri
       });
     }, root);
 
-    // revert возвращает элементам видимость при смене состояния/размонтировании
     return () => ctx.revert();
-  }, [rootRef, stateKey]);
+  }, [rootRef]);
 }

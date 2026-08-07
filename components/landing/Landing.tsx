@@ -49,8 +49,8 @@ export function Landing({ initial }: { initial: LandingState }) {
     initLenis();
   }, []);
 
-  // Единая reveal-грамматика; реинициализация при смене состояния
-  useReveal(mainRef, state);
+  // Единая reveal-грамматика; инициализация один раз на монтирование
+  useReveal(mainRef);
 
   // Фон шапки: прозрачный → --bg с хайрлайном. Без scroll-листенера — IO-сентинел.
   useEffect(() => {
