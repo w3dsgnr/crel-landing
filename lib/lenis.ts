@@ -25,12 +25,3 @@ export function initLenis(): Lenis | null {
 export function getLenis(): Lenis | null {
   return lenis;
 }
-
-/** Мгновенный сброс наверх — первый кадр «Перепечатки» (без smooth). */
-export function scrollToTopInstant() {
-  if (lenis) {
-    lenis.scrollTo(0, { immediate: true, force: true });
-  } else {
-    window.scrollTo({ top: 0, behavior: "instant" });
-  }
-}

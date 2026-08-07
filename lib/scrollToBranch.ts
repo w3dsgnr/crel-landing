@@ -26,8 +26,15 @@ export function scrollToBranch(branch: LandingState, opts: { instant?: boolean }
   const top = el.getBoundingClientRect().top + window.scrollY - HEADER_CLEARANCE;
   const lenis = getLenis();
   if (lenis) {
-    lenis.scrollTo(top, { duration: opts.instant ? 0 : 0.8 });
+    // instant: true должен применяться синхронно (без тика rAF) — иначе
+    // reduced-motion доводка технически всё ещё анимация нулевой длины,
+    // а не мгновенный джамп (spec §5 требует «без плавности»).
+    if (opts.instant) {
+      lenis.scrollTo(top, { immediate: true });
+    } else {
+      lenis.scrollTo(top, { duration: 0.8 });
+    }
   } else {
-    window.scrollTo({ top, behavior: "auto" });
+    window.scrollTo({ top, behavior: opts.instant ? "auto" : "smooth" });
   }
 }
