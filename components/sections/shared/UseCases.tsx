@@ -208,7 +208,7 @@ export function UseCases() {
                 </div>
               </div>
 
-              {/* правая колонка: сцена — полная смена вселенной на таб */}
+              {/* правая колонка: серая сцена v4 — на таб меняются мокап и micro-texture */}
               <div className="md:col-span-7">
                 <div
                   ref={sceneRef}

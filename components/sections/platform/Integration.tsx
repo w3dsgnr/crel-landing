@@ -1,7 +1,7 @@
 // 02: integration — развилка Widget vs White Label API.
-// Сниппет — единственная тёмная контентная вставка состояния; моноширинный шрифт
-// допустим только здесь (это код, не body-текст). v3.5: чек-строки — ячейки,
-// не строки с хайрлайнами; код-окно — grad-abyss (тёмный якорь секции).
+// Код-окно — белая панель со стековой тенью (слой v4); моноширинный шрифт
+// допустим только здесь (это код, не body-текст). Чек-строки — ячейки;
+// контентная вставка демонстрирует примеры API и гайды интеграции.
 import { integration } from "@/content/platform";
 import { MockupStage } from "@/components/mockups/MockupStage";
 import { RampWidget } from "@/components/mockups/RampWidget";
