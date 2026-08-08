@@ -90,12 +90,45 @@ rAF заморожен — три пункта не наблюдались вж�
   на Desktop — грепы по репо иногда цепляют его копии; не трогать ветку, регистрацию
   можно `git worktree prune`, если каталога больше нет.
 
-## Настройка новой машины
+## Настройка новой машины (Windows)
 
+Канал переезда — **только GitHub**: SSD отформатирован под macOS (APFS), Windows его
+не прочитает. `origin` = `https://github.com/w3dsgnr/crel-landing.git`, обе ветки запушены.
+
+```
+git clone https://github.com/w3dsgnr/crel-landing.git
+cd crel-landing
+git checkout merge/one-rail
+npm install
+```
+
+Специфика Windows, проверено перед переездом:
+
+- **Переносы строк.** В корне лежит `.gitattributes` с `* text=auto eol=lf` — Git for
+  Windows не будет переписывать LF→CRLF независимо от локального `autocrlf`. Весь репо
+  уже на LF (ренормализация прошла без изменений).
+- **Симлинк скилла.** `.claude/skills/ui-ux-pro-max` — symlink на
+  `.agents/skills/ui-ux-pro-max` (сама папка скилла целиком в git, 43 файла — данные
+  не теряются). Windows-git без Developer Mode выкачает симлинк как текстовый файл-заглушку,
+  и скилл не найдётся. Лечение — junction, админ-права не нужны (cmd, не PowerShell):
+
+  ```
+  del .claude\skills\ui-ux-pro-max
+  mklink /J .claude\skills\ui-ux-pro-max .agents\skills\ui-ux-pro-max
+  ```
+
+  Либо включить Developer Mode + `git config core.symlinks true` до clone.
+- **Имена файлов** проверены на NTFS-совместимость (запрещённые символы, хвостовые
+  точки/пробелы, длина путей) — конфликтов нет.
+- Скиллу `ui-ux-pro-max` нужен Python 3 в PATH (на Windows часто `py -3` — его скрипт
+  это предусматривает).
 - Пользовательские скиллы (`~/.claude/skills/`) не в репо: superpowers-набор
   (brainstorming, writing-plans, subagent-driven-development, executing-plans,
   finishing-a-development-branch, frontend-design, using-superpowers). Без них — обычный
-  рабочий процесс; скилл `ui-ux-pro-max` лежит В репо (`.claude/skills/`).
+  рабочий процесс.
 - MCP-коннекторы требуют повторной авторизации на новой машине (`/mcp` в интерактивной
   сессии); для работы над лендингом ни один не обязателен.
 - Артефакт доступен из аккаунта claude.ai с любой машины.
+- Стоит держать в голове: stale worktree `claude/vigilant-sammet-23994f` в конфиге —
+  это путь на старом маке; на свежем clone его не будет вовсе, ветка `claude/...`
+  придёт с remote только если её пушили (не пушили — она останется на маке).

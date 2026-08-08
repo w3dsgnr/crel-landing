@@ -1,0 +1,8 @@
+# Кроссплатформенность: репозиторий авторится с LF; на Windows autocrlf
+# не должен переписывать переносы (Next/TS/Tailwind ожидают LF).
+* text=auto eol=lf
+
+# бинарники — никакой нормализации
+*.png binary
+*.webp binary
+*.ico binary
