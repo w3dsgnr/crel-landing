@@ -55,9 +55,9 @@ export function IsoLicensing() {
       <IsoBox x={16} y={-16} z={8} w={44} d={32} h={6} faces={FACES_WHITE} delay={440} />
       {/* штамп-галочка над прошедшим документом */}
       <g className="iso-part" style={{ transitionDelay: "520ms" }}>
-        <circle cx={gx} cy={gy - 40} r="13" fill="#34c759" />
+        <circle cx={gx} cy={gy - 34} r="13" fill="#34c759" />
         <path
-          d={`M ${gx - 6} ${gy - 40} l 4 5 l 8 -9`}
+          d={`M ${gx - 6} ${gy - 34} l 4 5 l 8 -9`}
           stroke="#ffffff"
           strokeWidth="2.5"
           fill="none"
