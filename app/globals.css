@@ -334,3 +334,94 @@ body {
     animation: none;
   }
 }
+
+/* ── Слой v4 «светлый референс» (спека 2026-08-08) ─────────────────────────
+   Скоуп-класс на корнях секций охвата: Hero, Capabilities, ServicesGrid,
+   UseCases, Integration. Переопределяет токены v3 каскадом — мокапы и ячейки
+   внутри перекрашиваются без правки компонентов. Источник значений:
+   docs/refs/todesktop/design.md. Остальной лендинг остаётся на v3. */
+.layer-v4 {
+  /* нейтрали референса — тёплый ахромат вместо зелёного подтона */
+  --color-bg: #ffffff;
+  --color-bg-alt: #ececf1; /* поля внутри белых панелей (Field ramp-виджета) */
+  --color-bg-mist: #f5f5f7; /* карточка-сцена */
+  --color-surface: #ffffff; /* панель мокапа */
+  --color-ink: #1d1d1f;
+  --color-ink-900: #1d1d1f;
+  --color-ink-forest: #1d1d1f; /* цветных заливок в v4 нет — текст всегда тёмный */
+  --color-ink-soft: #6e6e73;
+  --color-line: rgb(29 29 31 / 0.1);
+  --color-grid: #d6d6db; /* cursor-grid hero — ghost-серебро */
+
+  /* весь бывший зелёный веер схлопывается в один синий акцент */
+  --color-pine-900: #1d1d1f;
+  --color-pine-800: #1d1d1f;
+  --color-pine-600: #6e6e73; /* лейблы секций — нейтральный muted */
+  --color-accent: #2e7cf6;
+  --color-accent-deep: #2e7cf6;
+  --color-jade: #2e7cf6;
+  --color-accent-bright: #2e7cf6;
+  --color-teal: #2e7cf6;
+  --color-cyan-glow: #2e7cf6;
+
+  /* лестница радиусов референса: chip 8 / panel 14 / card 26 */
+  --radius-s: 8px;
+  --radius-m: 14px;
+  --radius-l: 14px; /* MockupStage берёт --radius-l — панель */
+  --radius-xl: 26px; /* карточка-сцена */
+  --radius-2xl: 26px;
+
+  /* glow-системы в v4 нет: цветные тени гасятся */
+  --glow-s: 0 0 0 rgb(0 0 0 / 0);
+  --glow-m: 0 0 0 rgb(0 0 0 / 0);
+  --glow-l: 0 0 0 rgb(0 0 0 / 0);
+  --glow-soft: 0 0 0 rgb(0 0 0 / 0);
+
+  /* единственная тень системы — мягкий стек у панелей внутри сцен */
+  --shadow-mockup: 0 8px 24px rgb(0 0 0 / 0.06), 0 2px 6px rgb(0 0 0 / 0.04);
+  --shadow-panel: 0 8px 24px rgb(0 0 0 / 0.06), 0 2px 6px rgb(0 0 0 / 0.04);
+  --shadow-panel-dark: 0 8px 24px rgb(0 0 0 / 0.06), 0 2px 6px rgb(0 0 0 / 0.04);
+
+  /* v4-собственные роли (вне v3-имён) */
+  --v4-hairline: #e4e4e7;
+  --v4-ghost: #d6d6db;
+  --v4-ok: #34c759;
+  --v4-warn: #ff9f0a;
+}
+
+/* точка live внутри v4: функциональный зелёный, свечение мягче */
+.layer-v4 .dot-live,
+.layer-v4 .dot-live-bright {
+  box-shadow:
+    0 0 0 3px rgb(52 199 89 / 0.14),
+    0 0 8px rgb(52 199 89 / 0.35);
+}
+
+/* «музейная табличка» карточки: линия ~64% по центру */
+.v4-hairline {
+  height: 1px;
+  width: 64%;
+  margin-inline: auto;
+  background: var(--v4-hairline);
+}
+
+/* появление изометрической сцены: сборка снизу-вверх, transform-only.
+   Части сцены получают transition-delay инлайном (IsoScene). */
+.iso-rise .iso-part {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.5s var(--ease-out-expo),
+    transform 0.5s var(--ease-out-expo);
+}
+.iso-rise.is-in .iso-part {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .iso-rise .iso-part {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
