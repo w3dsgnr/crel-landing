@@ -10,12 +10,22 @@ import { enqueue } from "./MockupStage";
 type Token = { t: string; c: TokenClass };
 type TokenClass = "kw" | "str" | "cmt" | "plain";
 
-// терминальная схема на --ink: контрасты AA проверены на #111
-const TOKEN_CLASS: Record<TokenClass, string> = {
-  kw: "text-[#5fd1e8]", // cyan: ключевые слова
-  str: "text-accent-bright", // зелёный: строки
-  cmt: "text-ink-invert/55", // серый: комментарии
-  plain: "text-ink-invert/85",
+// две схемы: terminal — тёмное окно v3; light — белая панель v4
+// (референс «Identify code vulnerabilities»: синие ключевые слова,
+// красные строки, серые комментарии на белом)
+const TOKEN_SCHEMES: Record<"terminal" | "light", Record<TokenClass, string>> = {
+  terminal: {
+    kw: "text-[#5fd1e8]", // cyan: ключевые слова
+    str: "text-accent-bright", // зелёный: строки
+    cmt: "text-ink-invert/55", // серый: комментарии
+    plain: "text-ink-invert/85",
+  },
+  light: {
+    kw: "text-[#2e7cf6]",
+    str: "text-[#e5484d]",
+    cmt: "text-[#6e6e73]",
+    plain: "text-[#1d1d1f]",
+  },
 };
 
 const CHAR_MS = 12;
@@ -38,7 +48,13 @@ function tokenize(line: string): Token[] {
   return out;
 }
 
-export function CodeSnippet({ lines }: { lines: string[] }) {
+export function CodeSnippet({
+  lines,
+  variant = "terminal",
+}: {
+  lines: string[];
+  variant?: "terminal" | "light";
+}) {
   const rootRef = useRef<HTMLPreElement>(null);
   const [typing, setTyping] = useState(false);
   const tokenLines = lines.map(tokenize);
@@ -112,7 +128,7 @@ export function CodeSnippet({ lines }: { lines: string[] }) {
       {tokenLines.map((toks, li) => (
         <span key={li} className="block min-h-[1.2em]">
           {toks.map((tok, ti) => (
-            <span key={ti} data-tok={`${li}-${ti}`} className={TOKEN_CLASS[tok.c]}>
+            <span key={ti} data-tok={`${li}-${ti}`} className={TOKEN_SCHEMES[variant][tok.c]}>
               {tok.t}
             </span>
           ))}

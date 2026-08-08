@@ -21,7 +21,7 @@ function Checks({ items }: { items: string[] }) {
 
 export function Integration() {
   return (
-    <section className="bg-bg-alt">
+    <section className="layer-v4 bg-bg-alt">
       <div className="mx-auto max-w-[1200px] px-5 py-28 md:px-12 md:py-40">
         <p className="text-label text-pine-600">{integration.section.label}</p>
         <h2 className="text-h2 mt-6 max-w-[16ch]">{integration.section.title}</h2>
@@ -40,9 +40,9 @@ export function Integration() {
             <h3 className="text-card-title">{integration.api.title}</h3>
             <p className="mt-3 text-[0.9375rem] text-ink-soft">{integration.api.lead}</p>
             <Checks items={integration.api.checks} />
-            {/* тёмное код-окно — grad-abyss: контраст-якорь на светлой странице */}
-            <div className="grad-abyss mt-8 rounded-(--radius-m) p-6 text-ink-invert">
-              <CodeSnippet lines={integration.snippet} />
+            {/* v4: белая код-панель со стековой тенью (референсная сцена кода) */}
+            <div className="mt-8 rounded-(--radius-m) bg-surface p-6 shadow-(--shadow-mockup)">
+              <CodeSnippet lines={integration.snippet} variant="light" />
             </div>
           </div>
         </div>
