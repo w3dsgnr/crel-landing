@@ -1,0 +1,50 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "color": {
+    "page": { "$value": "#FFFFFF", "$type": "color", "$description": "Фон страницы. Confidence: high" },
+    "card-surface": { "$value": "#F5F5F7", "$type": "color", "$description": "Серая карточка-сцена. Confidence: medium (на глаз)" },
+    "panel": { "$value": "#FFFFFF", "$type": "color", "$description": "Белые UI-панели в иллюстрациях. Confidence: high" },
+    "text-primary": { "$value": "#1D1D1F", "$type": "color", "$description": "Титулы. Confidence: medium" },
+    "text-muted": { "$value": "#6E6E73", "$type": "color", "$description": "Описания. Confidence: medium" },
+    "hairline": { "$value": "#E4E4E7", "$type": "color", "$description": "Разделитель под титулом. Confidence: medium" },
+    "accent": { "$value": "#2E7CF6", "$type": "color", "$description": "Единственный бренд-акцент (синий). Confidence: medium" },
+    "success": { "$value": "#34C759", "$type": "color", "$description": "Функциональный статус ок. Confidence: medium" },
+    "warning-accent": { "$value": "#FF9F0A", "$type": "color", "$description": "Точечный второй акцент. Confidence: medium" },
+    "ghost-detail": { "$value": "#D6D6DB", "$type": "color", "$description": "Фоновые микро-детали (бинарный дождь, MS-метки). Confidence: medium" }
+  },
+  "typography": {
+    "card-title": {
+      "$type": "typography",
+      "$value": { "fontFamily": "SF Pro, Inter, system-ui, sans-serif", "fontSize": "21px", "fontWeight": 600, "letterSpacing": "-0.01em", "lineHeight": 1.25 }
+    },
+    "body": {
+      "$type": "typography",
+      "$value": { "fontFamily": "SF Pro, Inter, system-ui, sans-serif", "fontSize": "16px", "fontWeight": 400, "lineHeight": 1.6 }
+    },
+    "micro-mono": {
+      "$type": "typography",
+      "$value": { "fontFamily": "SF Mono, ui-monospace, monospace", "fontSize": "11px", "fontWeight": 500, "letterSpacing": "0.08em", "lineHeight": 1.2 }
+    },
+    "chip-label": {
+      "$type": "typography",
+      "$value": { "fontFamily": "SF Pro, Inter, system-ui, sans-serif", "fontSize": "14px", "fontWeight": 500, "lineHeight": 1.3 }
+    }
+  },
+  "dimension": {
+    "space-base": { "$value": "4px", "$type": "dimension" },
+    "radius-chip": { "$value": "8px", "$type": "dimension" },
+    "radius-panel": { "$value": "14px", "$type": "dimension" },
+    "radius-card": { "$value": "26px", "$type": "dimension" },
+    "radius-pill": { "$value": "9999px", "$type": "dimension" }
+  },
+  "shadow": {
+    "panel-soft": {
+      "$type": "shadow",
+      "$value": [
+        { "color": "rgba(0,0,0,0.06)", "offsetX": "0px", "offsetY": "8px", "blur": "24px", "spread": "0px" },
+        { "color": "rgba(0,0,0,0.04)", "offsetX": "0px", "offsetY": "2px", "blur": "6px", "spread": "0px" }
+      ],
+      "$description": "Level 1 — единственная тень системы; карточки-сцены всегда плоские"
+    }
+  }
+}
