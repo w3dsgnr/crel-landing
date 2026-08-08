@@ -72,7 +72,8 @@ export function Hero({ selected, argRef, cursorRef, subWrapRef }: HeroProps) {
   return (
     // 1а: контент прижат к верху (§4.7), воздух уходит вниз.
     // Фон обоих состояний — cursor-grid во всю ширину секции (серебро --grid).
-    <section className="bg-bloom relative isolate">
+    // v4: нейтральный белый фон; зелёный bloom — атрибут слоя v3
+    <section className="layer-v4 relative isolate bg-bg">
       <CursorGrid />
       {/* pt считает клиренс плавающей стеклянной капсулы (fixed, ~76px) */}
       <div className="mx-auto grid min-h-[60dvh] w-full max-w-[1200px] grid-cols-12 items-start gap-6 px-5 pt-28 pb-12 md:px-12 md:pt-36 md:pb-16">
