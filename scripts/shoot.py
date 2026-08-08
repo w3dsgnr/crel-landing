@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Full-page screenshots of both landing states for design review.
+"""Full-page screenshots of the landing page for design review.
 Usage: python3 scripts/shoot.py <out_dir> [base_url]
-Captures /services and /platform full-page at desktop width.
+Captures / (root) full-page at desktop width.
 Emulates reduced-motion so mockup animations settle to final state (stable shots).
 """
 import sys, time
@@ -9,7 +9,7 @@ from playwright.sync_api import sync_playwright
 
 out = sys.argv[1] if len(sys.argv) > 1 else "docs/review/tmp"
 base = sys.argv[2] if len(sys.argv) > 2 else "http://localhost:3000"
-pages = {"services": "/services", "platform": "/platform"}
+pages = {"landing": "/"}
 
 # hide Next dev-indicator (dev server only; disabled in prod via next.config)
 HIDE = "nextjs-portal, [data-nextjs-toast], #__next-build-watcher { display:none !important; }"
