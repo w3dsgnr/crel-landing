@@ -19,6 +19,7 @@ import { SellerTerminal } from "@/components/mockups/SellerTerminal";
 import { IbanAccount } from "@/components/mockups/IbanAccount";
 import { ensureEases } from "@/lib/easing";
 import { getLenis } from "@/lib/lenis";
+import { MicroTexture, type MicroTextureKind } from "@/components/v4/MicroTexture";
 
 const MOCKUPS = {
   kyc: KycFlow,
@@ -28,15 +29,9 @@ const MOCKUPS = {
   iban: IbanAccount,
 } as const;
 
-// Сцена = заливка-задник + подпись зоны текста. Полная смена вселенной на таб:
-// signal → светлая bloom → halo → abyss → pine (чередование тёмное/светлое).
-const SCENES = [
-  { plate: "grad-signal", dark: false },
-  { plate: "bg-bg-mist scene-bloom", dark: false },
-  { plate: "grad-halo", dark: false },
-  { plate: "grad-abyss", dark: true },
-  { plate: "card-pine", dark: true },
-] as const;
+// v4: одна серая сцена на все табы (референс — «предмет на серой сцене»);
+// состояние различают мокап и тематическая micro-texture, не заливка.
+const TEXTURES: MicroTextureKind[] = ["amounts", "ms", "iban", "binary", "grid"];
 
 const N = useCases.tabs.length;
 // длина скраба: ~90vh на состояние + экран
@@ -133,13 +128,11 @@ export function UseCases() {
   }, [active]);
 
   const tab = useCases.tabs[active];
-  const scene = SCENES[active % SCENES.length];
+  const texture = TEXTURES[active % TEXTURES.length];
   const Mockup = MOCKUPS[tab.mockup];
 
   return (
-    <section className="bg-bg">
-      {/* локальный рецепт сцены-2: светлая плита с ambient-бликом */}
-      <style>{`.scene-bloom { background: radial-gradient(70% 90% at 80% 0%, rgb(0 201 167 / 0.14), rgb(0 201 167 / 0) 65%), var(--color-bg-mist); }`}</style>
+    <section className="layer-v4 bg-bg">
       <div ref={wrapRef} className="relative" style={scrub ? { height: WRAP_HEIGHT } : undefined}>
         <div className={scrub ? "sticky top-0 flex h-dvh flex-col justify-center overflow-hidden" : ""}>
           <div className={`mx-auto w-full max-w-[1200px] px-5 md:px-12 ${scrub ? "" : "py-28 md:py-40"}`}>
@@ -220,9 +213,10 @@ export function UseCases() {
                 <div
                   ref={sceneRef}
                   key={tab.id}
-                  className={`relative flex items-center justify-center overflow-hidden rounded-(--radius-2xl) p-8 md:p-12 ${scene.plate} h-[420px] md:h-[min(520px,60vh)]`}
+                  className="relative flex items-center justify-center overflow-hidden rounded-(--radius-2xl) bg-bg-mist p-8 md:p-12 h-[420px] md:h-[min(520px,60vh)]"
                 >
-                  <div className="w-full max-w-[380px]">
+                  <MicroTexture kind={texture} />
+                  <div className="relative w-full max-w-[380px]">
                     <MockupStage key={tab.id}>
                       <Mockup />
                     </MockupStage>
