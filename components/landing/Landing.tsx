@@ -12,6 +12,7 @@ import { Footer } from "@/components/sections/shared/Footer";
 import type { LandingState } from "@/content/types";
 import { initLenis } from "@/lib/lenis";
 import { useTypewriter } from "@/lib/useTypewriter";
+import { useHeroCycle } from "@/lib/useHeroCycle";
 import { useSwitchOrchestrator } from "@/lib/useSwitchOrchestrator";
 import { useReveal } from "@/lib/reveal";
 
@@ -36,6 +37,19 @@ export function Landing() {
     caretRef,
   });
 
+  // Авто-цикл rel → platform → services, пока направление не выбрано
+  const stopHeroCycle = useHeroCycle(typewriter, selected === null);
+
+  // Гасим цикл синхронно ДО оркестратора: его retype идёт раньше applySelected,
+  // и остановка только по selected успела бы уже после начала перепечатки
+  const handleSwitch = useCallback(
+    (next: LandingState) => {
+      stopHeroCycle();
+      switchTo(next);
+    },
+    [stopHeroCycle, switchTo]
+  );
+
   useEffect(() => {
     initLenis();
   }, []);
@@ -55,7 +69,7 @@ export function Landing() {
   return (
     <>
       <div ref={sentinelRef} aria-hidden className="absolute top-0 h-px w-px" />
-      <Header selected={selected} onSwitch={switchTo} scrolled={scrolled} caretRef={caretRef} />
+      <Header selected={selected} onSwitch={handleSwitch} scrolled={scrolled} caretRef={caretRef} />
       {/* aria-live анонс состояния для скринридеров */}
       <p aria-live="polite" className="sr-only">
         {selected}

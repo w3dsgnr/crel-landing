@@ -72,8 +72,10 @@ export function Hero({ selected, argRef, cursorRef, subWrapRef }: HeroProps) {
   return (
     // 1а: контент прижат к верху (§4.7), воздух уходит вниз.
     // Фон обоих состояний — cursor-grid во всю ширину секции (серебро --grid).
-    // v4: нейтральный белый фон; зелёный bloom — атрибут слоя v3
-    <section className="layer-v4 relative isolate bg-bg">
+    // Анатомия Krida: чёрная секция (layer-v4-invert) «лежит» поверх серой ленты
+    // логотипов — z-10 над ней, нижние углы скруглены (--v4-radius-hero),
+    // overflow режет cursor-grid по радиусу.
+    <section className="layer-v4 layer-v4-invert relative isolate z-10 overflow-hidden rounded-b-(--v4-radius-hero) bg-bg">
       <CursorGrid />
       {/* pt считает клиренс плавающей стеклянной капсулы (fixed, ~76px) */}
       <div className="mx-auto grid min-h-[60dvh] w-full max-w-[1200px] grid-cols-12 items-start gap-6 px-5 pt-28 pb-12 md:px-12 md:pt-36 md:pb-16">
