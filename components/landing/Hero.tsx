@@ -1,7 +1,7 @@
 "use client";
 
 // Hero-каркас (общий для состояний): слева команда-display + смысловой h1 + CTA,
-// справа — слот состояния (RampWidget, всегда). SSG отдаёт полный текст
+// справа — слот состояния (RampWidgetGlass, всегда). SSG отдаёт полный текст
 // команды — на загрузке ничего не перепечатывается (LCP, CLS=0).
 import { useEffect, useRef } from "react";
 import type { RefObject } from "react";
@@ -9,8 +9,7 @@ import { gsap } from "gsap";
 import { hero } from "@/content/shared";
 import type { LandingState } from "@/content/types";
 import { ensureEases } from "@/lib/easing";
-import { MockupStage } from "@/components/mockups/MockupStage";
-import { RampWidget } from "@/components/mockups/RampWidget";
+import { RampWidgetGlass } from "@/components/mockups/RampWidgetGlass";
 import { CursorGrid } from "@/components/vendor/CursorGrid";
 
 interface HeroProps {
@@ -78,7 +77,8 @@ export function Hero({ selected, argRef, cursorRef, subWrapRef }: HeroProps) {
     <section className="layer-v4 layer-v4-invert relative isolate z-10 overflow-hidden rounded-b-(--v4-radius-hero) bg-bg">
       <CursorGrid />
       {/* pt считает клиренс плавающей стеклянной капсулы (fixed, ~76px) */}
-      <div className="mx-auto grid min-h-[60dvh] w-full max-w-[1200px] grid-cols-12 items-start gap-6 px-5 pt-28 pb-12 md:px-12 md:pt-36 md:pb-16">
+      {/* 85dvh: hero почти на весь первый экран, лого-полоса выглядывает снизу (Krida) */}
+      <div className="mx-auto grid min-h-[85dvh] w-full max-w-[1200px] grid-cols-12 items-start gap-6 px-5 pt-28 pb-12 md:px-12 md:pt-36 md:pb-16">
         <div className="col-span-12 md:col-span-7">
           {/* декоративная команда; смысл несёт h1 ниже; курсор — акцент «живого» */}
           <div aria-hidden className="text-display select-none">
@@ -103,12 +103,11 @@ export function Hero({ selected, argRef, cursorRef, subWrapRef }: HeroProps) {
             </div>
           </div>
         </div>
-        {/* слот состояния: RampWidget показан всегда — баланс сетки 7/5 */}
+        {/* слот состояния: стеклянный ramp-прибор (редизайн 2026-08-12) —
+            на чёрном стекло темнеет само, отдельная кожа не нужна */}
         <div className="col-span-12 md:col-span-5">
           <div className="mx-auto mt-12 w-full max-w-[380px] md:mt-0 md:ml-auto">
-            <MockupStage key="hero-ramp">
-              <RampWidget />
-            </MockupStage>
+            <RampWidgetGlass />
           </div>
         </div>
       </div>

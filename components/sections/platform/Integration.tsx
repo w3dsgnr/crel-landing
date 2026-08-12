@@ -3,8 +3,7 @@
 // допустим только здесь (это код, не body-текст). Чек-строки — ячейки;
 // контентная вставка демонстрирует примеры API и гайды интеграции.
 import { integration } from "@/content/platform";
-import { MockupStage } from "@/components/mockups/MockupStage";
-import { RampWidget } from "@/components/mockups/RampWidget";
+import { RampWidgetGlass } from "@/components/mockups/RampWidgetGlass";
 import { CodeSnippet } from "@/components/mockups/CodeSnippet";
 
 function Checks({ items }: { items: string[] }) {
@@ -30,10 +29,9 @@ export function Integration() {
             <h3 className="text-card-title">{integration.widget.title}</h3>
             <p className="mt-3 text-[0.9375rem] text-ink-soft">{integration.widget.lead}</p>
             <Checks items={integration.widget.checks} />
+            {/* редизайн 2026-08-12: стеклянный ramp-прибор вместо панели MockupStage */}
             <div className="mx-auto mt-8 max-w-[340px]">
-              <MockupStage isStatic>
-                <RampWidget />
-              </MockupStage>
+              <RampWidgetGlass />
             </div>
           </div>
           <div data-reveal className="rounded-(--radius-xl) bg-bg p-8 md:p-10">

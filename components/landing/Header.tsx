@@ -20,9 +20,13 @@ interface HeaderProps {
 export function Header({ selected, onSwitch, scrolled, caretRef }: HeaderProps) {
   return (
     <header className="fixed inset-x-0 top-0 z-40 px-3 pt-3 md:px-6 md:pt-5">
+      {/* над чёрным hero (не проскроллено) капсула тёмная: glass-dark +
+          инверсия ink-токенов (.layer-v4-invert) перекрашивает нав/CTA сами */}
       <div
-        className={`glass-light relative mx-auto flex h-14 max-w-[1104px] items-center gap-3 rounded-(--radius-pill) pr-2 pl-5 transition-shadow duration-(--d-quick) md:gap-6 md:pr-2.5 md:pl-7 ${
-          scrolled ? "shadow-[0_16px_48px_rgb(4_41_27/0.14)]" : ""
+        className={`relative mx-auto flex h-14 max-w-[1104px] items-center gap-3 rounded-(--radius-pill) pr-2 pl-5 transition-shadow duration-(--d-quick) md:gap-6 md:pr-2.5 md:pl-7 ${
+          scrolled
+            ? "glass-light shadow-[0_16px_48px_rgb(4_41_27/0.14)]"
+            : "glass-dark layer-v4-invert"
         }`}
       >
         <a href="/" className="text-[1.15rem] font-bold tracking-[-0.02em]">
