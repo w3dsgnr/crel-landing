@@ -5,6 +5,7 @@ export const capabilities = {
   section: {
     label: "01: capabilities",
     title: "Everything a financial app needs to move money", // V2: "One rail, six building blocks"
+    sub: "Compliance, accounts, cards and payouts — six blocks that ship through one integration and read to your users as one product.", // [VERIFY: тезис сгенерирован 2026-08-12, вычитка заказчиком]
   } satisfies SectionCopy,
   cells: [
     {

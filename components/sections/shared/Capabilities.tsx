@@ -1,20 +1,20 @@
 "use client";
 
 // 01: capabilities — слой v4 «светлый референс»: единые серые карточки-сцены
-// (CardScene), живые мокапы сохраняют поведение и очередь MockupStage — кожу
-// перекрашивает токен-каскад .layer-v4. Ячейка Widget/White Label API —
-// изометрическая сцена вместо генеративного ассета (спека §7).
+// (CardScene). Редизайн 2026-08-12: мокапы — статичные стеклянные «приборы»
+// (*Glass, скоуп .widget-glass, docs/refs/dark-widgets/design.md); очередь
+// MockupStage из секции ушла вместе с живыми прогонами. Ячейка Widget/White
+// Label API — изометрическая сцена вместо генеративного ассета (спека §7).
 import { capabilities } from "@/content/platform";
 import { BentoGrid, BentoCard } from "@/components/vendor/MagicBento";
-import { MockupStage } from "@/components/mockups/MockupStage";
-import { KycFlow } from "@/components/mockups/KycFlow";
-import { RampWidget } from "@/components/mockups/RampWidget";
-import { CardDuo } from "@/components/mockups/CardDuo";
-import { SellerTerminal } from "@/components/mockups/SellerTerminal";
-import { IbanAccount } from "@/components/mockups/IbanAccount";
+import { KycFlowGlass } from "@/components/mockups/KycFlowGlass";
+import { RampWidgetGlass } from "@/components/mockups/RampWidgetGlass";
+import { CardDuoGlass } from "@/components/mockups/CardDuoGlass";
+import { SellerTerminalGlass } from "@/components/mockups/SellerTerminalGlass";
+import { IbanAccountGlass } from "@/components/mockups/IbanAccountGlass";
 import { CardScene } from "@/components/v4/CardScene";
 import type { MicroTextureKind } from "@/components/v4/MicroTexture";
-import { IsoWidgetEmbed } from "@/components/isometric/scenes";
+import { WidgetApiGlass } from "@/components/mockups/WidgetApiGlass";
 
 export function Capabilities() {
   const cells = capabilities.cells;
@@ -28,19 +28,27 @@ export function Capabilities() {
 
   // ячейка = сцена: мокап-иллюстрация + тематическая текстура (спека §6)
   const grid: { cell: typeof kyc; span: string; texture: MicroTextureKind; illustration: React.ReactNode }[] = [
-    { cell: kyc, span: "md:col-span-3", texture: "binary", illustration: <MockupStage className="w-full max-w-[340px]"><KycFlow /></MockupStage> },
-    { cell: ramp, span: "md:col-span-3", texture: "amounts", illustration: <MockupStage className="w-full max-w-[340px]"><RampWidget /></MockupStage> },
-    { cell: iban, span: "md:col-span-4", texture: "iban", illustration: <MockupStage className="w-full max-w-[400px]"><IbanAccount /></MockupStage> },
-    { cell: cards, span: "md:col-span-2", texture: "grid", illustration: <MockupStage className="w-full max-w-[300px]"><CardDuo /></MockupStage> },
-    { cell: terminal, span: "md:col-span-2", texture: "amounts", illustration: <MockupStage className="w-full max-w-[300px]"><SellerTerminal /></MockupStage> },
-    { cell: widget, span: "md:col-span-4", texture: "grid", illustration: <IsoWidgetEmbed /> },
+    { cell: kyc, span: "md:col-span-3", texture: "binary", illustration: <div className="w-full max-w-[340px]"><KycFlowGlass /></div> },
+    // редизайн 2026-08-12: стеклянный прибор (widget-glass) вместо светлой панели MockupStage
+    { cell: ramp, span: "md:col-span-3", texture: "amounts", illustration: <div className="w-full max-w-[340px]"><RampWidgetGlass /></div> },
+    { cell: iban, span: "md:col-span-4", texture: "iban", illustration: <div className="w-full max-w-[400px]"><IbanAccountGlass /></div> },
+    { cell: cards, span: "md:col-span-2", texture: "grid", illustration: <div className="w-full max-w-[300px]"><CardDuoGlass /></div> },
+    { cell: terminal, span: "md:col-span-2", texture: "amounts", illustration: <div className="w-full max-w-[300px]"><SellerTerminalGlass /></div> },
+    // редизайн 2026-08-12: изометрию сменил стеклянный «два входа» (код + виджет)
+    { cell: widget, span: "md:col-span-4", texture: "grid", illustration: <div className="w-full max-w-[400px]"><WidgetApiGlass /></div> },
   ];
 
   return (
     <section className="layer-v4 bg-bg">
       <div className="mx-auto max-w-[1200px] px-5 py-28 md:px-12 md:py-40">
-        <p className="text-label text-pine-600">{capabilities.section.label}</p>
-        <h2 className="text-h2 mt-6 max-w-[18ch]">{capabilities.section.title}</h2>
+        {/* шапка секции по центру (редизайн 2026-08-12): label — title — тезис */}
+        <div className="mx-auto max-w-[52ch] text-center">
+          <p className="text-label text-pine-600">{capabilities.section.label}</p>
+          <h2 className="text-h2 mt-6">{capabilities.section.title}</h2>
+          {capabilities.section.sub && (
+            <p className="mt-5 text-[1.0625rem] leading-relaxed text-ink-soft">{capabilities.section.sub}</p>
+          )}
+        </div>
 
         <BentoGrid
           enableSpotlight={false}

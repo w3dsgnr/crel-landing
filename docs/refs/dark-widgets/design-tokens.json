@@ -1,0 +1,47 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "color": {
+    "surface-base": { "$value": "#0A0A0A", "$type": "color", "$description": "Корпус виджета" },
+    "surface-raised": { "$value": "#1C1C1E", "$type": "color", "$description": "Приподнятый узел, ряды" },
+    "surface-overlay": { "$value": "#2C2C2E", "$type": "color", "$description": "Чипы, степперы, треки шкал" },
+    "action-light": { "$value": "#F2F2F3", "$type": "color", "$description": "Главное действие, выбранный чип" },
+    "text-primary": { "$value": "#FFFFFF", "$type": "color" },
+    "text-muted": { "$value": "#8E8E93", "$type": "color" },
+    "text-on-light": { "$value": "#111111", "$type": "color" },
+    "hairline": { "$value": "rgba(255,255,255,0.10)", "$type": "color" },
+    "money-green": { "$value": "#30D158", "$type": "color", "$description": "Деньги/успех — единственный акцент хрома данных" },
+    "alert-red": { "$value": "#FF453A", "$type": "color" },
+    "data-orange": { "$value": "#FF9F0A", "$type": "color" },
+    "data-blue": { "$value": "#409CFF", "$type": "color" },
+    "data-purple": { "$value": "#BF5AF2", "$type": "color" }
+  },
+  "dimension": {
+    "radius-control": { "$value": "14px", "$type": "dimension" },
+    "radius-row": { "$value": "18px", "$type": "dimension" },
+    "radius-card": { "$value": "36px", "$type": "dimension" },
+    "radius-pill": { "$value": "9999px", "$type": "dimension" },
+    "space-base": { "$value": "4px", "$type": "dimension" }
+  },
+  "typography": {
+    "numeral-xl": {
+      "$type": "typography",
+      "$value": { "fontFamily": "SF Pro Display", "fontSize": "40px", "fontWeight": 600, "letterSpacing": "-0.01em", "lineHeight": 1.0 }
+    },
+    "numeral-md": {
+      "$type": "typography",
+      "$value": { "fontFamily": "SF Pro Display", "fontSize": "26px", "fontWeight": 600, "lineHeight": 1.1 }
+    },
+    "label": {
+      "$type": "typography",
+      "$value": { "fontFamily": "SF Pro Text", "fontSize": "13px", "fontWeight": 500, "lineHeight": 1.3 }
+    },
+    "label-caps": {
+      "$type": "typography",
+      "$value": { "fontFamily": "SF Pro Text", "fontSize": "11px", "fontWeight": 600, "letterSpacing": "0.06em", "lineHeight": 1.2 }
+    },
+    "value-mono": {
+      "$type": "typography",
+      "$value": { "fontFamily": "SF Mono", "fontSize": "13px", "fontWeight": 500, "lineHeight": 1.3 }
+    }
+  }
+}

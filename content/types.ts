@@ -12,6 +12,8 @@ export interface SectionCopy {
   label: string;
   /** V1 — рабочий вариант; V2 хранится рядом в комментарии контент-модуля */
   title: string;
+  /** тезис под заголовком; опционален — есть не у всех секций */
+  sub?: string;
 }
 
 export interface FinalCtaContent {
