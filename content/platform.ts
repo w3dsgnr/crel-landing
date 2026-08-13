@@ -49,10 +49,11 @@ export const integration = {
   widget: {
     title: "Widget",
     lead: "Hosted flow inside your product. Fastest route to a live rail.",
+    // порядок = раскладка чипов референса: короткие в первый ряд, длинный вторым
     checks: [
       "Prebuilt compliant flow",
-      "Your branding, themed via parameters",
       "Live in days, not quarters",
+      "Your branding, themed via parameters",
     ],
   },
   api: {
@@ -60,8 +61,8 @@ export const integration = {
     lead: "Your interface, our infrastructure. Full control of UX.",
     checks: [
       "Full control over UI and UX",
-      "Webhooks for every state change",
       "Sandbox from day one", // [VERIFY: sandbox]
+      "Webhooks for every state change",
     ],
   },
   // [VERIFY: имена сущностей API до публикации доков]

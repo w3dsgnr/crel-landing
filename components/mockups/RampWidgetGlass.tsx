@@ -5,6 +5,8 @@
 // отсоединённый тост-квиток. Статичен: редизайн-кандидат для capabilities,
 // живёт на /dev/widgets до утверждения. Тексты — content/platform.ts
 // §mockups.ramp дословно; единственный цвет — --wg-accent у значения и чека.
+// compact (референс Integration 2026-08-13): только ввод суммы — без узла
+// получения, курса и тоста; выбранный пресет — синяя пилюля (--wg-accent).
 import { mockups } from "@/content/platform";
 
 // пресеты суммы: sendValue из контента + соседние ступени; выбран — sendValue
@@ -19,10 +21,12 @@ function Stepper({ sign }: { sign: "−" | "+" }) {
   );
 }
 
-export function RampWidgetGlass() {
+export function RampWidgetGlass({ compact = false }: { compact?: boolean }) {
   const m = mockups.ramp;
   return (
-    <div className="widget-glass w-full">
+    // relative: корпус позиционирован, чтобы декор-слои секций (монеты)
+    // могли рисоваться ПОД стеклом и размываться его backdrop-blur
+    <div className="widget-glass relative w-full">
       {/* корпус-прибор: матовое стекло — блюр подбирает микротекстуру карточки */}
       <div className="rounded-(--wg-radius-card) border border-(--wg-hairline) bg-(--wg-surface-base) p-5 backdrop-blur-xl">
         {/* сумма-герой: ярлык — величина со степперами — чип валюты */}
@@ -41,9 +45,9 @@ export function RampWidgetGlass() {
           {PRESETS.map((p) => (
             <span
               key={p}
-              className={`rounded-full px-3.5 py-2 text-[0.8125rem] tabular-nums ${
+              className={`rounded-full px-3.5 py-2 text-[0.8125rem] whitespace-nowrap tabular-nums ${
                 p === SELECTED
-                  ? "bg-(--wg-action) font-medium text-(--wg-text-on-action)"
+                  ? `${compact ? "bg-(--wg-accent)" : "bg-(--wg-action)"} font-medium text-(--wg-text-on-action)`
                   : "bg-(--wg-surface-overlay) text-(--wg-text)"
               }`}
             >
@@ -52,18 +56,20 @@ export function RampWidgetGlass() {
           ))}
         </div>
 
-        {/* узел получения: ярлык слева — mono-значение справа (--wg-accent) */}
-        <div className="mt-5 flex items-center justify-between rounded-(--wg-radius-row) bg-(--wg-surface-raised) px-4 py-3.5">
-          <span className="text-[0.8125rem] text-(--wg-text-muted)">{m.receiveLabel}</span>
-          <span className="font-mono text-[0.9375rem] text-(--wg-accent) tabular-nums">
-            {m.receiveValue} {m.receiveChip}
-          </span>
-        </div>
-
-        {/* метрика курса: mono, muted */}
-        <div className="mt-2 flex items-center justify-between rounded-(--wg-radius-row) bg-(--wg-surface-raised) px-4 py-3.5">
-          <span className="font-mono text-[0.75rem] text-(--wg-text-muted)">{m.rate}</span>
-        </div>
+        {/* узел получения и курс — только в полной версии */}
+        {!compact && (
+          <>
+            <div className="mt-5 flex items-center justify-between rounded-(--wg-radius-row) bg-(--wg-surface-raised) px-4 py-3.5">
+              <span className="text-[0.8125rem] text-(--wg-text-muted)">{m.receiveLabel}</span>
+              <span className="font-mono text-[0.9375rem] text-(--wg-accent) tabular-nums">
+                {m.receiveValue} {m.receiveChip}
+              </span>
+            </div>
+            <div className="mt-2 flex items-center justify-between rounded-(--wg-radius-row) bg-(--wg-surface-raised) px-4 py-3.5">
+              <span className="font-mono text-[0.75rem] text-(--wg-text-muted)">{m.rate}</span>
+            </div>
+          </>
+        )}
 
         {/* главное действие — тёмная пилюля (инверсия на светлом материале) */}
         <div className="mt-5 rounded-full bg-(--wg-action) py-3.5 text-center text-[0.875rem] font-medium text-(--wg-text-on-action)">
@@ -74,7 +80,8 @@ export function RampWidgetGlass() {
         </p>
       </div>
 
-      {/* тост-квиток вне корпуса — артефакт завершённой операции */}
+      {/* тост-квиток вне корпуса — артефакт завершённой операции (полная версия) */}
+      {!compact && (
       <div className="mt-3 flex items-center gap-3 rounded-full border border-(--wg-hairline) bg-(--wg-surface-base) px-5 py-3.5 backdrop-blur-xl">
         <div className="min-w-0 flex-1">
           {/* [VERIFY: микротекст квитка сгенерирован 2026-08-12 по образцу «Bill has been paid»] */}
@@ -90,6 +97,7 @@ export function RampWidgetGlass() {
           </svg>
         </span>
       </div>
+      )}
     </div>
   );
 }

@@ -1,29 +1,22 @@
 "use client";
 
-// Шапка v3 — плавающая стеклянная капсула (glass-light, pill). Контент страницы
+// Шапка v4 — плавающая стеклянная капсула (glass-light, pill). Контент страницы
 // просвечивает и размывается под ней: отделение средой, не линией (v3.2 §1).
-// Лого (статичный c:rel_, курсор НЕ мигает — живой курсор принадлежит hero),
-// Toggle «ось-двоеточие», якоря состояния, CTA-pill. Каретка «Перепечатки» —
-// на нижней кромке шапки, во всю ширину вьюпорта.
-import type { RefObject } from "react";
+// Анатомия: лого слева (статичный c:rel_, курсор НЕ мигает — живой курсор
+// принадлежит hero), якоря секций по центру капсулы, CTA-pill справа.
 import { navAnchors, hero } from "@/content/shared";
-import type { LandingState } from "@/content/types";
-import { Toggle } from "./Toggle";
 
 interface HeaderProps {
-  selected: LandingState | null;
-  onSwitch: (next: LandingState) => void;
   scrolled: boolean;
-  caretRef: RefObject<HTMLDivElement | null>;
 }
 
-export function Header({ selected, onSwitch, scrolled, caretRef }: HeaderProps) {
+export function Header({ scrolled }: HeaderProps) {
   return (
     <header className="fixed inset-x-0 top-0 z-40 px-3 pt-3 md:px-6 md:pt-5">
       {/* над чёрным hero (не проскроллено) капсула тёмная: glass-dark +
           инверсия ink-токенов (.layer-v4-invert) перекрашивает нав/CTA сами */}
       <div
-        className={`relative mx-auto flex h-14 max-w-[1104px] items-center gap-3 rounded-(--radius-pill) pr-2 pl-5 transition-shadow duration-(--d-quick) md:gap-6 md:pr-2.5 md:pl-7 ${
+        className={`relative mx-auto flex h-14 max-w-[1104px] items-center justify-between rounded-(--radius-pill) pr-2 pl-5 transition-shadow duration-(--d-quick) md:pr-2.5 md:pl-7 ${
           scrolled
             ? "glass-light shadow-[0_16px_48px_rgb(4_41_27/0.14)]"
             : "glass-dark layer-v4-invert"
@@ -33,9 +26,9 @@ export function Header({ selected, onSwitch, scrolled, caretRef }: HeaderProps) 
           c:rel<span className="inline-block">_</span>
         </a>
 
-        <Toggle selected={selected} onSwitch={onSwitch} />
-
-        <nav className="ml-auto hidden items-center gap-6 md:flex">
+        {/* абсолютное центрирование: якоря стоят по оси капсулы независимо
+            от ширины лого и CTA */}
+        <nav className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-6 md:flex">
           {navAnchors.map(({ label, id }) => (
             <a
               key={id}
@@ -49,17 +42,11 @@ export function Header({ selected, onSwitch, scrolled, caretRef }: HeaderProps) 
 
         <a
           href="#contact"
-          className="ml-auto inline-flex h-10 items-center rounded-(--radius-pill) bg-ink px-5 text-[0.8125rem] tracking-[0.08em] text-ink-invert lowercase transition-[box-shadow,transform,background-color] duration-(--d-quick) hover:-translate-y-px hover:bg-ink/90 hover:shadow-(--glow-m) md:ml-0"
+          className="inline-flex h-10 items-center rounded-(--radius-pill) bg-ink px-5 text-[0.8125rem] tracking-[0.08em] text-ink-invert lowercase transition-[box-shadow,transform,background-color] duration-(--d-quick) hover:-translate-y-px hover:bg-ink/90 hover:shadow-(--glow-m)"
         >
           {hero.ctaPrimary.replace("_", "")}
         </a>
       </div>
-      {/* каретка «Перепечатки»: 140×2px, проезжает по вьюпорту при переключении */}
-      <div
-        ref={caretRef}
-        aria-hidden
-        className="pointer-events-none absolute bottom-0 left-0 h-[2px] w-[140px] rounded-full bg-accent opacity-0"
-      />
     </header>
   );
 }

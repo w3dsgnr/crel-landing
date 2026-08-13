@@ -8,14 +8,12 @@ import { servicesGrid } from "@/content/services";
 import { BentoGrid, BentoCard } from "@/components/vendor/MagicBento";
 import { CardScene } from "@/components/v4/CardScene";
 import type { MicroTextureKind } from "@/components/v4/MicroTexture";
-import {
-  IsoImplementation,
-  IsoArchitecture,
-  IsoLicensing,
-  IsoVendors,
-  IsoMobile,
-  IsoSupport,
-} from "@/components/isometric/scenes";
+import { ImplementationScene } from "@/components/v4/scenes/ImplementationScene";
+import { ArchitectureScene } from "@/components/v4/scenes/ArchitectureScene";
+import { LicensingScene } from "@/components/v4/scenes/LicensingScene";
+import { VendorScene } from "@/components/v4/scenes/VendorScene";
+import { MobileScene } from "@/components/v4/scenes/MobileScene";
+import { SupportScene } from "@/components/v4/scenes/SupportScene";
 
 type Cell = (typeof servicesGrid.cells)[number];
 
@@ -27,20 +25,21 @@ function cellByTitle(title: string): Cell {
 
 // сцена и текстура каждой услуги (метафоры — спека §5)
 const SCENES: { title: string; scene: React.ReactNode; texture: MicroTextureKind; span: string }[] = [
-  { title: "Platform implementation", scene: <IsoImplementation />, texture: "grid", span: "" },
-  { title: "Architecture consulting", scene: <IsoArchitecture />, texture: "grid", span: "md:col-span-2" },
-  { title: "Licensing and compliance", scene: <IsoLicensing />, texture: "binary", span: "md:col-span-2" },
-  { title: "Vendor selection", scene: <IsoVendors />, texture: "ms", span: "" },
-  { title: "Mobile apps", scene: <IsoMobile />, texture: "amounts", span: "" },
-  { title: "Ongoing support", scene: <IsoSupport />, texture: "lines", span: "md:col-span-2" },
+  { title: "Platform implementation", scene: <ImplementationScene />, texture: "grid", span: "" },
+  { title: "Architecture consulting", scene: <ArchitectureScene />, texture: "grid", span: "md:col-span-2" },
+  { title: "Licensing and compliance", scene: <LicensingScene />, texture: "binary", span: "md:col-span-2" },
+  { title: "Vendor selection", scene: <VendorScene />, texture: "ms", span: "" },
+  { title: "Mobile apps", scene: <MobileScene />, texture: "amounts", span: "" },
+  { title: "Ongoing support", scene: <SupportScene />, texture: "lines", span: "md:col-span-2" },
 ];
 
 export function ServicesGrid() {
   return (
     <section className="layer-v4 bg-bg">
-      <div className="mx-auto max-w-[1200px] px-5 pb-28 md:px-12 md:pb-40">
-        <p className="text-label text-pine-600">{servicesGrid.section.label}</p>
-        <h2 className="text-h2 mt-6 max-w-[16ch]">{servicesGrid.section.title}</h2>
+      <div className="mx-auto max-w-[1200px] px-5 py-28 md:px-12 md:py-40">
+        {/* лейбл секции удалён, заголовок по центру — грамматика шапок 2026-08-13
+            (как Approach); поле label в контенте живо — его читает реестр навигации */}
+        <h2 className="text-h2 mx-auto max-w-[20ch] text-center">{servicesGrid.section.title}</h2>
 
         <BentoGrid
           enableSpotlight={false}

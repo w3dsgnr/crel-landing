@@ -1,11 +1,6 @@
 // Тексты: docs/content.md §ОБЩЕЕ — дословно. Правки только после вычитки заказчиком.
 import type { FinalCtaContent, HeroContent, LandingState } from "./types";
 
-export const toggle = {
-  words: ["services", "platform"] as const,
-  ariaLabel: "Choose direction: services or platform",
-};
-
 // Hero объединённой страницы: команда в покое — c:rel_, подзаголовок держит
 // оба направления одной строкой (content.md §ОБЩЕЕ, вариант A).
 export const hero: HeroContent = {
@@ -30,13 +25,16 @@ export const footer = {
   copyright: "© Crel 2026",
 };
 
-// Якоря шапки: label — то, что видит человек; id — идентификатор секции.
-// Разведены намеренно: вычислять id из текста нельзя (см. Header.tsx).
+// Якоря шапки: label — то, что видит человек; id — идентификатор секции
+// из config/sections.ts. Разведены намеренно: вычислять id из текста нельзя.
+// «contact» в якорях нет — на него ведёт CTA-pill «talk to us» рядом.
 export const navAnchors: { label: string; id: string }[] = [
   { label: "the rail", id: "the-rail" },
+  { label: "who it's for", id: "who-its-for" },
   { label: "two ways in", id: "two-ways-in" },
+  { label: "how we work", id: "how-we-work" },
   { label: "compliance", id: "compliance" },
-  { label: "contact", id: "contact" },
+  { label: "proof", id: "proof" },
 ];
 
 // Заголовки веток развилки — единственный новый копирайт слияния (спека §3)

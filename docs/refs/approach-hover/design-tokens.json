@@ -1,0 +1,42 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "$description": "Feature cards with gradient hover — reference tokens + Crel adaptation. Source: 2 chat screenshots, 2026-08-13.",
+  "color": {
+    "surface": { "$value": "#FFFFFF", "$type": "color", "$description": "фон секции; confidence high" },
+    "card": { "$value": "#F5F4F1", "$type": "color", "$description": "плита карточки в покое; confidence high" },
+    "text-primary": { "$value": "#1A1A1A", "$type": "color", "$description": "заголовок и описание; confidence high" },
+    "text-muted": { "$value": "#7A7A76", "$type": "color", "$description": "подзаголовок, лейбл карточки; confidence high" },
+    "icon": { "$value": "#1A1A1A", "$type": "color", "$description": "линейные глифы, не инвертируются на hover; confidence high" },
+    "hover-ramp-top": { "$value": "#F7F4EF", "$type": "color", "$description": "верхний стоп hover-рампы; confidence medium" },
+    "hover-ramp-mid": { "$value": "#F5A96B", "$type": "color", "$description": "средний стоп; confidence medium" },
+    "hover-ramp-deep": { "$value": "#F2691D", "$type": "color", "$description": "нижний стоп; confidence medium" },
+    "hover-corner": { "$value": "#E85D0F", "$type": "color", "$description": "радиальное сгущение в углу текста; confidence medium" },
+    "text-on-hover": { "$value": "#FFFFFF", "$type": "color", "$description": "label + body на рампе; confidence high" },
+    "crel": {
+      "$description": "Адаптация под акцент Crel — оранжевый hue не переносится",
+      "card": { "$value": "#F5F5F7", "$type": "color", "$description": "= v4 --color-bg-mist" },
+      "accent": { "$value": "#2E7CF6", "$type": "color", "$description": "= v4 --color-accent; нижняя зона рампы" },
+      "accent-deep": { "$value": "#2668D9", "$type": "color", "$description": "сгущение угла под текстом; белый 5.17:1 AA" }
+    }
+  },
+  "dimension": {
+    "radius-card": { "$value": "24px", "$type": "dimension", "$description": "в Crel → --radius-xl 26px" },
+    "card-padding": { "$value": "32px", "$type": "dimension" },
+    "grid-gap": { "$value": "24px", "$type": "dimension" }
+  },
+  "typography": {
+    "display": {
+      "$type": "typography",
+      "$value": { "fontFamily": "geometric grotesque", "fontSize": "56px", "fontWeight": 600, "letterSpacing": "-0.02em" }
+    },
+    "card-label": {
+      "$type": "typography",
+      "$value": { "fontFamily": "geometric grotesque", "fontSize": "18px", "fontWeight": 400, "lineHeight": 1.3 },
+      "$description": "иерархия с body строится цветом, не кеглем"
+    },
+    "card-body": {
+      "$type": "typography",
+      "$value": { "fontFamily": "geometric grotesque", "fontSize": "18px", "fontWeight": 400, "lineHeight": 1.45 }
+    }
+  }
+}

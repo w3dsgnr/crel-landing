@@ -1,0 +1,36 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "color": {
+    "section-bg": { "$value": "#0A0A0A", "$type": "color", "$description": "чёрная сцена (= layer-v4-invert)" },
+    "card-bg": { "$value": "#2E7CF6", "$type": "color", "$description": "заливка карт — акцент v4; лайм референса не переносится" },
+    "card-bg-deep": { "$value": "#2668D9", "$type": "color", "$description": "запасная заливка, если AA лида не пройдёт" },
+    "card-text": { "$value": "#FFFFFF", "$type": "color" },
+    "card-text-soft": { "$value": "rgb(255 255 255 / 0.78)", "$type": "color", "$description": "лид; проверить AA на полировке" },
+    "card-line": { "$value": "rgb(255 255 255 / 0.85)", "$type": "color", "$description": "штрих глифов и декор-окружности" },
+    "section-heading": { "$value": "#F5F5F7", "$type": "color" }
+  },
+  "dimension": {
+    "radius-card": { "$value": "28px", "$type": "dimension" },
+    "stack-peek": { "$value": "56px", "$type": "dimension", "$description": "видимая шапка перекрытой карты" },
+    "icon-size": { "$value": "40px", "$type": "dimension" },
+    "icon-stroke": { "$value": "1.5px", "$type": "dimension" }
+  },
+  "typography": {
+    "section-display": {
+      "$type": "typography",
+      "$value": { "fontFamily": "var(--font-grotesk), sans-serif", "fontSize": "clamp(2rem, 3.6vw, 3rem)", "fontWeight": 500, "letterSpacing": "-0.02em", "lineHeight": 1.05 }
+    },
+    "card-label": {
+      "$type": "typography",
+      "$value": { "fontFamily": "var(--font-grotesk), sans-serif", "fontSize": "0.8125rem", "fontWeight": 500, "letterSpacing": "0.14em", "lineHeight": 1, "textTransform": "uppercase" }
+    },
+    "card-title": {
+      "$type": "typography",
+      "$value": { "fontFamily": "var(--font-grotesk), sans-serif", "fontSize": "clamp(1.75rem, 3vw, 2.75rem)", "fontWeight": 500, "letterSpacing": "-0.015em", "lineHeight": 1.08 }
+    },
+    "card-body": {
+      "$type": "typography",
+      "$value": { "fontFamily": "var(--font-grotesk), sans-serif", "fontSize": "1rem", "fontWeight": 400, "lineHeight": 1.55 }
+    }
+  }
+}

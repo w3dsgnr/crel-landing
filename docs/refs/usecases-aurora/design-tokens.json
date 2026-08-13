@@ -1,0 +1,64 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "color": {
+    "surface-page": { "$value": "#FFFFFF", "$type": "color" },
+    "card-base-from": { "$value": "#FDFDFD", "$type": "color", "$description": "верх ramp-базы карточки; confidence: medium" },
+    "card-base-to": { "$value": "#E9ECF1", "$type": "color", "$description": "низ ramp-базы карточки; confidence: medium" },
+    "ellipse-yellow": { "$value": "#FFE066", "$type": "color", "$description": "эллипс белый→жёлтый, левый край" },
+    "ellipse-coral": { "$value": "#FF8A5C", "$type": "color", "$description": "эллипс белый→коралловый, низ-лево" },
+    "ellipse-rose": { "$value": "#FF6B6B", "$type": "color", "$description": "эллипс белый→розовый, под предметом" },
+    "ellipse-blue": { "$value": "#8FB4F2", "$type": "color", "$description": "эллипс белый→голубой, правый низ" },
+    "text-primary": { "$value": "#1D1D1F", "$type": "color" },
+    "text-muted": { "$value": "#6E6E73", "$type": "color" },
+    "chip-active-bg": { "$value": "#1D1D1F", "$type": "color" },
+    "chip-idle-bg": { "$value": "#F5F5F7", "$type": "color" },
+    "accent": { "$value": "#2E7CF6", "$type": "color", "$description": "суффикс _ в табах; токен слоя v4" },
+    "glass-chip-bg": { "$value": "rgb(255 255 255 / 0.55)", "$type": "color" },
+    "glass-chip-border": { "$value": "rgb(255 255 255 / 0.85)", "$type": "color" }
+  },
+  "dimension": {
+    "radius-chip-pill": { "$value": "999px", "$type": "dimension" },
+    "radius-glass-chip": { "$value": "14px", "$type": "dimension" },
+    "radius-card": { "$value": "40px", "$type": "dimension" }
+  },
+  "typography": {
+    "section-display": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "var(--font-grotesk), sans-serif",
+        "fontSize": "clamp(2.25rem, 4.5vw, 3.75rem)",
+        "fontWeight": 500,
+        "letterSpacing": "-0.02em",
+        "lineHeight": 1.05
+      }
+    },
+    "case-title": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "var(--font-grotesk), sans-serif",
+        "fontSize": "clamp(1.625rem, 2.8vw, 2.375rem)",
+        "fontWeight": 500,
+        "letterSpacing": "-0.015em",
+        "lineHeight": 1.15
+      }
+    },
+    "case-body": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "var(--font-grotesk), sans-serif",
+        "fontSize": "1rem",
+        "fontWeight": 400,
+        "lineHeight": 1.6
+      }
+    },
+    "glass-chip": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "var(--font-grotesk), sans-serif",
+        "fontSize": "0.9375rem",
+        "fontWeight": 500,
+        "lineHeight": 1.2
+      }
+    }
+  }
+}

@@ -8,14 +8,17 @@ export const approach = {
   } satisfies SectionCopy,
   principles: [
     {
+      id: "audit",
       title: "Audit before architecture",
       body: "Every engagement starts with your flows, volumes and licensing reality, not a product pitch.",
     },
     {
+      id: "multi-provider",
       title: "Multi-provider by default",
       body: "One provider is a single point of failure. We design stacks that survive vendor churn.",
     },
     {
+      id: "compliance",
       title: "Compliance in the loop",
       body: "Regulatory scope is designed together with the build, not retrofitted after launch.",
     },
@@ -31,11 +34,12 @@ export const servicesGrid = {
     {
       title: "Platform implementation",
       body: "Crel Platform deployment and integration with your existing back office. Custom modules where the standard ones stop.",
-      // чек-лист модулей деплоя (образец данных)
+      // чек-лист модулей деплоя (образец данных); «payouts» — кастомный модуль,
+      // короткий лейбл: роль «custom» несёт пунктирный слот сцены
       miniMockup: [
         { label: "qasis kyc", chip: "enabled" },
         { label: "onramp / offramp", chip: "enabled" },
-        { label: "custom module: payouts", chip: "in build" },
+        { label: "payouts", chip: "in build" },
       ],
     },
     {
@@ -85,25 +89,31 @@ export const licensing = {
     title: "Compliance, structured before it blocks you", // V2: "The regulatory track, run in parallel"
   } satisfies SectionCopy,
   cards: [
+    // mark — водяной знак карточки-«документа» (гигантский призрачный
+    // текст регуляции в углу белой карточки, LicensingStack v4)
     {
       title: "MiCA CASP and entity structuring",
       body: "We structure the applicant entity in Switzerland or the EU and guide your CASP authorisation, from policies to regulator dialogue.",
       track: "track: casp authorisation", // [VERIFY: публичность стадий]
+      mark: "MiCA",
     },
     {
       title: "EMI partnerships",
       body: "Fiat rails through partner EMIs: safeguarding accounts, IBAN issuing and card programs, before you hold a licence of your own.",
       track: "track: emi partnership", // [VERIFY: состав EMI-партнёрств]
+      mark: "EMI",
     },
     {
       title: "PCI DSS scope",
       body: "We scope your card data flows to the right SAQ level and keep sensitive data out of your systems.",
       track: "track: pci dss saq",
+      mark: "PCI DSS",
     },
     {
       title: "AML, Travel Rule, KYC/KYB",
       body: "Risk-based AML program, Travel Rule messaging and KYC and KYB flows that satisfy your banking and regulatory counterparties.",
       track: "track: aml program",
+      mark: "AML",
     },
   ],
 };

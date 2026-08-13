@@ -1,54 +1,31 @@
 "use client";
 
-// Владелец состояния лендинга. Переключение — «Перепечатка» через
-// useSwitchOrchestrator; один адрес, история не трогается.
-import { useCallback, useEffect, useRef, useState } from "react";
+// Каркас лендинга объединённой страницы: одна страница, один рельс —
+// переключателя services/platform больше нет, все секции идут плоским потоком.
+import { useEffect, useRef, useState } from "react";
 import { Header } from "./Header";
 import { Hero } from "./Hero";
 import { SectionRenderer } from "./SectionRenderer";
 import { LogoBand } from "@/components/sections/shared/LogoBand";
 import { FinalCta } from "@/components/sections/shared/FinalCta";
 import { Footer } from "@/components/sections/shared/Footer";
-import type { LandingState } from "@/content/types";
 import { initLenis } from "@/lib/lenis";
 import { useTypewriter } from "@/lib/useTypewriter";
 import { useHeroCycle } from "@/lib/useHeroCycle";
-import { useSwitchOrchestrator } from "@/lib/useSwitchOrchestrator";
 import { useReveal } from "@/lib/reveal";
 
 export function Landing() {
-  const [selected, setSelected] = useState<LandingState | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLElement>(null);
-  const caretRef = useRef<HTMLDivElement>(null);
   const argRef = useRef<HTMLSpanElement>(null);
   const cursorRef = useRef<HTMLSpanElement>(null);
   const subWrapRef = useRef<HTMLDivElement>(null);
 
   const typewriter = useTypewriter(argRef, cursorRef);
 
-  const applySelected = useCallback((next: LandingState) => setSelected(next), []);
-
-  const { switchTo } = useSwitchOrchestrator({
-    selected,
-    applySelected,
-    typewriter,
-    caretRef,
-  });
-
-  // Авто-цикл rel → platform → services, пока направление не выбрано
-  const stopHeroCycle = useHeroCycle(typewriter, selected === null);
-
-  // Гасим цикл синхронно ДО оркестратора: его retype идёт раньше applySelected,
-  // и остановка только по selected успела бы уже после начала перепечатки
-  const handleSwitch = useCallback(
-    (next: LandingState) => {
-      stopHeroCycle();
-      switchTo(next);
-    },
-    [stopHeroCycle, switchTo]
-  );
+  // Авто-цикл заголовка hero: rel → platform → services, бессрочно
+  useHeroCycle(typewriter, true);
 
   useEffect(() => {
     initLenis();
@@ -69,13 +46,9 @@ export function Landing() {
   return (
     <>
       <div ref={sentinelRef} aria-hidden className="absolute top-0 h-px w-px" />
-      <Header selected={selected} onSwitch={handleSwitch} scrolled={scrolled} caretRef={caretRef} />
-      {/* aria-live анонс состояния для скринридеров */}
-      <p aria-live="polite" className="sr-only">
-        {selected}
-      </p>
+      <Header scrolled={scrolled} />
       <main ref={mainRef} className="flex-1">
-        <Hero selected={selected} argRef={argRef} cursorRef={cursorRef} subWrapRef={subWrapRef} />
+        <Hero selected={null} argRef={argRef} cursorRef={cursorRef} subWrapRef={subWrapRef} />
         {/* общий каркас: лента логотипов под hero, CTA и футер — persistent */}
         <LogoBand />
         <SectionRenderer />
