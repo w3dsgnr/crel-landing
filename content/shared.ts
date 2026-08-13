@@ -1,5 +1,11 @@
 // Тексты: docs/content.md §ОБЩЕЕ — дословно. Правки только после вычитки заказчиком.
-import type { FinalCtaContent, HeroContent, LandingState } from "./types";
+import type {
+  FinalCtaContent,
+  FinaleContent,
+  HeroContent,
+  LandingState,
+  LegalDocId,
+} from "./types";
 
 // Hero объединённой страницы: команда в покое — c:rel_, подзаголовок держит
 // оба направления одной строкой (content.md §ОБЩЕЕ, вариант A).
@@ -16,6 +22,22 @@ export const finalCta: FinalCtaContent = {
   ctaPrimary: "Talk to us_",
 };
 
+// Синий финальный блок (спека 2026-08-13), заменяет FinalCta: логотип-циклер +
+// форма захвата e-mail + CTA модалки контакта. finalCta выше пока не трогаем —
+// его снимет Агент 3 вместе с компонентом FinalCta.
+export const finale: FinaleContent = {
+  sub: "First call is a working session on your stack, not a pitch.",
+  emailLead: "Not ready to talk? Leave an email — we write when there is something to show.",
+  emailPlaceholder: "you@company.com",
+  emailSubmit: "Subscribe",
+  emailSending: "Sending",
+  emailSuccess: "You're on the list. We write rarely.",
+  emailErrorGeneric: "Could not subscribe. Write to info@crel.ch instead.",
+  consentPrefix: "By subscribing you accept the ",
+  consentLinkLabel: "privacy policy",
+  ctaPrimary: "Talk to us_",
+};
+
 export const footer = {
   legal:
     "Crel [AG], [street, postcode] Zurich, Switzerland. [Company / VAT registration numbers]", // [VERIFY: credentials от Roman]
@@ -23,6 +45,16 @@ export const footer = {
     "[Placeholder: certifications / registrations, pending confirmation]", // [VERIFY]
   email: "info@crel.ch",
   copyright: "© Crel 2026",
+  // Расширение спекой 2026-08-13: футер финала — две группы ссылок
+  // (навигация по секциям и легал-модалки, см. content/legal.ts).
+  navLabel: "site",
+  legalLabel: "legal",
+  legalLinks: [
+    { id: "privacy", label: "privacy" },
+    { id: "cookies", label: "cookies" },
+    { id: "terms", label: "terms" },
+    { id: "imprint", label: "imprint" },
+  ] satisfies { id: LegalDocId; label: string }[],
 };
 
 // Якоря шапки: label — то, что видит человек; id — идентификатор секции
