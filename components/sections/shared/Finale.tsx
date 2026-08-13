@@ -32,6 +32,12 @@ type LeadPhase = "idle" | "submitting" | "success";
  *  сжимается пустая полоса. */
 const D_QUICK_MS = 200;
 
+/** общий калибр белой пилюли CTA — тот же приём, что у LINK в Footer.tsx этого
+ *  коммита: форма и hover едины, паддинги и лэйаут остаются за вызывающей
+ *  стороной (кнопка ряда формы и CtaButton несут разную геометрию) */
+const PILL =
+  "rounded-(--radius-pill) bg-white text-[0.8125rem] lowercase tracking-[0.08em] text-ink transition-[background-color,transform] duration-(--d-quick) hover:-translate-y-px hover:bg-white/90";
+
 /** Кольцо-чек успеха — словарь тоста приборов (ContactForm.tsx §SuccessRing),
  *  перекрашенный под синюю плоскость: обводка и галка белые. Акцентный синий
  *  здесь был бы невидим — та же причина, по которой бел курсор логотипа.
@@ -63,6 +69,7 @@ export function Finale() {
   const sectionRef = useRef<HTMLElement>(null);
   const argRef = useRef<HTMLSpanElement>(null);
   const cursorRef = useRef<HTMLSpanElement>(null);
+  const successRef = useRef<HTMLDivElement>(null);
 
   const [inView, setInView] = useState(false);
   const typewriter = useTypewriter(argRef, cursorRef);
@@ -103,6 +110,15 @@ export function Finale() {
 
   const busy = phase === "submitting";
   const done = phase === "success";
+
+  // WCAG 2.4.3 (порядок фокуса): на успехе кнопка сабмита, на которой стоял
+  // фокус, становится disabled — браузер снимает фокус на body, и Tab по
+  // странице начинался бы заново с начала документа. Уводим фокус на строку
+  // успеха явно; tabIndex=-1 на ней держит её вне таб-порядка — это
+  // программный якорь для скринридера, а не интерактивный элемент.
+  useEffect(() => {
+    if (done) successRef.current?.focus({ preventScroll: true });
+  }, [done]);
 
   // Текст ошибки переживает схлопывание шторки — см. Field.tsx: живой регион
   // отдаём пустым только после перехода, иначе схлопывается пустая полоса.
@@ -200,7 +216,9 @@ export function Finale() {
                     type="email"
                     name="email"
                     autoComplete="email"
-                    // видимой подписи у ряда нет: роль поля несёт placeholder,
+                    // видимой подписи у ряда нет: у поля есть aria-label, но
+                    // видимую роль несёт placeholder — поэтому он держит AA
+                    // (white/90 = 4.51:1 на #2668d9), а не декоративные /70;
                     // имя для скринридера — тот же лейбл, что у поля в модалке
                     aria-label={contact.emailLabel}
                     aria-invalid={error ? true : undefined}
@@ -211,13 +229,13 @@ export function Finale() {
                     // на успехе тоже disabled: схлопнутый ряд остаётся в DOM, и
                     // там, где inert не поддержан, живой инпут ловил бы Tab
                     disabled={busy || done}
-                    className="min-w-0 flex-1 bg-transparent text-[0.9375rem] text-white outline-none placeholder:text-white/70 disabled:cursor-not-allowed"
+                    className="min-w-0 flex-1 bg-transparent text-[0.9375rem] text-white outline-none placeholder:text-white/90 disabled:cursor-not-allowed"
                   />
                   {/* белая пилюля — словарь инвертированного CTA (hero на чёрном) */}
                   <button
                     type="submit"
                     disabled={busy || done}
-                    className="shrink-0 cursor-pointer rounded-(--radius-pill) bg-white px-5 py-2.5 text-[0.8125rem] lowercase tracking-[0.08em] text-ink transition-[background-color,transform] duration-(--d-quick) hover:-translate-y-px hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-70"
+                    className={`shrink-0 cursor-pointer ${PILL} px-5 py-2.5 disabled:cursor-not-allowed disabled:opacity-70`}
                   >
                     {busy ? finale.emailSending : finale.emailSubmit}
                   </button>
@@ -246,9 +264,15 @@ export function Finale() {
                 Стартовую позу телу даёт @starting-style (globals.css). */}
             <div className="finale-success grid" style={{ gridTemplateRows: done ? "1fr" : "0fr" }}>
               <div className="overflow-hidden">
-                <div role="status" aria-live="polite">
+                {/* role="status" уже подразумевает aria-live="polite" — явный
+                    дубль старые скринридеры объявляют дважды */}
+                <div role="status">
                   {done && (
-                    <div className="finale-success-body flex items-center gap-3">
+                    <div
+                      ref={successRef}
+                      tabIndex={-1}
+                      className="finale-success-body flex items-center gap-3"
+                    >
                       <SuccessRing />
                       <p className="text-[0.9375rem]">{finale.emailSuccess}</p>
                     </div>
@@ -292,7 +316,7 @@ function CtaButton({ label, onClick }: { label: string; onClick(): void }) {
     <button
       type="button"
       onClick={onClick}
-      className="group inline-flex cursor-pointer items-baseline rounded-(--radius-pill) bg-white px-7 py-3.5 text-[0.8125rem] lowercase tracking-[0.08em] text-ink transition-[background-color,transform] duration-(--d-quick) hover:-translate-y-px hover:bg-white/90"
+      className={`group inline-flex cursor-pointer items-baseline ${PILL} px-7 py-3.5`}
     >
       {text}
       {hasCursor && (

@@ -41,6 +41,9 @@ export function LegalModal({
   onExited(): void;
 }): ReactElement {
   const panelRef = useRef<HTMLDivElement>(null);
+  // Скроллится оверлей (contact-overlay: overflow-y-auto), не панель — она сама
+  // не прокручивается. Ссылка нужна только для сброса scrollTop при смене doc.id.
+  const overlayRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
 
   // Лок живёт ровно столько, сколько узел — см. ContactModal.
@@ -96,11 +99,17 @@ export function LegalModal({
   // документ читают, а не заполняют, так что альтернативы для точного
   // указателя тоже нет.
   // doc.id в зависимостях: смена документа поверх уже открытой модалки должна
-  // переобъявить фокус — скринридер заново озвучит aria-labelledby (новый h2)
-  // и прокрутка панели сбросится; хореографию это не трогает, она на data-state.
+  // переобъявить фокус и сбросить прокрутку. Рефокус на панель заново озвучит
+  // aria-labelledby (новый h2), если фокус до этого стоял не на ней; если уже
+  // был на панели — повторный .focus() ничего не меняет. Прокручивается сам
+  // оверлей, а не панель, поэтому scrollTop сбрасываем явно на нём — иначе
+  // смена документа при прокрученном оверлее оставила бы читателя посреди
+  // нового текста. Хореографию это не трогает, она на data-state — фокус и
+  // scrollTop безопасны.
   useEffect(() => {
     if (state !== "open") return;
     panelRef.current?.focus({ preventScroll: true });
+    if (overlayRef.current) overlayRef.current.scrollTop = 0;
   }, [state, doc.id]);
 
   // Шов ухода — дословно ContactModal: узел живёт до конца перехода и только
@@ -142,6 +151,7 @@ export function LegalModal({
 
   return (
     <div
+      ref={overlayRef}
       data-state={state}
       onPointerDown={onBackdropPointerDown}
       className="contact-overlay fixed inset-0 z-50 flex overflow-y-auto overscroll-contain p-4 md:p-6"
