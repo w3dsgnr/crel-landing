@@ -148,18 +148,6 @@ export const useCases = {
   ],
 };
 
-export const partners = {
-  section: {
-    label: "04: partners",
-    title: "Who we build with", // V2: "Partners and integrations"
-  } satisfies SectionCopy,
-  // [PLACEHOLDER: логотипы от Roman]
-  quote: {
-    text: "[PLACEHOLDER quote, 2-3 lines]",
-    attribution: "[Name], [Role], [Company]",
-  },
-};
-
 /* Микротексты мокапов — docs/content.md, дословно */
 export const mockups = {
   ramp: {
