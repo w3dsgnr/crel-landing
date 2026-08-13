@@ -38,6 +38,10 @@ export interface LegalDoc {
 /** Тексты финального блока страницы (спека 2026-08-13): тезис под логотипом,
  *  форма захвата e-mail и CTA модалки контакта. */
 export interface FinaleContent {
+  /** незримый заголовок секции для скринридеров */
+  srTitle: string;
+  /** aria-label формы подписки */
+  formAria: string;
   sub: string;
   emailLead: string;
   emailPlaceholder: string;

@@ -93,11 +93,10 @@ export function Finale() {
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
-    // 0.35 — секция занимает экран целиком, и «в кадре» для неё означает не
-    // «показался край», а «человек на ней стоит»
-    const io = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), {
-      threshold: 0.35,
-    });
+    // isIntersecting переключается на границе 0 — порог тут ни на что не
+    // влияет. Фактическое поведение: цикл заводится с первого видимого
+    // пикселя секции и глохнет, только когда она целиком уходит за экран.
+    const io = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting));
     io.observe(el);
     return () => io.disconnect();
   }, []);
@@ -170,7 +169,7 @@ export function Finale() {
     >
       <div className="mx-auto my-auto w-full max-w-[1200px] px-5 py-28 md:px-12">
         {/* смысл секции для скринридера: логотип ниже — декорация */}
-        <h2 className="sr-only">Contact</h2>
+        <h2 className="sr-only">{finale.srTitle}</h2>
 
         {/* Разметка машины печати — дословно hero: "c:" статичен, аргументом
             после монтирования владеет useTypewriter (пишет в textContent).
@@ -200,7 +199,7 @@ export function Finale() {
               ошибки и не подчиняются языку сайта. data-phase / data-alert —
               ручки для хореографии: она читает состояние из DOM, не из React. */}
           <form
-            aria-label="email updates"
+            aria-label={finale.formAria}
             onSubmit={onSubmit}
             noValidate
             data-phase={phase}

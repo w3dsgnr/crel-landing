@@ -18,6 +18,8 @@ export const hero: HeroContent = {
 // Синий финальный блок (спека 2026-08-13), заменил собой FinalCta: логотип-циклер +
 // форма захвата e-mail + CTA модалки контакта.
 export const finale: FinaleContent = {
+  srTitle: "Contact",
+  formAria: "email updates",
   sub: "First call is a working session on your stack, not a pitch.",
   emailLead: "Not ready to talk? Leave an email — we write when there is something to show.",
   emailPlaceholder: "you@company.com",

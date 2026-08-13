@@ -22,7 +22,7 @@ const privacy: LegalDoc = {
     {
       heading: "Data we collect",
       paras: [
-        "We collect only what you type into the forms on this site. There is no other source: no cookies, no analytics, no third-party trackers.",
+        "We collect only what you type into the forms on this site: no cookies, no analytics, no third-party trackers. Our hosting provider may keep standard access logs (including IP addresses) [VERIFY: hosting provider and log retention].",
       ],
       bullets: [
         "Contact form: your name, email address and message",
@@ -167,6 +167,3 @@ const imprint: LegalDoc = {
 };
 
 export const legalDocs: Record<LegalDocId, LegalDoc> = { privacy, cookies, terms, imprint };
-
-// Порядок вкладок/ссылок легал-модалки — совпадает с footer.legalLinks (content/shared.ts).
-export const legalOrder: LegalDocId[] = ["privacy", "cookies", "terms", "imprint"];
