@@ -1,6 +1,5 @@
 // Тексты: docs/content.md §ОБЩЕЕ — дословно. Правки только после вычитки заказчиком.
 import type {
-  FinalCtaContent,
   FinaleContent,
   HeroContent,
   LandingState,
@@ -16,15 +15,8 @@ export const hero: HeroContent = {
   ctaPrimary: "Talk to us_",
 };
 
-export const finalCta: FinalCtaContent = {
-  title: "Tell us what you are building",
-  sub: "First call is a working session on your stack, not a pitch.",
-  ctaPrimary: "Talk to us_",
-};
-
-// Синий финальный блок (спека 2026-08-13), заменяет FinalCta: логотип-циклер +
-// форма захвата e-mail + CTA модалки контакта. finalCta выше пока не трогаем —
-// его снимет Агент 3 вместе с компонентом FinalCta.
+// Синий финальный блок (спека 2026-08-13), заменил собой FinalCta: логотип-циклер +
+// форма захвата e-mail + CTA модалки контакта.
 export const finale: FinaleContent = {
   sub: "First call is a working session on your stack, not a pitch.",
   emailLead: "Not ready to talk? Leave an email — we write when there is something to show.",

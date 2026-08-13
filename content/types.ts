@@ -16,12 +16,6 @@ export interface SectionCopy {
   sub?: string;
 }
 
-export interface FinalCtaContent {
-  title: string;
-  sub: string;
-  ctaPrimary: string;
-}
-
 /** Легал-документы (спека 2026-08-13 §Контент легала): id совпадает с ключом
  *  footer.legalLinks и с записью в legalDocs (content/legal.ts). */
 export type LegalDocId = "privacy" | "cookies" | "terms" | "imprint";

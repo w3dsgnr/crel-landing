@@ -7,7 +7,7 @@ import { Header } from "./Header";
 import { Hero } from "./Hero";
 import { SectionRenderer } from "./SectionRenderer";
 import { LogoBand } from "@/components/sections/shared/LogoBand";
-import { FinalCta } from "@/components/sections/shared/FinalCta";
+import { Finale } from "@/components/sections/shared/Finale";
 import { Footer } from "@/components/sections/shared/Footer";
 import { ContactModalProvider } from "@/components/contact/ContactModalProvider";
 import { LegalModalProvider } from "@/components/legal/LegalModalProvider";
@@ -58,11 +58,13 @@ export function Landing() {
         <Header scrolled={scrolled} />
         <main ref={mainRef} className="flex-1">
           <Hero selected={null} argRef={argRef} cursorRef={cursorRef} subWrapRef={subWrapRef} />
-          {/* общий каркас: лента логотипов под hero, CTA и футер — persistent */}
+          {/* общий каркас: лента логотипов под hero, финал и футер — persistent */}
           <LogoBand />
           <SectionRenderer />
-          <FinalCta />
+          <Finale />
         </main>
+        {/* футер вне main (landmark contentinfo) и вплотную к финалу: у обоих
+            один #2668d9 — плоскость продолжается, шва не видно */}
         <Footer />
       </LegalModalProvider>
     </ContactModalProvider>

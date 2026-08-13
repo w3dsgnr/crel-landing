@@ -1,0 +1,308 @@
+"use client";
+
+// Финал страницы (спека 2026-08-13) — синяя плоскость во весь экран: та же
+// машина печати, что в hero, форма захвата e-mail и CTA модалки контакта.
+// Заменяет FinalCta; якорь #contact переехал сюда вместе с ролью «конец
+// разговора».
+//
+// Цвет: .grad-finale — свечение бренда #2e7cf6 за логотипом, к низу ровный
+// #2668d9. Мелкий белый текст живёт ТОЛЬКО на ровной части (5.17:1, AA);
+// вторичный калибр — white/85, ниже не опускаемся (правило v4).
+//
+// Директива "use client" здесь нужна не ради контекста модалок (Landing уже
+// клиентский), а ради собственных хуков: машина печати, IntersectionObserver
+// и состояние формы живут в этом модуле.
+import { useEffect, useId, useRef, useState } from "react";
+import { contact, finale, hero } from "@/content/shared";
+import { submitLead, type SubmitResult } from "@/lib/submitLead";
+import { validateField } from "@/lib/validateContact";
+import { useContactModal } from "@/components/contact/ContactModalProvider";
+import { useLegalModal } from "@/components/legal/LegalModalProvider";
+import { useTypewriter } from "@/lib/useTypewriter";
+import { useHeroCycle } from "@/lib/useHeroCycle";
+
+/** Фазы формы захвата. «error» фазой не является: провал отправки и ошибка
+ *  валидации — это одна и та же шторка под рядом, а сам ряд остаётся живым и
+ *  готовым к повтору (в отличие от модалки контакта, где фаза правит целой
+ *  очередью схлопывания). */
+type LeadPhase = "idle" | "submitting" | "success";
+
+/** = --d-quick. Удержание текста ошибки на время схлопывания шторки —
+ *  дословно приём Field.tsx: снимать текст в тот же кадр нельзя, иначе
+ *  сжимается пустая полоса. */
+const D_QUICK_MS = 200;
+
+/** Кольцо-чек успеха — словарь тоста приборов (ContactForm.tsx §SuccessRing),
+ *  перекрашенный под синюю плоскость: обводка и галка белые. Акцентный синий
+ *  здесь был бы невидим — та же причина, по которой бел курсор логотипа.
+ *  finale-success-ring — ручка для «щелчка» в конце сцены (globals.css). */
+function SuccessRing() {
+  return (
+    <span
+      aria-hidden
+      className="finale-success-ring flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-white"
+    >
+      <svg viewBox="0 0 12 12" className="size-3.5">
+        <path
+          d="M2 6.2 5 9l5-6"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </span>
+  );
+}
+
+export function Finale() {
+  const { open } = useContactModal();
+  const { openLegal } = useLegalModal();
+
+  const sectionRef = useRef<HTMLElement>(null);
+  const argRef = useRef<HTMLSpanElement>(null);
+  const cursorRef = useRef<HTMLSpanElement>(null);
+
+  const [inView, setInView] = useState(false);
+  const typewriter = useTypewriter(argRef, cursorRef);
+  // Цикл гейтится вьюпортом (спека §Motion): за экраном таймеры не тикают.
+  // Единственный санкционированный бесконечный цикл сайта — машина печати, и
+  // держать вторую копию работающей на невидимой секции незачем.
+  useHeroCycle(typewriter, inView);
+
+  // Уход за экран возвращает аргумент в исходное «rel». Без этого цикл при
+  // возврате стартовал бы с шага 0 («rel» → «platform»), считая длину стирания
+  // по WORDS[0], а на экране стояло бы другое слово — таймеры разъехались бы с
+  // печатью. Сброс невидим по определению: секции в кадре нет.
+  // Машина печати через ref (приём самого useHeroCycle): она отдаёт новый
+  // объект на каждый рендер, а сброс обязан случаться только на смене видимости.
+  const typewriterRef = useRef(typewriter);
+  typewriterRef.current = typewriter;
+  useEffect(() => {
+    if (!inView) typewriterRef.current.skipTo(hero.restArg);
+  }, [inView]);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    // 0.35 — секция занимает экран целиком, и «в кадре» для неё означает не
+    // «показался край», а «человек на ней стоит»
+    const io = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), {
+      threshold: 0.35,
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [phase, setPhase] = useState<LeadPhase>("idle");
+  const uid = useId();
+  const errorId = `${uid}-error`;
+
+  const busy = phase === "submitting";
+  const done = phase === "success";
+
+  // Текст ошибки переживает схлопывание шторки — см. Field.tsx: живой регион
+  // отдаём пустым только после перехода, иначе схлопывается пустая полоса.
+  const [held, setHeld] = useState<string | null>(null);
+  useEffect(() => {
+    if (error) {
+      setHeld(error);
+      return;
+    }
+    const t = window.setTimeout(() => setHeld(null), D_QUICK_MS);
+    return () => window.clearTimeout(t);
+  }, [error]);
+  const shownError = error ?? held;
+
+  const change = (v: string) => {
+    setEmail(v);
+    // late validation / early revalidation — грамматика формы контакта:
+    // до первой показанной ошибки поле молчит, после — переспрашивается
+    if (error) setError(validateField("email", v));
+  };
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    // preventDefault, иначе статический экспорт просто перезагрузит страницу
+    e.preventDefault();
+    if (busy || done) return;
+
+    const found = validateField("email", email);
+    setError(found);
+    if (found) return;
+
+    setPhase("submitting");
+    const result: SubmitResult = await submitLead({ email });
+    if (result.ok) {
+      setPhase("success");
+      return;
+    }
+    // адрес остаётся в поле: повтор — по той же кнопке
+    setError(result.error || finale.emailErrorGeneric);
+    setPhase("idle");
+  };
+
+  return (
+    <section
+      ref={sectionRef}
+      id="contact"
+      // min-h-dvh + my-auto у контейнера: финал занимает экран целиком, контент
+      // стоит по его центру. Футер ниже несёт тот же #2668d9 — шва не видно.
+      className="grad-finale flex min-h-dvh flex-col text-white"
+    >
+      <div className="mx-auto my-auto w-full max-w-[1200px] px-5 py-28 md:px-12">
+        {/* смысл секции для скринридера: логотип ниже — декорация */}
+        <h2 className="sr-only">Contact</h2>
+
+        {/* Разметка машины печати — дословно hero: "c:" статичен, аргументом
+            после монтирования владеет useTypewriter (пишет в textContent).
+            Курсор БЕЛЫЙ: акцентный синий на синей плоскости невидим. */}
+        <div aria-hidden className="text-finale select-none">
+          c:
+          <span ref={argRef} suppressHydrationWarning>
+            {hero.restArg}
+          </span>
+          <span ref={cursorRef} className="cursor-blink">
+            _
+          </span>
+        </div>
+
+        <p data-reveal className="mt-8 max-w-[46ch] text-[1.0625rem] leading-relaxed">
+          {finale.sub}
+        </p>
+
+        <div data-reveal className="mt-12 max-w-[460px]">
+          {/* вторичный калибр — white/90, а не /85: на #2668d9 замер даёт 4.51:1
+              против 4.20:1, и только первое проходит AA для мелкого текста.
+              Спека называет /85 полом вторичного — здесь пол поднят до
+              ближайшего значения, которое держит норму */}
+          <p className="text-[0.875rem] leading-relaxed text-white/90">{finale.emailLead}</p>
+
+          {/* noValidate: нативные пузыри браузера конкурировали бы со шторкой
+              ошибки и не подчиняются языку сайта. data-phase / data-alert —
+              ручки для хореографии: она читает состояние из DOM, не из React. */}
+          <form
+            aria-label="email updates"
+            onSubmit={onSubmit}
+            noValidate
+            data-phase={phase}
+            data-alert={error ? "on" : "off"}
+            className="mt-4"
+          >
+            <div className="finale-row grid" style={{ gridTemplateRows: done ? "0fr" : "1fr" }} inert={done}>
+              <div className="finale-row-clip overflow-hidden">
+                {/* стекло на цветной плоскости — существующий рецепт .glass-tint;
+                    кнопка сидит внутри пилюли, поэтому корпус на p-1.5 */}
+                <div className="glass-tint flex items-center gap-2 rounded-(--radius-pill) py-1.5 pr-1.5 pl-5 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-white">
+                  <input
+                    type="email"
+                    name="email"
+                    autoComplete="email"
+                    // видимой подписи у ряда нет: роль поля несёт placeholder,
+                    // имя для скринридера — тот же лейбл, что у поля в модалке
+                    aria-label={contact.emailLabel}
+                    aria-invalid={error ? true : undefined}
+                    aria-describedby={error ? errorId : undefined}
+                    placeholder={finale.emailPlaceholder}
+                    value={email}
+                    onChange={(e) => change(e.target.value)}
+                    // на успехе тоже disabled: схлопнутый ряд остаётся в DOM, и
+                    // там, где inert не поддержан, живой инпут ловил бы Tab
+                    disabled={busy || done}
+                    className="min-w-0 flex-1 bg-transparent text-[0.9375rem] text-white outline-none placeholder:text-white/70 disabled:cursor-not-allowed"
+                  />
+                  {/* белая пилюля — словарь инвертированного CTA (hero на чёрном) */}
+                  <button
+                    type="submit"
+                    disabled={busy || done}
+                    className="shrink-0 cursor-pointer rounded-(--radius-pill) bg-white px-5 py-2.5 text-[0.8125rem] lowercase tracking-[0.08em] text-ink transition-[background-color,transform] duration-(--d-quick) hover:-translate-y-px hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    {busy ? finale.emailSending : finale.emailSubmit}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* шторка ошибки: grid-template-rows 0fr → 1fr, как у поля формы
+                контакта. Цвет предупреждения на синем взять неоткуда
+                (--v4-warn читался бы как декор) — текст белый, роль несёт
+                role="alert" на постоянно смонтированном контейнере */}
+            <div
+              id={errorId}
+              role="alert"
+              className="finale-alert grid"
+              style={{ gridTemplateRows: error ? "1fr" : "0fr" }}
+            >
+              <div className="overflow-hidden">
+                <p className="px-5 pt-2 text-[0.8125rem]">{shownError}</p>
+              </div>
+            </div>
+
+            {/* Вердикт: ряд схлопывается, на его месте прирастает строка с
+                кольцом-чеком. Живой регион смонтирован всегда, содержимое
+                приходит в момент успеха — иначе часть скринридеров молчит.
+                Стартовую позу телу даёт @starting-style (globals.css). */}
+            <div className="finale-success grid" style={{ gridTemplateRows: done ? "1fr" : "0fr" }}>
+              <div className="overflow-hidden">
+                <div role="status" aria-live="polite">
+                  {done && (
+                    <div className="finale-success-body flex items-center gap-3">
+                      <SuccessRing />
+                      <p className="text-[0.9375rem]">{finale.emailSuccess}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* согласие: подчёркнутая кнопка открывает privacy-модалку.
+                type="button" обязателен — внутри формы это был бы сабмит */}
+            <p className="mt-3 text-[0.75rem] leading-relaxed text-white/90">
+              {finale.consentPrefix}
+              <button
+                type="button"
+                onClick={() => openLegal("privacy")}
+                className="cursor-pointer underline underline-offset-2 transition-colors duration-(--d-quick) hover:text-white"
+              >
+                {finale.consentLinkLabel}
+              </button>
+            </p>
+          </form>
+        </div>
+
+        {/* второй путь того же разговора: не письмо в список, а прямой контакт */}
+        <div data-reveal className="mt-10">
+          <CtaButton label={finale.ctaPrimary} onClick={open} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** CTA финала — белая пилюля на синем (инверсия словаря hero). Глиф «_»
+ *  проявляется по наведению акцентным синим: на белой кнопке он читается,
+ *  на самой плоскости — нет. */
+function CtaButton({ label, onClick }: { label: string; onClick(): void }) {
+  const text = label.endsWith("_") ? label.slice(0, -1) : label;
+  const hasCursor = label.endsWith("_");
+  return (
+    // cursor-pointer — компенсация preflight Tailwind v4: у <button> его нет
+    <button
+      type="button"
+      onClick={onClick}
+      className="group inline-flex cursor-pointer items-baseline rounded-(--radius-pill) bg-white px-7 py-3.5 text-[0.8125rem] lowercase tracking-[0.08em] text-ink transition-[background-color,transform] duration-(--d-quick) hover:-translate-y-px hover:bg-white/90"
+    >
+      {text}
+      {hasCursor && (
+        <span
+          aria-hidden
+          className="text-accent opacity-0 transition-opacity duration-(--d-quick) group-hover:opacity-100"
+        >
+          _
+        </span>
+      )}
+    </button>
+  );
+}

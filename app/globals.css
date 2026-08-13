@@ -493,3 +493,119 @@ body {
     transition: none;
   }
 }
+
+/* ── Финал страницы: синяя плоскость (спека 2026-08-13) ────────────────────
+   Свечение бренда за логотипом, к низу — ровный #2668d9 (AA 5.17:1 мелкому
+   белому; чистый #2e7cf6 под текстом запрещён — правило v4). Логотип стоит в
+   верхней трети, то есть ровно там, где свечение ещё живо: display-калибр это
+   выдерживает, мелкий текст ниже — уже на ровной части. */
+.grad-finale {
+  background:
+    radial-gradient(90% 60% at 50% 0%, rgb(46 124 246 / 0.9), rgb(46 124 246 / 0) 70%),
+    #2668d9;
+}
+
+/* шов финала и футера — один цвет: футер продолжает ту же плоскость плоской
+   заливкой, поэтому границы между ними не видно (спека §Визуальный словарь) */
+.bg-finale {
+  background: #2668d9;
+}
+
+.text-finale {
+  /* та же анатомия, что у .text-display, поднят только потолок: логотип финала —
+     последний кадр страницы и держит экран один. 11vw — калибр «c:platform_ не
+     переносится на 360px» */
+  font-size: clamp(2.75rem, 11vw, 9rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Плоскость живёт вне скоупа .layer-v4, где акцент синий, — у корня
+   --color-accent всё ещё зелёный v3. Переобъявляем точечно (приём
+   .contact-modal): роль «акцент» нужна глифу «_» на белой пилюле. */
+.grad-finale,
+.bg-finale {
+  --color-accent: #2e7cf6;
+}
+
+/* Фокус здесь белый, а не акцентный: синее кольцо на синей плоскости невидимо —
+   та же причина, по которой бел курсор логотипа. Специфичность выше
+   глобального правила (globals.css §фокус), цвет приходит поверх. */
+.grad-finale :where(a, button):focus-visible,
+.bg-finale :where(a, button):focus-visible {
+  outline-color: #ffffff;
+}
+
+/* ── Форма захвата e-mail: шторки и фазы ───────────────────────────────────
+   Грамматика дословно contact-хореографии (см. §«Отправка» выше), укороченная
+   до одного ряда: схлопывается ряд формы, на его месте прирастает строка
+   успеха. Асимметрия кривых та же — раскрытие --ease-out-expo (появление
+   обязано начинаться сразу), схлопывание --ease-swap (смена состояния). */
+.finale-row {
+  transition: grid-template-rows var(--d-quick) var(--ease-swap);
+}
+/* содержимое гаснет вдвое быстрее, чем закрывается щель: сначала «нечего
+   показывать», потом схлопывание */
+.finale-row-clip {
+  transition: opacity 0.12s var(--ease-swap);
+}
+[data-phase="success"] .finale-row-clip {
+  opacity: 0;
+}
+
+.finale-alert {
+  transition: grid-template-rows var(--d-quick) var(--ease-swap);
+}
+[data-alert="on"] .finale-alert {
+  transition: grid-template-rows var(--d-quick) var(--ease-out-expo);
+}
+
+/* Успех прирастает, НЕ дожидаясь конца схлопывания ряда: иначе блок сначала
+   схлопнулся бы в полоску и тут же вырос обратно. Высота идёт в одну сторону. */
+.finale-success {
+  transition: grid-template-rows 0.26s var(--ease-out-expo) 0.1s;
+}
+.finale-success-body {
+  transition:
+    opacity 0.28s var(--ease-out-expo) 0.2s,
+    transform 0.28s var(--ease-out-expo) 0.2s;
+}
+/* кольцо щёлкает последним — отклик системы (грамматика .wg-pop: 0.6 → 1) */
+.finale-success-ring {
+  transition:
+    opacity 0.18s var(--ease-out-expo) 0.34s,
+    transform 0.18s var(--ease-out-expo) 0.34s;
+}
+@starting-style {
+  .finale-success-body {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  .finale-success-ring {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* как и у модалки контакта: не «мягче», а «нет» — конечное состояние сразу.
+     Состояния (цвет, фон, disabled) остаются, они информация. */
+  .finale-row,
+  .finale-row-clip,
+  .finale-alert,
+  [data-alert="on"] .finale-alert,
+  .finale-success,
+  .finale-success-body,
+  .finale-success-ring {
+    transition: none;
+  }
+  @starting-style {
+    .finale-success-body,
+    .finale-success-ring {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
