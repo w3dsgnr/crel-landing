@@ -9,7 +9,7 @@ import type { LegalDoc, LegalDocId } from "./types";
 const privacy: LegalDoc = {
   id: "privacy",
   title: "Privacy Policy",
-  updated: "August 2026",
+  updated: "Last updated: August 2026",
   intro:
     "This policy explains what personal data Crel [AG], Zurich, Switzerland [VERIFY: credentials от Roman] collects through this website, why, and what rights you have over it.",
   sections: [
@@ -73,7 +73,7 @@ const privacy: LegalDoc = {
 const cookies: LegalDoc = {
   id: "cookies",
   title: "Cookie Policy",
-  updated: "August 2026",
+  updated: "Last updated: August 2026",
   intro:
     "This site is a static export with no server-side logic. It does not set cookies and does not run analytics or advertising trackers.",
   sections: [
@@ -107,7 +107,7 @@ const cookies: LegalDoc = {
 const terms: LegalDoc = {
   id: "terms",
   title: "Terms of Use",
-  updated: "August 2026",
+  updated: "Last updated: August 2026",
   intro:
     "These terms govern your use of this website, published by Crel [AG], Zurich, Switzerland [VERIFY: credentials от Roman]. By using the site, you accept them.",
   sections: [
@@ -147,7 +147,7 @@ const terms: LegalDoc = {
 const imprint: LegalDoc = {
   id: "imprint",
   title: "Imprint",
-  updated: "August 2026",
+  updated: "Last updated: August 2026",
   intro: "Legal disclosure for this website, per applicable transparency requirements.",
   sections: [
     {

@@ -94,13 +94,14 @@ export function LegalModal({
   // Фокус при открытии — всегда на панель. В ContactModal выбор зависит от
   // указателя (поле vs панель), потому что там есть поле; здесь полей нет —
   // документ читают, а не заполняют, так что альтернативы для точного
-  // указателя тоже нет. Смена документа (openLegal поверх уже открытой
-  // модалки) не перезапускает эффект: state остаётся "open", хук на это не
-  // реагирует — что и требуется, хореография не перезапускается.
+  // указателя тоже нет.
+  // doc.id в зависимостях: смена документа поверх уже открытой модалки должна
+  // переобъявить фокус — скринридер заново озвучит aria-labelledby (новый h2)
+  // и прокрутка панели сбросится; хореографию это не трогает, она на data-state.
   useEffect(() => {
     if (state !== "open") return;
     panelRef.current?.focus({ preventScroll: true });
-  }, [state]);
+  }, [state, doc.id]);
 
   // Шов ухода — дословно ContactModal: узел живёт до конца перехода и только
   // потом сообщает провайдеру.
@@ -150,16 +151,17 @@ export function LegalModal({
         className="contact-scrim fixed inset-0 bg-[rgb(29_29_31/0.28)] backdrop-blur-[20px]"
       />
 
-      {/* legal-panel: та же плотность стекла и хореография, что у .contact-modal
-          (класс сохранён — им и запускается переход), шире (max-w-[760px]
-          утилитой — спека прямым текстом требует утилиту, а не новый CSS-блок) */}
+      {/* Та же плотность стекла и хореография, что у .contact-modal — класс
+          contact-modal сохранён, им и запускается переход. Шире через
+          max-w-[760px] утилитой — спека прямым текстом требует утилиту,
+          а не новый CSS-блок */}
       <div
         ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="contact-modal widget-glass legal-panel relative m-auto w-full max-w-[760px] rounded-(--wg-radius-card) border border-(--wg-hairline) bg-(--wg-surface-base) p-6 backdrop-blur-xl md:p-9"
+        className="contact-modal widget-glass relative m-auto w-full max-w-[760px] rounded-(--wg-radius-card) border border-(--wg-hairline) bg-(--wg-surface-base) p-6 backdrop-blur-xl md:p-9"
       >
         {/* крестик — тот же узел и калибр, что у ContactModal (.contact-close:
             зона нажатия 44px псевдоэлементом, hover/active — общие правила
@@ -187,9 +189,9 @@ export function LegalModal({
         <h2 id={titleId} className="pr-10 text-[1.375rem] font-semibold tracking-[-0.01em]">
           {doc.title}
         </h2>
-        {/* без префикса «Updated»: он был бы единственной строкой копирайта не
-            из content/* во всём компоненте (соседи держат это правило строго —
-            см. комментарий ContactForm.tsx) — сама дата уже читается как ревизия */}
+        {/* «Last updated:» — часть значения doc.updated, а не JSX-текст: префикс
+            в JSX был бы единственной строкой копирайта не из content/* во всём
+            компоненте (правило соседей — см. комментарий ContactForm.tsx) */}
         <p className="mt-1 text-[0.8125rem] text-(--wg-text-muted)">{doc.updated}</p>
         <p className="mt-4 text-[0.875rem] leading-relaxed text-(--wg-text-muted)">{doc.intro}</p>
 

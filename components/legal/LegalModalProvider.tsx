@@ -47,16 +47,25 @@ export function LegalModalProvider({ children }: { children: ReactNode }): React
 
   useEffect(() => setIsMounted(true), []);
 
-  const openLegal = useCallback((id: LegalDocId) => {
-    triggerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    setDocId(id);
-    // тот же документ уже на экране — просто меняем контент, хореография
-    // (см. LegalModal) не перезапускается, потому что isOpen не трогаем;
-    // другой документ при открытой модалке — тоже смена контента, без ухода
-    // и повторного прихода панели
-    setIsClosing(false);
-    setIsOpen(true);
-  }, []);
+  const openLegal = useCallback(
+    (id: LegalDocId) => {
+      // Триггер захватываем только если модалка была полностью закрыта:
+      // если она уже открыта (смена документа ссылкой внутри панели) или ещё
+      // доигрывает уход, document.activeElement — узел внутри портала, и
+      // фокус на выходе попал бы на демонтированный узел, то есть в body.
+      if (!isOpen && !isClosing) {
+        triggerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      }
+      setDocId(id);
+      // тот же документ уже на экране — просто меняем контент, хореография
+      // (см. LegalModal) не перезапускается, потому что isOpen не трогаем;
+      // другой документ при открытой модалке — тоже смена контента, без ухода
+      // и повторного прихода панели
+      setIsClosing(false);
+      setIsOpen(true);
+    },
+    [isOpen, isClosing]
+  );
 
   const close = useCallback(() => {
     if (!isOpen) return;
