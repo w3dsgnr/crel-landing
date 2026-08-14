@@ -287,7 +287,8 @@ export function UseCases() {
   };
 
   // содержимое карты — одинаковое в обоих режимах: шапка-таб (= видимый peek),
-  // глиф сверху, текст прижат к нижней кромке (анатомия референса)
+  // сверху глиф с заголовком, снизу раскрывающий блок «тезисы → лид»; между
+  // ними — воздух (анатомия референса; декоративная окружность-outline убрана)
   const renderCard = (t: (typeof useCases.tabs)[number], i: number) => (
     <>
       {/* шапка втянута отрицательным margin в верхний padding: видимые 56px
@@ -327,13 +328,15 @@ export function UseCases() {
           {ICONS[t.id]}
         </svg>
 
+        <h3 className="mt-5 text-[clamp(1.75rem,3vw,2.75rem)] leading-[1.08] font-medium tracking-[-0.015em]">
+          {t.title}
+        </h3>
+
+        {/* mt-auto здесь и есть «негативное пространство»: заголовок остаётся у
+            глифа, раскрывающий блок прижат к нижней кромке, воздух между ними
+            растягивается по остатку высоты карты */}
         <div className="mt-auto pt-6">
-          <h3 className="text-[clamp(1.75rem,3vw,2.75rem)] leading-[1.08] font-medium tracking-[-0.015em]">
-            {t.title}
-          </h3>
-          {/* лид чисто-белый: white/78 на #2E7CF6 не проходит AA (design.md) */}
-          <p className="mt-3 text-[1rem] leading-[1.55] text-white">{t.body}</p>
-          <div className="mt-5 grid grid-cols-1 gap-x-6 gap-y-1.5 text-[0.8125rem] text-white/90 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-x-6 gap-y-1.5 text-[0.8125rem] text-white/90 sm:grid-cols-2">
             {t.checks.map((c) => (
               <p key={c}>
                 <span aria-hidden className="mr-1.5">
@@ -343,12 +346,10 @@ export function UseCases() {
               </p>
             ))}
           </div>
+          {/* лид чисто-белый: white/78 на #2E7CF6 не проходит AA (design.md) */}
+          <p className="mt-4 text-[1rem] leading-[1.55] text-white">{t.body}</p>
         </div>
       </div>
-
-      {/* единственный декор референса: тонкая окружность-outline, смещена от
-          центра, текст не пересекает */}
-      <span aria-hidden className="absolute top-24 right-9 size-11 rounded-full border border-white/40" />
     </>
   );
 
