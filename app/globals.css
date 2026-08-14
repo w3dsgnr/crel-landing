@@ -401,6 +401,30 @@ body {
     linear-gradient(180deg, #f5f5f7 0%, #dbe7fc 34%, #8db4f9 62%, #2e7cf6 92%);
 }
 
+/* ── Лента hovered-строки selected work (docs/refs/selected-work/design.md) ─
+   Тело ленты — #2668d9: мелкий белый текст держит 5.17:1 (AA); брендовый
+   #2e7cf6 живёт ТОЛЬКО radial-подсветкой в зоне глифа-рельса слева и не
+   заползает под колонку описания (чистый #2e7cf6 даёт 3.94:1 — запрещён). */
+.grad-work-hover {
+  background:
+    radial-gradient(56% 120% at 10% 50%, rgb(46 124 246 / 0.65), rgb(46 124 246 / 0) 68%),
+    #2668d9;
+}
+
+/* ниже md рельса нет и подсветка легла бы под текст (sticky tap-hover тача):
+   лента становится плоской — #2668d9 держит 5.17:1 всему белому тексту */
+@media (width < 48rem) {
+  .grad-work-hover {
+    background: #2668d9;
+  }
+}
+
+/* чертёжная текстура рельса selected work: точечная сетка ghost-серебра */
+.dots-rail {
+  background-image: radial-gradient(var(--v4-ghost) 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+
 /* ── Модификатор «чёрный hero» поверх слоя v4 (анатомия Krida) ─────────────
    Вешается на секцию ВМЕСТЕ с .layer-v4 — идёт в css позже, поэтому при равной
    специфичности выигрывает. Инвертирует только роли, живущие на фоне секции;
@@ -457,6 +481,221 @@ body {
   --wg-surface-base: rgb(255 255 255 / 0.92);
 }
 
+/* панель модалки контакта — тот же материал, но стоит не на серой карточке
+   секции, а на затемнённом (0.28) и размытом контенте страницы: базовые .55
+   на таком фоне не держат контраст текста, корпус уплотняется.
+   --v4-warn приезжает сюда же: портал висит на <body>, вне скоупа .layer-v4,
+   где этот токен объявлен, — иначе ошибки полей остались бы без цвета. */
+.contact-modal {
+  --wg-surface-base: rgb(255 255 255 / 0.82);
+  --v4-warn: #ff9f0a;
+}
+
+/* ── Хореография модалки контакта (спека 2026-08-13 §Хореография) ──────────
+   Стартовые позы объявлены через @starting-style, а не выставляются из JS, как
+   в lib/usePlayOnce.ts: там разметка живёт в статике и обязана пережить SSR и
+   no-JS, здесь без JS нет и самого узла — портал монтируется по клику уже
+   открытым. Браузер без @starting-style показывает модалку мгновенно: то же
+   деградирование, что и на reduced-motion, ничего не ломается.
+
+   Подложка и панель — разные узлы, потому что у них разные такты. Панель едет
+   на 40ms позже: сначала страница уходит в глубину, потом на неё ложится
+   стекло. Обратный порядок читается как «панель прилетела в пустоту».
+   transform-origin остаётся центром: панель не привязана к триггеру (кнопок
+   три — шапка, hero, финальный CTA), и «выезд из кнопки» здесь врал бы. */
+
+.contact-scrim {
+  transition: opacity var(--d-quick) var(--ease-out-expo);
+}
+@starting-style {
+  .contact-scrim {
+    opacity: 0;
+  }
+}
+
+.contact-modal {
+  /* конечная поза объявлена явно: интерполировать из @starting-style надёжнее
+     от значения, чем от none */
+  transform: translateY(0) scale(1);
+  transition:
+    opacity 0.3s var(--ease-out-expo) 40ms,
+    transform 0.3s var(--ease-out-expo) 40ms;
+}
+@starting-style {
+  .contact-modal {
+    opacity: 0;
+    /* .96, а не 0: ничто не появляется из ничего (та же граница, что у .wg-pop) */
+    transform: translateY(8px) scale(0.96);
+  }
+}
+
+/* Фокус внутри модалки: портал висит на <body>, вне скоупа .layer-v4, и
+   глобальное правило :focus-visible взяло бы зелёный акцент v3. Роль «акцент»
+   у панели уже есть — --wg-accent; переопределение точечное, тем же приёмом,
+   что --v4-warn выше. */
+.contact-modal {
+  --color-accent: var(--wg-accent);
+}
+
+/* Уход быстрее прихода: решение уже принято, система обязана убраться с
+   дороги. 180ms = EXIT_MS в ContactModal.tsx — значения связаны.
+   --ease-swap (токен смены состояний) вместо expo: на выходе взгляд следит не
+   за стартом, а за тем, как панель уступает страницу, и мягкий вход кривой
+   читается как «отпустили», а не как рывок.
+   transition-delay сбрасываем в ноль: задержка двусторонняя, иначе панель
+   уходила бы на 40ms позже подложки — на выходе это заминка.
+   Длительности opacity и transform равны НЕ случайно: ContactModal снимает
+   узел по первому transitionend панели, разные такты сняли бы его раньше
+   конца движения. */
+.contact-overlay[data-state="closing"] .contact-scrim {
+  opacity: 0;
+  transition: opacity 0.18s var(--ease-swap);
+}
+.contact-overlay[data-state="closing"] .contact-modal {
+  opacity: 0;
+  transform: translateY(6px) scale(0.98);
+  transition:
+    opacity 0.18s var(--ease-swap),
+    transform 0.18s var(--ease-swap);
+}
+
+/* ── Отправка: ряды схлопываются, панель доезжает до компактной высоты ──────
+   Высота панели нигде не задана и не считается из JS: ряды едут
+   grid-template-rows 1fr→0fr, а панель как auto-height контейнер пересобирается
+   вслед за суммой рядов и остаётся по центру (m-auto). FLIP через scale
+   расплющил бы текст, height потребовал бы замеров и магических чисел.
+   Это тот же размен, что у контейнера ошибки в Field.tsx, только на пять узлов:
+   анимация layout-свойства оплачивается реflow, но прогон один за жизнь формы —
+   не скролл, не hover, не список. Замерено: 511px → 225px монотонно, без
+   отскока (высота ни в одном кадре не растёт обратно). */
+.contact-row {
+  transition: grid-template-rows var(--d-quick) var(--ease-swap) var(--row-delay, 0ms);
+}
+/* содержимое ряда гаснет вдвое быстрее, чем закрывается щель: сначала «нечего
+   показывать», потом схлопывание. Обратный порядок читается как обрезание */
+.contact-row-clip {
+  transition: opacity 0.12s var(--ease-swap) var(--row-delay, 0ms);
+}
+[data-phase="success"] .contact-row-clip {
+  opacity: 0;
+}
+
+/* Успех прирастает, НЕ дожидаясь конца схлопывания (старт 100ms против
+   150+200ms у последнего ряда): иначе панель сначала схлопнулась бы в полоску
+   и тут же выросла обратно. Высота обязана идти в одну сторону. */
+.contact-success {
+  transition: grid-template-rows 0.26s var(--ease-out-expo) 0.1s;
+}
+.contact-success-body {
+  transition:
+    opacity 0.28s var(--ease-out-expo) 0.2s,
+    transform 0.28s var(--ease-out-expo) 0.2s;
+}
+/* кольцо щёлкает последним — отклик системы, а не ещё один въезжающий блок
+   (грамматика .wg-pop: 0.6 → 1, коротко) */
+.contact-success-ring {
+  transition:
+    opacity 0.18s var(--ease-out-expo) 0.34s,
+    transform 0.18s var(--ease-out-expo) 0.34s;
+}
+@starting-style {
+  .contact-success-body {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  .contact-success-ring {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+/* Сообщение о провале отправки — тот же узел-«шторка», что контейнер ошибки
+   поля (Field.tsx), и та же асимметрия кривых: раскрытие --ease-out-expo
+   (появление обязано начинаться сразу), схлопывание --ease-swap — это уже не
+   появление, а смена состояния. Фаза приезжает в том же коммите, что и трек:
+   setFailure и setPhase("error") батчатся, переход стартует с нужной кривой. */
+.contact-alert {
+  transition: grid-template-rows var(--d-quick) var(--ease-swap);
+}
+[data-phase="error"] .contact-alert {
+  transition: grid-template-rows var(--d-quick) var(--ease-out-expo);
+}
+
+/* ── Отклик кнопок панели ───────────────────────────────────────────────────
+   Список свойств явный: transition: all в проекте не заводим. opacity здесь —
+   ради плавного входа в disabled на отправке. */
+.contact-modal button {
+  transition:
+    transform 0.16s var(--ease-out-expo),
+    opacity var(--d-quick) ease,
+    background-color var(--d-quick) ease,
+    color var(--d-quick) ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  /* тот же рецепт, что у тёмной пилюли сайта (Header.tsx:51 — bg-ink/90 и
+     подъём на пиксель), пересчитанный на токен --wg-action */
+  .contact-modal .contact-submit:hover:not(:disabled) {
+    background: rgb(29 29 31 / 0.9);
+    transform: translateY(-1px);
+  }
+  /* крестик: ступень плотнее --wg-surface-overlay (.06) — отдельного токена
+     под hover в словаре .widget-glass нет, шкала та же */
+  .contact-modal .contact-close:hover {
+    background: rgb(29 29 31 / 0.1);
+    color: var(--wg-text);
+  }
+}
+/* Зона нажатия крестика шире рисунка: круг остаётся size-8 (словарь
+   .widget-glass), но 32px под палец мало — псевдоэлемент растит цель до 44px,
+   не трогая ни одного пикселя картинки. Крестик — единственный выход отсюда на
+   тач-устройстве, промахиваться по нему нельзя. */
+.contact-modal .contact-close::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+}
+/* нажатие обязано быть слышно: 0.97 — калибр press-feedback.
+   Правила идут после hover и той же специфичности — при клике мышью активны
+   оба состояния, выигрывает нижнее. */
+.contact-modal .contact-submit:active:not(:disabled),
+.contact-modal .contact-close:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Спека §Хореография прямым текстом: конечное состояние сразу, никаких
+     переходов. Поэтому здесь не «мягче», а «нет»: и стартовые позы
+     обнуляются, и переходы снимаются — включая press-feedback, это тоже
+     перемещение. Состояния (цвет, фон, disabled) остаются, они информация. */
+  .contact-scrim,
+  .contact-modal,
+  .contact-overlay[data-state="closing"] .contact-scrim,
+  .contact-overlay[data-state="closing"] .contact-modal,
+  .contact-row,
+  .contact-row-clip,
+  .contact-success,
+  .contact-success-body,
+  .contact-success-ring,
+  .contact-alert,
+  .contact-modal button {
+    transition: none;
+  }
+  .contact-modal .contact-submit:hover:not(:disabled),
+  .contact-modal .contact-submit:active:not(:disabled),
+  .contact-modal .contact-close:active:not(:disabled) {
+    transform: none;
+  }
+  @starting-style {
+    .contact-scrim,
+    .contact-modal,
+    .contact-success-body,
+    .contact-success-ring {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
 /* точка live внутри v4: функциональный зелёный, свечение мягче */
 .layer-v4 .dot-live,
 .layer-v4 .dot-live-bright {
@@ -489,6 +728,162 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .iso-rise .iso-part {
     opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ── Сцены приборов: словарь движения мокапов (спека 2026-08-13) ───────────
+   Привод — lib/usePlayOnce.ts: на корне прибора появляется data-play="off"
+   (стартовая поза выставляется из JS), затем "on" по IntersectionObserver.
+   Без JS и при reduced-motion атрибута нет вовсе → конечное состояние.
+   Задержки шагов — инлайном (transitionDelay), как у .iso-part.
+
+   Дисциплина (иначе секция из шести ячеек превращается в салют):
+   — один смысловой жест на прибор, не «шевелится всё»;
+   — только transform / opacity / clip-path, никаких layout-свойств;
+   — ни одного бесконечного цикла: очередь MockupStage с idle-прогонами
+     снята в редизайне 2026-08-12, возвращать её через ambient нельзя;
+   — hover-моушн — только там, где есть окклюзия (стопка карт): он обязан
+     что-то ОТКРЫВАТЬ, иначе грид становится случайно-интерактивным;
+   — конечных значений opacity в правилах нет: элемент возвращается к
+     значению своего класса (напр. opacity-55 у приглушённой строки). */
+
+/* появление узла: посадка снизу вверх — «завелось», а не «нарисовано».
+   Амплитуда — одна переменная на три калибра: узел-строка 8px, мелкий
+   инлайн-статус 4px (8px для строчки в 13px — это уже прыжок), панель
+   drop-in приходит сверху (−6px), потому что физически ложится на код. */
+[data-play="on"] .wg-rise {
+  transition:
+    opacity 0.42s var(--ease-out-expo),
+    transform 0.42s var(--ease-out-expo);
+}
+[data-play="off"] .wg-rise {
+  opacity: 0;
+  transform: translateY(var(--wg-rise-y, 8px));
+}
+.wg-rise-s {
+  --wg-rise-y: 4px;
+}
+.wg-rise-drop {
+  --wg-rise-y: -6px;
+}
+
+/* подтверждение статуса без движения: только проявление */
+[data-play="on"] .wg-fade {
+  transition: opacity 0.2s ease;
+}
+[data-play="off"] .wg-fade {
+  opacity: 0;
+}
+
+/* отклик системы — щёлкает (асимметрия: намерение медленнее отклика).
+   scale(0.6), а не scale(0): ничто не появляется из ничего */
+[data-play="on"] .wg-pop {
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s var(--ease-out-expo);
+}
+[data-play="off"] .wg-pop {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+/* выдача значения: маска слева направо. Отрицательные insets по трём
+   сторонам — чтобы tracking и выносные элементы не подрезались.
+   Конечное значение задано явно: clip-path не интерполируется в none.
+   300ms — потолок: выше вайп перестаёт читаться как «прибор напечатал
+   значение» и становится шиммером из скелетон-лоадеров. */
+[data-play="on"] .wg-type {
+  clip-path: inset(-0.14em -0.2em -0.14em 0);
+  transition: clip-path 0.3s var(--ease-out-expo);
+}
+[data-play="off"] .wg-type {
+  clip-path: inset(-0.14em 100% -0.14em 0);
+}
+
+/* решение окрашивает строку. Цвет → ease (правило 3). Единственный такт,
+   который целиком переживает reduced-motion: это информация, не движение */
+[data-play="on"] .wg-ink {
+  transition: color 0.2s ease;
+}
+[data-play="off"] .wg-ink {
+  color: var(--wg-text-muted);
+}
+
+/* веер карт. Два трансформа на одну карту не помещаются в одно свойство,
+   поэтому роли разведены по узлам: .wg-slot (обёртка) держит раскрытие по
+   наведению, .wg-fan (сама карта) — вход и угол покоя. Композиция бесплатна,
+   конфликта источников нет. Утилиты rotate-* с карт сняты: два источника
+   угла давали бы прыжок в первом кадре. */
+.wg-stage {
+  perspective: 900px;
+}
+.wg-fan {
+  transform: translate3d(var(--fx, 0px), var(--fy, 0px), 0) rotate(var(--fr, 0deg))
+    rotateX(var(--frx, 0deg));
+}
+[data-play="on"] .wg-fan {
+  transition:
+    transform 0.5s var(--ease-out-expo),
+    opacity 0.26s var(--ease-out-expo);
+}
+[data-play="off"] .wg-fan {
+  opacity: 0;
+}
+/* стартовые позы: виртуальная карта сдаётся в веер первой (instant issue),
+   пластик приходит следом и ложится сверху */
+[data-play="off"] .wg-fan-back {
+  --fx: 10px;
+  --fy: -12px;
+  --fr: 0deg;
+}
+[data-play="off"] .wg-fan-front {
+  --fx: -8px;
+  --fy: 16px;
+  --fr: 0deg;
+  --frx: 10deg;
+}
+
+/* раскрытие веера по наведению на ячейку — единственный hover-моушн секции.
+   Он оправдан ровно тем, чего нет у остальных пяти приборов: окклюзией.
+   Пластик закрывает ~80% виртуальной карты, и на статике их легко прочитать
+   как одну; hover ОТКРЫВАЕТ информацию, а не украшает. */
+.wg-slot {
+  transition: transform 0.2s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  [data-hover-scene]:hover .wg-slot-back {
+    transform: translate3d(8px, -5px, 0) rotate(2deg);
+  }
+  [data-hover-scene]:hover .wg-slot-front {
+    transform: translate3d(-5px, 3px, 0) rotate(-1deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* мягче, а не «ноль»: проявление и последовательность остаются,
+     перемещение уходит. Атрибута data-play при reduced-motion обычно нет
+     вовсе (usePlayOnce остаётся в static) — это страховка на случай,
+     когда системную настройку меняют уже после загрузки страницы. */
+  [data-play="off"] .wg-rise,
+  [data-play="off"] .wg-pop {
+    transform: none;
+  }
+  [data-play="on"] .wg-type,
+  [data-play="off"] .wg-type {
+    clip-path: none;
+    transition: none;
+  }
+  [data-play="off"] .wg-fan {
+    --fx: 0px;
+    --fy: 0px;
+    --frx: 0deg;
+  }
+  /* пространственный жест смягчить нечем — веер по наведению выключен */
+  .wg-slot,
+  [data-hover-scene]:hover .wg-slot-back,
+  [data-hover-scene]:hover .wg-slot-front {
     transform: none;
     transition: none;
   }

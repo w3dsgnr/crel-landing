@@ -5,12 +5,14 @@
 // Анатомия: лого слева (статичный c:rel_, курсор НЕ мигает — живой курсор
 // принадлежит hero), якоря секций по центру капсулы, CTA-pill справа.
 import { navAnchors, hero } from "@/content/shared";
+import { useContactModal } from "@/components/contact/ContactModalProvider";
 
 interface HeaderProps {
   scrolled: boolean;
 }
 
 export function Header({ scrolled }: HeaderProps) {
+  const { open } = useContactModal();
   return (
     <header className="fixed inset-x-0 top-0 z-40 px-3 pt-3 md:px-6 md:pt-5">
       {/* над чёрным hero (не проскроллено) капсула тёмная: glass-dark +
@@ -40,12 +42,16 @@ export function Header({ scrolled }: HeaderProps) {
           ))}
         </nav>
 
-        <a
-          href="#contact"
-          className="inline-flex h-10 items-center rounded-(--radius-pill) bg-ink px-5 text-[0.8125rem] tracking-[0.08em] text-ink-invert lowercase transition-[box-shadow,transform,background-color] duration-(--d-quick) hover:-translate-y-px hover:bg-ink/90 hover:shadow-(--glow-m)"
+        {/* не якорь: CTA открывает модалку контакта (спека 2026-08-13
+            §Точки подключения). cursor-pointer — компенсация preflight
+            Tailwind v4: у <button> он не выставляется, у <a href> был. */}
+        <button
+          type="button"
+          onClick={open}
+          className="inline-flex h-10 cursor-pointer items-center rounded-(--radius-pill) bg-ink px-5 text-[0.8125rem] tracking-[0.08em] text-ink-invert lowercase transition-[box-shadow,transform,background-color] duration-(--d-quick) hover:-translate-y-px hover:bg-ink/90 hover:shadow-(--glow-m)"
         >
           {hero.ctaPrimary.replace("_", "")}
-        </a>
+        </button>
       </div>
     </header>
   );

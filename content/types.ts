@@ -16,6 +16,15 @@ export interface SectionCopy {
   sub?: string;
 }
 
+export interface CaseProject {
+  /** ключ глифа ICONS в Cases */
+  id: string;
+  name: string;
+  body: string;
+  /** фото проекта в рельсе hover-ленты (путь в /public); без него — глиф ICONS[id] */
+  image?: string;
+}
+
 /** Легал-документы (спека 2026-08-13 §Контент легала): id совпадает с ключом
  *  footer.legalLinks и с записью в legalDocs (content/legal.ts). */
 export type LegalDocId = "privacy" | "cookies" | "terms" | "imprint";
@@ -54,4 +63,32 @@ export interface FinaleContent {
   consentPrefix: string;
   consentLinkLabel: string;
   ctaPrimary: string;
+}
+
+/** Тексты модалки захвата контакта (спека 2026-08-13 §Тексты). */
+export interface ContactContent {
+  title: string;
+  sub: string;
+  nameLabel: string;
+  namePlaceholder: string;
+  emailLabel: string;
+  emailPlaceholder: string;
+  messageLabel: string;
+  messagePlaceholder: string;
+  submit: string;
+  /** подпись кнопки в фазе submitting */
+  sending: string;
+  /** aria-label крестика в углу панели: видимого текста у кнопки нет */
+  close: string;
+  successTitle: string;
+  successBody: string;
+  /** сбой отправки — единственный текст на все сетевые причины */
+  errorGeneric: string;
+  /** ключи совпадают с тем, что возвращает validateField (lib/validateContact.ts) */
+  errors: {
+    nameRequired: string;
+    emailRequired: string;
+    emailInvalid: string;
+    messageRequired: string;
+  };
 }

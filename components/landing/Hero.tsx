@@ -11,6 +11,7 @@ import type { LandingState } from "@/content/types";
 import { ensureEases } from "@/lib/easing";
 import { RampWidgetGlass } from "@/components/mockups/RampWidgetGlass";
 import { CursorGrid } from "@/components/vendor/CursorGrid";
+import { useContactModal } from "@/components/contact/ContactModalProvider";
 
 interface HeroProps {
   selected: LandingState | null;
@@ -23,10 +24,15 @@ interface HeroProps {
 function Cta({ label, primary }: { label: string; primary: boolean }) {
   const text = label.endsWith("_") ? label.slice(0, -1) : label;
   const hasCursor = label.endsWith("_");
+  const { open } = useContactModal();
   return (
-    <a
-      href="#contact"
-      className={`group inline-flex items-baseline rounded-(--radius-pill) px-7 py-3.5 text-[0.8125rem] lowercase tracking-[0.08em] transition-[background-color,box-shadow,transform,color] duration-(--d-quick) hover:-translate-y-px ${
+    // не якорь: CTA открывает модалку контакта (спека 2026-08-13 §Точки
+    // подключения). cursor-pointer — компенсация preflight Tailwind v4:
+    // у <button> его нет, у <a href> был.
+    <button
+      type="button"
+      onClick={open}
+      className={`group inline-flex cursor-pointer items-baseline rounded-(--radius-pill) px-7 py-3.5 text-[0.8125rem] lowercase tracking-[0.08em] transition-[background-color,box-shadow,transform,color] duration-(--d-quick) hover:-translate-y-px ${
         primary
           ? "bg-ink text-ink-invert hover:bg-ink/90 hover:shadow-(--glow-m)"
           : "bg-ink/[0.05] text-ink hover:bg-ink/[0.09]"
@@ -43,7 +49,7 @@ function Cta({ label, primary }: { label: string; primary: boolean }) {
           _
         </span>
       )}
-    </a>
+    </button>
   );
 }
 

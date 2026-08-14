@@ -1,5 +1,6 @@
 // Тексты: docs/content.md §ОБЩЕЕ — дословно. Правки только после вычитки заказчиком.
 import type {
+  ContactContent,
   FinaleContent,
   HeroContent,
   LandingState,
@@ -30,6 +31,33 @@ export const finale: FinaleContent = {
   consentPrefix: "By subscribing you accept the ",
   consentLinkLabel: "privacy policy",
   ctaPrimary: "Talk to us_",
+};
+
+// Модалка контакта. Единственный блок этого файла, которого нет в docs/content.md:
+// формы в исходном копирайте не было — тексты собраны по тону соседей (лейборы
+// строчные, как якоря шапки; ошибки — констатация, без «пожалуйста» и без
+// восклицаний). [VERIFY: вычитка заказчиком, спека 2026-08-13 §Тексты]
+export const contact: ContactContent = {
+  title: "Talk to us",
+  sub: "Tell us what you are building. No pitch, just a working conversation.",
+  nameLabel: "name",
+  namePlaceholder: "Your name",
+  emailLabel: "email",
+  emailPlaceholder: "you@company.com",
+  messageLabel: "message",
+  messagePlaceholder: "What are you building?",
+  submit: "Send",
+  sending: "Sending",
+  close: "Close",
+  successTitle: "Message sent",
+  successBody: "We reply within one business day.",
+  errorGeneric: "Could not send. Write to info@crel.ch and we will pick it up there.",
+  errors: {
+    nameRequired: "Tell us who is writing",
+    emailRequired: "We need an address to reply to",
+    emailInvalid: "This address looks incomplete",
+    messageRequired: "A line or two is enough",
+  },
 };
 
 export const footer = {
