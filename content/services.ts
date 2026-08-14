@@ -1,5 +1,5 @@
 // Тексты: docs/content.md §SERVICES — дословно, заголовки V1 (V2 в комментариях).
-import type { SectionCopy } from "./types";
+import type { CaseProject, SectionCopy } from "./types";
 
 export const approach = {
   section: {
@@ -88,9 +88,10 @@ export const licensing = {
     label: "03: licensing",
     title: "Compliance, structured before it blocks you", // V2: "The regulatory track, run in parallel"
   } satisfies SectionCopy,
+  // порядок массива = порядок тезисов в пинованной сцене LicensingStack
   cards: [
-    // mark — водяной знак карточки-«документа» (гигантский призрачный
-    // текст регуляции в углу белой карточки, LicensingStack v4)
+    // mark — ключ визуальной сцены тезиса (SCENES в LicensingStack): какой
+    // предмет стоит в центре и какие ассеты вокруг него летают
     {
       title: "MiCA CASP and entity structuring",
       body: "We structure the applicant entity in Switzerland or the EU and guide your CASP authorisation, from policies to regulator dialogue.",
@@ -98,16 +99,16 @@ export const licensing = {
       mark: "MiCA",
     },
     {
-      title: "EMI partnerships",
-      body: "Fiat rails through partner EMIs: safeguarding accounts, IBAN issuing and card programs, before you hold a licence of your own.",
-      track: "track: emi partnership", // [VERIFY: состав EMI-партнёрств]
-      mark: "EMI",
-    },
-    {
       title: "PCI DSS scope",
       body: "We scope your card data flows to the right SAQ level and keep sensitive data out of your systems.",
       track: "track: pci dss saq",
       mark: "PCI DSS",
+    },
+    {
+      title: "EMI partnerships",
+      body: "Fiat rails through partner EMIs: safeguarding accounts, IBAN issuing and card programs, before you hold a licence of your own.",
+      track: "track: emi partnership", // [VERIFY: состав EMI-партнёрств]
+      mark: "EMI",
     },
     {
       title: "AML, Travel Rule, KYC/KYB",
@@ -118,20 +119,37 @@ export const licensing = {
   ],
 };
 
+// подтверждённые кейсы (тексты — бриф из чата 2026-08-13, вне docs/content.md):
+// одна фактическая строка на проект, без цифр — номер строки выводится из
+// позиции в массиве («01»…). Опциональный image (путь в /public) кладёт
+// фото проекта в рельс ленты вместо глифа
+const caseProjects: CaseProject[] = [
+  {
+    id: "bitbeon",
+    name: "BitBeon",
+    body: "Multi-currency wallet holding fiat and crypto in one balance — dedicated IBANs, SEPA and SWIFT transfers, virtual and plastic Mastercard.",
+  },
+  {
+    id: "trientes",
+    name: "Trientes",
+    body: "Crypto and fiat wallet built around instant transfers and one-screen conversion between currencies.",
+  },
+  {
+    id: "teslapay",
+    name: "Tesla Pay",
+    body: "Neobank with one account and up to ten virtual cards, plastic issuance and two-factor protection.",
+  },
+  {
+    id: "taler",
+    name: "Taler",
+    body: "Wallet and staking for the Taler UNO blockchain — mobile and desktop clients for macOS and Windows, a block explorer and an ecosystem site in seven languages.",
+  },
+];
+
 export const cases = {
   section: {
     label: "04: cases",
     title: "Selected work", // V2: "What we have shipped"
   } satisfies SectionCopy,
-  // [PLACEHOLDER: кейсы до материалов от Roman; цифры только из подтверждённых кейсов]
-  featured: {
-    client: "[Client]",
-    task: "[One line: what we were asked to build]",
-    result: "[One line: what went live]",
-  },
-  compact: [
-    { client: "confidential", task: "[Task placeholder]", result: "[Result placeholder]" },
-    { client: "[Client]", task: "[Task placeholder]", result: "[Result placeholder]" },
-    { client: "[Client]", task: "[Task placeholder]", result: "[Result placeholder]" },
-  ],
+  projects: caseProjects,
 };
