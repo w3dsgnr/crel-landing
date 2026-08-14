@@ -1,10 +1,21 @@
+"use client";
+
 // Стеклянная версия QASIS KYC — «прибор» (docs/refs/dark-widgets/design.md).
 // Эмоциональный слой (итерация 2026-08-12): шапка вынесена в тёмный «островок»
 // а-ля Dynamic Island, по его контуру — дуга прогресса обводкой (акцентный
 // СИНИЙ Crel, память crel-accent-blue); строки шагов получили глифы-иконки.
 // Статусы в mono; синим — только финальное решение, дуга и чек островка.
-// Статичен: редизайн-кандидат для capabilities. Тексты — mockups.kyc дословно.
+// Тексты — mockups.kyc дословно.
+//
+// Сцена (спека анимации карточек 01, 2026-08-13). Прибор изображает
+// ЗАВЕРШЁННУЮ проверку, поэтому анимируются не строки, а ВЕРДИКТЫ: строки шагов
+// существуют и до проверки, приходят ответы. Такты: четыре чипа каскадом →
+// решение окрашивает строку → кольцо-чек островка щёлкает.
+// Дуга прогресса намеренно НЕ анимируется: она стоит на 76% (strokeDasharray
+// "76 24"), а все четыре чипа зелёные и в островке уже галка — движущаяся дуга
+// сделала бы это расхождение заметным. Вопрос к контенту, не к моушну.
 import { mockups } from "@/content/platform";
+import { usePlayOnce } from "@/lib/usePlayOnce";
 
 // глифы шагов: id-карта, liveness-скан, щит AML, флажок решения (stroke 1.5,
 // currentColor — наследуют muted/ink от строки)
@@ -49,8 +60,12 @@ function StepGlyph({ label }: { label: string }) {
 export function KycFlowGlass() {
   const m = mockups.kyc;
   const last = m.steps[m.steps.length - 1];
+  const { ref, playAttr } = usePlayOnce<HTMLDivElement>();
+  // вердикты приходят по очереди: stagger 80ms — верхняя граница нормы,
+  // на ней «по одному» читается чётко, а не сливается в один аккорд
+  const chipDelay = (i: number) => `calc(var(--wg-t0) + ${i * 80}ms)`;
   return (
-    <div className="widget-glass w-full">
+    <div ref={ref} data-play={playAttr} className="widget-glass w-full">
       {/* плоскость 1: островок — самостоятельная тёмная капсула над подложкой
           (та же двухплоскостная анатомия, что у ramp: корпус + квиток) */}
       <div className="relative">
@@ -82,7 +97,11 @@ export function KycFlowGlass() {
               {/* [VERIFY: подстрока островка сгенерирована 2026-08-12] */}
               <p className="font-mono text-[0.6875rem] text-white/55">4 checks&ensp;·&ensp;~2 min</p>
             </div>
-            <span className="flex size-7 shrink-0 items-center justify-center rounded-full border-[1.5px] border-(--wg-accent)">
+            {/* точка в предложении: ответ системы после того, как решение вынесено */}
+            <span
+              className="wg-pop flex size-7 shrink-0 items-center justify-center rounded-full border-[1.5px] border-(--wg-accent)"
+              style={{ transitionDelay: "calc(var(--wg-t0) + 520ms)" }}
+            >
               <svg viewBox="0 0 12 12" className="size-3" aria-hidden>
                 <path d="M2 6.2 5 9l5-6" fill="none" stroke="var(--wg-accent)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
@@ -93,16 +112,24 @@ export function KycFlowGlass() {
           глиф — ярлык — mono-статус; решение — синим */}
       <div className="mt-3 rounded-(--wg-radius-card) border border-(--wg-hairline) bg-(--wg-surface-base) px-5 py-2 backdrop-blur-xl">
         <div>
-          {m.steps.map((s) => (
+          {m.steps.map((s, i) => (
             <div
               key={s.label}
               className="flex items-center gap-3 border-b border-(--wg-hairline) py-3 text-[0.8125rem] lowercase last:border-b-0"
             >
-              <span className={s === last ? "text-(--wg-accent)" : "text-(--wg-text-muted)"}>
+              {/* глиф последней строки окрашивается вместе с приходом решения */}
+              <span
+                className={s === last ? "wg-ink text-(--wg-accent)" : "text-(--wg-text-muted)"}
+                style={s === last ? { transitionDelay: chipDelay(i) } : undefined}
+              >
                 <StepGlyph label={s.label} />
               </span>
               <span className={`flex-1 ${s === last ? "font-medium" : "text-(--wg-text-muted)"}`}>{s.label}</span>
-              <span className={`font-mono text-[0.75rem] ${s === last ? "text-(--wg-accent)" : "text-(--wg-text)"}`}>
+              {/* анимируется только вердикт: строка была и до проверки */}
+              <span
+                className={`wg-rise wg-rise-s font-mono text-[0.75rem] ${s === last ? "text-(--wg-accent)" : "text-(--wg-text)"}`}
+                style={{ transitionDelay: chipDelay(i) }}
+              >
                 {s.chip}
               </span>
             </div>

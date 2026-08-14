@@ -26,25 +26,44 @@ export function Capabilities() {
   const terminal = byMockup("terminal");
   const widget = byMockup(null);
 
+  // Ход сцены (--wg-t0) — фора внутренней анимации прибора относительно
+  // момента, когда его увидел IntersectionObserver. Два слагаемых:
+  //  700ms — ячейка в это время ещё едет по data-reveal (600ms, autoAlpha:0),
+  //          а IO смотрит на геометрию и про невидимость не знает: без форы
+  //          прогон отыграл бы под непрозрачной карточкой;
+  //  +160ms правой ячейке ряда — соседи входят в кадр одновременно, и без
+  //          разведения ряд «вспыхивает» целиком. С форой он читается слева
+  //          направо, как текст: эстафета, а не аккорд.
+  const T0_LEFT = "700ms";
+  const T0_RIGHT = "860ms";
+
   // ячейка = сцена: мокап-иллюстрация + тематическая текстура (спека §6)
-  const grid: { cell: typeof kyc; span: string; texture: MicroTextureKind; illustration: React.ReactNode }[] = [
-    { cell: kyc, span: "md:col-span-3", texture: "binary", illustration: <div className="w-full max-w-[340px]"><KycFlowGlass /></div> },
+  const grid: {
+    cell: typeof kyc;
+    span: string;
+    texture: MicroTextureKind;
+    t0: string;
+    /** ячейка ловит курсор для hover-жеста внутри прибора (только Cards) */
+    hover?: boolean;
+    illustration: React.ReactNode;
+  }[] = [
+    { cell: kyc, span: "md:col-span-3", texture: "binary", t0: T0_LEFT, illustration: <div className="w-full max-w-[340px]"><KycFlowGlass /></div> },
     // редизайн 2026-08-12: стеклянный прибор (widget-glass) вместо светлой панели MockupStage
-    { cell: ramp, span: "md:col-span-3", texture: "amounts", illustration: <div className="w-full max-w-[340px]"><RampWidgetGlass /></div> },
-    { cell: iban, span: "md:col-span-4", texture: "iban", illustration: <div className="w-full max-w-[400px]"><IbanAccountGlass /></div> },
-    { cell: cards, span: "md:col-span-2", texture: "grid", illustration: <div className="w-full max-w-[300px]"><CardDuoGlass /></div> },
-    { cell: terminal, span: "md:col-span-2", texture: "amounts", illustration: <div className="w-full max-w-[300px]"><SellerTerminalGlass /></div> },
+    { cell: ramp, span: "md:col-span-3", texture: "amounts", t0: T0_RIGHT, illustration: <div className="w-full max-w-[340px]"><RampWidgetGlass animated /></div> },
+    { cell: iban, span: "md:col-span-4", texture: "iban", t0: T0_LEFT, illustration: <div className="w-full max-w-[400px]"><IbanAccountGlass /></div> },
+    { cell: cards, span: "md:col-span-2", texture: "grid", t0: T0_RIGHT, hover: true, illustration: <div className="w-full max-w-[300px]"><CardDuoGlass /></div> },
+    { cell: terminal, span: "md:col-span-2", texture: "amounts", t0: T0_LEFT, illustration: <div className="w-full max-w-[300px]"><SellerTerminalGlass /></div> },
     // редизайн 2026-08-12: изометрию сменил стеклянный «два входа» (код + виджет)
-    { cell: widget, span: "md:col-span-4", texture: "grid", illustration: <div className="w-full max-w-[400px]"><WidgetApiGlass /></div> },
+    { cell: widget, span: "md:col-span-4", texture: "grid", t0: T0_RIGHT, illustration: <div className="w-full max-w-[400px]"><WidgetApiGlass /></div> },
   ];
 
   return (
     <section className="layer-v4 bg-bg">
       <div className="mx-auto max-w-[1200px] px-5 py-28 md:px-12 md:py-40">
-        {/* шапка секции по центру (редизайн 2026-08-12): label — title — тезис */}
+        {/* шапка секции по центру: title — тезис. CLI-лейблы "NN: name" в вёрстке
+            не выводим (решение 2026-08-13) — остаются только в content как id секции. */}
         <div className="mx-auto max-w-[52ch] text-center">
-          <p className="text-label text-pine-600">{capabilities.section.label}</p>
-          <h2 className="text-h2 mt-6">{capabilities.section.title}</h2>
+          <h2 className="text-h2">{capabilities.section.title}</h2>
           {capabilities.section.sub && (
             <p className="mt-5 text-[1.0625rem] leading-relaxed text-ink-soft">{capabilities.section.sub}</p>
           )}
@@ -55,8 +74,14 @@ export function Capabilities() {
           enableBorderGlow={false}
           className="mt-16 grid grid-cols-1 gap-7 md:grid-cols-6"
         >
-          {grid.map(({ cell, span, texture, illustration }) => (
-            <div key={cell.title} data-reveal className={span}>
+          {grid.map(({ cell, span, texture, t0, hover, illustration }) => (
+            <div
+              key={cell.title}
+              data-reveal
+              data-hover-scene={hover ? "" : undefined}
+              className={span}
+              style={{ "--wg-t0": t0 } as React.CSSProperties}
+            >
               <BentoCard enableStars={false} className="h-full rounded-(--radius-xl)">
                 <CardScene title={cell.title} body={cell.body} illustration={illustration} texture={texture} />
               </BentoCard>

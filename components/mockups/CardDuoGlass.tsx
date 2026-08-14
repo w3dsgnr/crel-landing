@@ -1,10 +1,22 @@
+"use client";
+
 // Стеклянная версия Cards — итерация «пиздатенько» (frontend-design, 2026-08-12).
 // Сцена — веер из двух карт: plastic — тёмный материал с диагональным сиянием
 // и настоящей анатомией (чип-пластина, контактлесс-дуги — единственный синий
 // акцент), virtual — стеклянный «призрак» позади с mono-тегом. Лёгкие развороты
 // дают стопке жизнь; тень — только у парящего plastic (язык островка KYC).
-// Статичен: редизайн-кандидат для capabilities. Тексты — mockups.cards дословно.
+// Тексты — mockups.cards дословно.
+//
+// Сцена (спека анимации карточек 01, 2026-08-13): карты не нарисованы, а СДАНЫ
+// в веер, и порядок сдачи буквальный — virtual выпускается мгновенно, plastic
+// приходит следом. Единственный hover-моушн секции живёт здесь: пластик
+// закрывает ~80% виртуальной карты, и на статике их легко прочитать как одну —
+// наведение ОТКРЫВАЕТ информацию, а не украшает. Роли разведены по узлам:
+// .wg-slot держит раскрытие, .wg-fan — вход и угол покоя.
+// НЕ анимируются: glare-свип по пластику (первое клише премиальной карты и
+// не-GPU свойство), отрисовка чип-пластины, подмена PAN.
 import { mockups } from "@/content/platform";
+import { usePlayOnce } from "@/lib/usePlayOnce";
 
 // чип-пластина: контактная сетка настоящей карты (stroke наследует цвет)
 function ChipPlate() {
@@ -16,49 +28,71 @@ function ChipPlate() {
   );
 }
 
-// контактлесс-дуги: акцентный глиф-индикатор (цвет = данные/сигнал)
+// контактлесс-дуги: акцентный глиф-индикатор (цвет = данные/сигнал).
+// Загораются один раз хвостом посадки пластика — «карта готова к тапу».
+// Цикл здесь запрещён: вечно излучающая карта уводит секцию в крипто-виджет.
 function Contactless() {
+  const arc = (i: number) => ({ transitionDelay: `calc(var(--wg-t0) + ${430 + i * 55}ms)` });
   return (
     <svg viewBox="0 0 16 16" className="size-4" fill="none" stroke="var(--wg-accent)" strokeWidth="1.5" strokeLinecap="round" aria-hidden>
-      <path d="M3.5 5.5a7.5 7.5 0 0 1 0 5" opacity="0.45" />
-      <path d="M6.5 4.2a10 10 0 0 1 0 7.6" opacity="0.7" />
-      <path d="M9.5 2.9a12.8 12.8 0 0 1 0 10.2" />
+      <path className="wg-fade" style={arc(0)} d="M3.5 5.5a7.5 7.5 0 0 1 0 5" opacity="0.45" />
+      <path className="wg-fade" style={arc(1)} d="M6.5 4.2a10 10 0 0 1 0 7.6" opacity="0.7" />
+      <path className="wg-fade" style={arc(2)} d="M9.5 2.9a12.8 12.8 0 0 1 0 10.2" />
     </svg>
   );
 }
 
 export function CardDuoGlass() {
   const m = mockups.cards;
+  const { ref, playAttr } = usePlayOnce<HTMLDivElement>();
   return (
-    <div className="widget-glass w-full">
+    <div ref={ref} data-play={playAttr} className="widget-glass w-full">
       <div className="rounded-(--wg-radius-card) border border-(--wg-hairline) bg-(--wg-surface-base) p-5 backdrop-blur-xl">
-        {/* веер: virtual-призрак позади (+3°), plastic-герой впереди (−2°) */}
-        <div className="relative h-[178px]">
-          <div className="absolute top-1 right-0 aspect-[1.586] w-[78%] rotate-3 rounded-[10px] border border-(--wg-hairline) bg-white/55 p-3.5 backdrop-blur-sm">
-            <span className="font-mono text-[0.6875rem] lowercase text-(--wg-text-muted)">
-              {m.virtualTag}
-            </span>
-            <p className="absolute right-3.5 bottom-3 font-mono text-[0.75rem] tracking-[0.16em] text-(--wg-text-muted) tabular-nums">
-              {m.virtualPan}
-            </p>
+        {/* веер: virtual-призрак позади (+3°), plastic-герой впереди (−2°).
+            perspective на сцене — иначе rotateX читается как сплющивание */}
+        <div className="wg-stage relative h-[178px]">
+          <div className="wg-slot wg-slot-back absolute top-1 right-0 w-[78%]">
+            {/* backdrop-blur снят: блюр по уже заблюренному корпусу почти ничего
+                не давал, а на движущемся узле заставлял пересемплировать его
+                каждый кадр (плюс артефакты композитинга в связке с 3D) */}
+            <div
+              className="wg-fan wg-fan-back relative aspect-[1.586] w-full rounded-[10px] border border-(--wg-hairline) bg-white/55 p-3.5"
+              style={{ "--fr": "3deg", transitionDelay: "var(--wg-t0)" } as React.CSSProperties}
+            >
+              <span className="font-mono text-[0.6875rem] lowercase text-(--wg-text-muted)">
+                {m.virtualTag}
+              </span>
+              <p className="absolute right-3.5 bottom-3 font-mono text-[0.75rem] tracking-[0.16em] text-(--wg-text-muted) tabular-nums">
+                {m.virtualPan}
+              </p>
+            </div>
           </div>
-          <div className="absolute bottom-0 left-0 aspect-[1.586] w-[78%] -rotate-2 rounded-[10px] border border-white/[0.07] bg-[linear-gradient(135deg,#2b2b31_0%,#1a1a1e_52%,#141417_100%)] p-3.5 text-(--wg-text-on-action) shadow-[0_20px_40px_-14px_rgb(0_0_0/0.5)]">
-            <div className="flex items-start justify-between">
-              <p className="text-[1rem] leading-none font-medium lowercase">{m.plasticBrand}</p>
-              <Contactless />
-            </div>
-            <div className="mt-4 text-white/30">
-              <ChipPlate />
-            </div>
-            <div className="absolute right-3.5 bottom-3.5 left-3.5 flex items-baseline justify-between font-mono tabular-nums">
-              <span className="text-[0.875rem] tracking-[0.18em]">{m.plasticPan}</span>
-              <span className="text-[0.6875rem] text-white/55">{m.plasticExpiry}</span>
+          <div className="wg-slot wg-slot-front absolute bottom-0 left-0 w-[78%]">
+            <div
+              className="wg-fan wg-fan-front relative aspect-[1.586] w-full rounded-[10px] border border-white/[0.07] bg-[linear-gradient(135deg,#2b2b31_0%,#1a1a1e_52%,#141417_100%)] p-3.5 text-(--wg-text-on-action) shadow-[0_20px_40px_-14px_rgb(0_0_0/0.5)]"
+              style={{ "--fr": "-2deg", transitionDelay: "calc(var(--wg-t0) + 110ms)" } as React.CSSProperties}
+            >
+              <div className="flex items-start justify-between">
+                <p className="text-[1rem] leading-none font-medium lowercase">{m.plasticBrand}</p>
+                <Contactless />
+              </div>
+              <div className="mt-4 text-white/30">
+                <ChipPlate />
+              </div>
+              <div className="absolute right-3.5 bottom-3.5 left-3.5 flex items-baseline justify-between font-mono tabular-nums">
+                <span className="text-[0.875rem] tracking-[0.18em]">{m.plasticPan}</span>
+                <span className="text-[0.6875rem] text-white/55">{m.plasticExpiry}</span>
+              </div>
             </div>
           </div>
         </div>
-        {/* кошельки: тихая mono-строка вместо пилюль — карта остаётся героем */}
-        <p className="mt-4 text-center font-mono text-[0.6875rem] lowercase text-(--wg-text-muted)">
-          {m.chips.join(" · ")}
+        {/* кошельки: тихая mono-строка вместо пилюль — карта остаётся героем.
+            Пуанта: карта выпущена → она уже в кошельке, последствие последним */}
+        <p
+          className="wg-rise mt-4 text-center font-mono text-[0.6875rem] lowercase text-(--wg-text-muted)"
+          style={{ transitionDelay: "calc(var(--wg-t0) + 620ms)" }}
+        >
+          {m.chips.join(" · ")}
         </p>
       </div>
     </div>
