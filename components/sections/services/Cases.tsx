@@ -6,48 +6,14 @@
 // весь вольтаж в одном жесте: hover инвертирует строку в синюю ленту от края
 // до края вьюпорта (full-bleed фон, контент остаётся в контейнере 1200px).
 // Мелкий белый текст живёт на #2668D9 (5.17:1, AA); бренд #2E7CF6 — только
-// radial-подсветка в зоне рельса. Фото-ассетов кейсов нет — в рельсе
-// проявляется линейный глиф проекта («метка, не иллюстрация»). Hover ведём
-// opacity абсолютного слоя: background не анимируется (прецедент Approach).
+// radial-подсветка в зоне рельса. В рельсе под hover проявляется скриншот
+// проекта (public/assets/works, ключ = id). Hover ведём opacity абсолютного
+// слоя: background не анимируется (прецедент Approach).
 // Строка целиком — внешняя ссылка на сайт проекта (новая вкладка); что она
 // уводит наружу, говорит кастомный курсор-пилюля «host ↗» (см. useWorkCursor),
 // на таче вместо него — постоянная стрелка ↗ у названия (.ext-mark).
-import { useEffect, useRef, type ReactNode, type RefObject } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 import { cases } from "@/content/services";
-
-// словарь линейных глифов 40px: чертёжная геометрия штрихом 1.5 (грамматика
-// ICONS Approach/UseCases), метка проекта, не иллюстрация; ключи = id проектов
-const ICONS: Record<string, ReactNode> = {
-  // карта + два пересекающихся круга: фиат и крипто в одном балансе
-  bitbeon: (
-    <>
-      <rect x="6.75" y="10.75" width="26.5" height="18.5" rx="5" />
-      <circle cx="24.5" cy="20" r="3" />
-      <circle cx="28.5" cy="20" r="3" />
-    </>
-  ),
-  // две встречные дуги со стрелками: петля конверсии на одном экране
-  trientes: (
-    <>
-      <path d="M8.5 16.5a11.75 11.75 0 0 1 21.5-3.5M30 5.5V13h-7.5" />
-      <path d="M31.5 23.5a11.75 11.75 0 0 1-21.5 3.5M10 34.5V27h7.5" />
-    </>
-  ),
-  // две смещённые карты: стопка виртуальных и пластиковых
-  teslapay: (
-    <>
-      <rect x="10.5" y="6.75" width="24" height="16.5" rx="4" />
-      <rect x="5.5" y="16.75" width="24" height="16.5" rx="4" />
-    </>
-  ),
-  // монета со встречными стрелками внутри: своп фиата и крипто в одном счёте
-  meinbit: (
-    <>
-      <circle cx="20" cy="20" r="13.25" />
-      <path d="M13.5 17h13l-3.5-3.5M26.5 23h-13l3.5 3.5" />
-    </>
-  ),
-};
 
 // hostname без www — подпись пилюли-курсора и .ext-mark; вычисляется на сборке
 const hostOf = (url: string) => new URL(url).hostname.replace(/^www\./, "");
@@ -200,33 +166,21 @@ export function Cases() {
                 />
                 <div className="relative mx-auto grid max-w-[1200px] px-5 py-10 md:grid-cols-[200px_minmax(0,1fr)_minmax(0,1.5fr)_auto] md:gap-x-8 md:px-12 md:py-12">
                   {/* рельс: точечная сетка в статике; в ленте её место занимает
-                      фото проекта (image) либо глиф (fade + подъём 8px, глушится
-                      reduced-motion). -my-12 гасит py контейнера: фото касается
-                      хайрлайнов, на всю высоту ленты — как в референсе */}
-                  <div aria-hidden className="relative hidden md:-my-12 md:block">
+                      скриншот проекта (fade). -my-12 гасит py контейнера: сетка на
+                      всю высоту ленты. Фото — фиксированной пропорции ассетов
+                      (1440×969), на всю ширину рельса и по центру вертикали: строки
+                      разной высоты (2–3 строки описания) иначе резали бы cover
+                      с боков, и картинка «влезала» бы только в самых низких */}
+                  <div aria-hidden className="relative hidden md:-my-12 md:flex md:items-center">
                     <div className="dots-rail absolute inset-0 transition-opacity duration-(--d-base) ease-(--ease-out-expo) group-hover:opacity-0 group-focus-visible:opacity-0" />
-                    {p.image ? (
+                    {p.image && (
                       <img
                         src={p.image}
                         alt=""
                         loading="lazy"
                         decoding="async"
-                        className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-(--d-base) ease-(--ease-out-expo) select-none group-hover:opacity-100 group-focus-visible:opacity-100"
+                        className="relative aspect-[1440/969] w-full object-cover opacity-0 transition-opacity duration-(--d-base) ease-(--ease-out-expo) select-none group-hover:opacity-100 group-focus-visible:opacity-100"
                       />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <svg
-                          viewBox="0 0 40 40"
-                          className="h-16 w-16 text-white opacity-0 transition-[opacity,transform] duration-(--d-base) ease-(--ease-out-expo) group-hover:opacity-100 group-focus-visible:opacity-100 motion-safe:translate-y-2 motion-safe:group-hover:translate-y-0 motion-safe:group-focus-visible:translate-y-0"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth={1.5}
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          {ICONS[p.id]}
-                        </svg>
-                      </div>
                     )}
                   </div>
 

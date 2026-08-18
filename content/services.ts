@@ -131,18 +131,21 @@ const caseProjects: CaseProject[] = [
     name: "BitBeon",
     body: "Multi-currency wallet holding fiat and crypto in one balance — dedicated IBANs, SEPA and SWIFT transfers, virtual and plastic Mastercard.",
     url: "https://bitbeon.com",
+    image: "/assets/works/bitbeon.png",
   },
   {
     id: "trientes",
     name: "Trientes",
     body: "Crypto and fiat wallet built around instant transfers and one-screen conversion between currencies.",
     url: "https://trientes.com",
+    image: "/assets/works/trientes.png",
   },
   {
     id: "teslapay",
     name: "Tesla Pay",
     body: "Neobank with one account and up to ten virtual cards, plastic issuance and two-factor protection.",
     url: "https://www.teslapay.eu", // [VERIFY: teslapay.eu — тот ли это Tesla Pay, что в портфолио]
+    image: "/assets/works/teslapay.png",
   },
   {
     // фактура — лендинг meinbit.io (2026-08-17): fiat + crypto в одном счёте,
@@ -151,6 +154,7 @@ const caseProjects: CaseProject[] = [
     name: "Meinbit",
     body: "Multi-currency account for Europe with fiat and crypto side by side — personal IBAN, SEPA and SWIFT payments, instant swaps and Mastercards funded from any balance.",
     url: "https://meinbit.io", // [VERIFY: meinbit.com в og:url сайта, но домен припаркован — рабочий хост .io]
+    image: "/assets/works/meinbit.png",
   },
 ];
 
