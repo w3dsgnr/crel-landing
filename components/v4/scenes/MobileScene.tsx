@@ -4,8 +4,20 @@
 // OS-пилюля iOS/Android — аналог референсного os-pill, крупнее и с глубокой
 // тенью на переднем плане. Суммы фона даёт штатная текстура amounts.
 // Макет утверждён 2026-08-10 (scratchpad/card-05-mobile-apps.html).
+//
+// Сцена (грамматика приборов, docs/motion-capabilities.md), минимально:
+// баланс печатается → строки-скелетоны садятся в ленту → OS-пилюля ложится
+// сверху. Корпус телефона (маска + тень) и кнопка send статичны.
+"use client";
+
+import { usePlayOnce } from "@/lib/usePlayOnce";
 
 const SKELETON_WIDTHS = ["64%", "52%", "38%"];
+
+// такты от --wg-t0 ячейки: скелетоны stagger 60 (в вилке 30–80), пилюля после
+const at = (ms: number) => `calc(var(--wg-t0) + ${ms}ms)`;
+const ROW_STAGGER = 60;
+const PILL_AT = 200;
 
 function AppleIcon() {
   return (
@@ -28,6 +40,9 @@ function AndroidIcon() {
 }
 
 export function MobileScene() {
+  // привод сцены висит на якоре телефона, а не на фрагменте: IntersectionObserver
+  // нужен реальный бокс, а фон-виньетка сцены к прогону отношения не имеет
+  const { ref, playAttr } = usePlayOnce<HTMLDivElement>();
   return (
     <>
       <div aria-hidden className="pointer-events-none absolute inset-0 select-none">
@@ -38,7 +53,7 @@ export function MobileScene() {
       </div>
 
       {/* якорь к низу сцены: растворение всегда завершается у края карточки */}
-      <div className="absolute -bottom-[50px] left-1/2 h-[300px] w-[158px] -translate-x-1/2">
+      <div ref={ref} data-play={playAttr} className="absolute -bottom-[50px] left-1/2 h-[300px] w-[158px] -translate-x-1/2">
         <div
           className="absolute inset-0 rounded-t-[28px] px-2 pt-2"
           style={{
@@ -60,11 +75,18 @@ export function MobileScene() {
               balance
             </div>
             <div className="mt-1 flex items-baseline gap-1">
-              <span className="text-[1.1875rem] font-semibold tracking-[-0.01em]">1 240.50</span>
+              {/* баланс печатается на экран — прибор выдал значение */}
+              <span className="wg-type text-[1.1875rem] font-semibold tracking-[-0.01em]" style={{ transitionDelay: at(0) }}>
+                1 240.50
+              </span>
               <span className="text-data text-[0.5625rem] text-ink-soft">chf</span>
             </div>
-            {SKELETON_WIDTHS.map((w) => (
-              <div key={w} className="mt-2.5 flex items-center gap-[7px] rounded-(--radius-s) bg-bg-mist px-2 py-[7px]">
+            {SKELETON_WIDTHS.map((w, i) => (
+              <div
+                key={w}
+                className="wg-rise wg-rise-s mt-2.5 flex items-center gap-[7px] rounded-(--radius-s) bg-bg-mist px-2 py-[7px]"
+                style={{ transitionDelay: at(i * ROW_STAGGER) }}
+              >
                 <span className="size-1.5 flex-none rounded-full" style={{ background: "var(--v4-ghost)" }} />
                 <span className="h-[5px] rounded-full bg-[#e9e9ee]" style={{ width: w }} />
               </div>
@@ -79,10 +101,15 @@ export function MobileScene() {
           </div>
         </div>
 
-        {/* OS-пилюля на переднем плане: по центру телефона, глубокая тень */}
+        {/* OS-пилюля на переднем плане: по центру телефона, глубокая тень.
+            Ложится сверху (.wg-rise-drop) — физически лежит над экраном; центровка
+            -translate-x-1/2 живёт в свойстве translate и с transform не спорит */}
         <div
-          className="absolute top-[72px] left-1/2 z-10 flex -translate-x-1/2 items-center gap-[3px] rounded-full bg-surface px-[9px] py-[7px]"
-          style={{ boxShadow: "0 14px 32px rgb(0 0 0 / 0.14), 0 3px 8px rgb(0 0 0 / 0.05)" }}
+          className="wg-rise wg-rise-drop absolute top-[72px] left-1/2 z-10 flex -translate-x-1/2 items-center gap-[3px] rounded-full bg-surface px-[9px] py-[7px]"
+          style={{
+            boxShadow: "0 14px 32px rgb(0 0 0 / 0.14), 0 3px 8px rgb(0 0 0 / 0.05)",
+            transitionDelay: at(PILL_AT),
+          }}
         >
           <div className="flex items-center gap-[7px] rounded-full bg-bg-mist px-[13px] py-[7px] text-[0.875rem] font-medium whitespace-nowrap">
             <AppleIcon />

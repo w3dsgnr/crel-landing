@@ -9,8 +9,9 @@ import type { RefObject } from "react";
 export type TypewriterPhase = "idle" | "erasing" | "typing";
 
 export interface TypewriterHandle {
-  /** Стереть текущий аргумент и напечатать next. 40ms/символ (--t-char-fast). */
-  retype: (next: string) => void;
+  /** Стереть текущий аргумент и напечатать next. По умолчанию 40ms/символ
+   *  (--t-char-fast); charMs позволяет замедлить (авто-цикл hero). */
+  retype: (next: string, charMs?: number) => void;
   /** Мгновенно установить финальную строку, снять все таймеры (скип). */
   skipTo: (final: string) => void;
   phase: () => TypewriterPhase;
@@ -43,7 +44,7 @@ export function useTypewriter(
   }, []);
 
   const retype = useCallback(
-    (next: string) => {
+    (next: string, charMs: number = CHAR_MS) => {
       const el = argRef.current;
       if (!el) return;
       clearTimers();
@@ -55,9 +56,9 @@ export function useTypewriter(
       for (let i = 1; i <= from.length; i++) {
         schedule(() => {
           el.textContent = from.slice(0, from.length - i);
-        }, i * CHAR_MS);
+        }, i * charMs);
       }
-      const eraseDone = from.length * CHAR_MS;
+      const eraseDone = from.length * charMs;
       schedule(() => {
         phaseRef.current = "typing";
       }, eraseDone);
@@ -65,12 +66,12 @@ export function useTypewriter(
       for (let i = 1; i <= next.length; i++) {
         schedule(() => {
           el.textContent = next.slice(0, i);
-        }, eraseDone + i * CHAR_MS);
+        }, eraseDone + i * charMs);
       }
       schedule(() => {
         phaseRef.current = "idle";
         setCursorBlinking(true); // один цикл blink и далее постоянное мигание
-      }, eraseDone + next.length * CHAR_MS);
+      }, eraseDone + next.length * charMs);
     },
     [argRef, clearTimers, schedule, setCursorBlinking]
   );

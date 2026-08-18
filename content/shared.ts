@@ -2,18 +2,39 @@
 import type {
   ContactContent,
   FinaleContent,
+  HeroBranch,
   HeroContent,
   LandingState,
   LegalDocId,
 } from "./types";
 
 // Hero объединённой страницы: команда в покое — c:rel_, подзаголовок держит
-// оба направления одной строкой (content.md §ОБЩЕЕ, вариант A).
+// оба направления одной строкой (content.md §ОБЩЕЕ, вариант A). После таба
+// platform | services (2026-08-18) subtitle — fallback/общая формула, в hero
+// показываются heroBranches; ctaPrimary остаётся у капсулы шапки.
 export const hero: HeroContent = {
   restArg: "rel",
   subtitle:
     "Crel builds and runs digital asset infrastructure: a Swiss consulting practice and a platform, sharing one rail.",
   ctaPrimary: "Talk to us_",
+};
+
+// Ветки hero под табом (референс Arlo «Messages / Slack»): подзаголовок и CTA
+// меняются вместе с прибором под текстом; CTA ведёт к развилке (scrollToBranch).
+// [VERIFY: подзаголовки и лейблы CTA написаны 2026-08-18 в тоне content.md §ОБЩЕЕ]
+export const heroBranches: Record<LandingState, HeroBranch> = {
+  platform: {
+    tab: "platform",
+    subtitle:
+      "One platform for on- and off-ramps, KYC and cards: a drop-in widget or a white label API on a Swiss-regulated rail.",
+    cta: "See the platform_",
+  },
+  services: {
+    tab: "services",
+    subtitle:
+      "A Swiss consulting practice for digital assets: licensing, architecture and implementation, run by the team that operates the rail.",
+    cta: "See the services_",
+  },
 };
 
 // Синий финальный блок (спека 2026-08-13), заменил собой FinalCta: логотип-циклер +
@@ -28,6 +49,9 @@ export const finale: FinaleContent = {
   emailSending: "Sending",
   emailSuccess: "You're on the list. We write rarely.",
   emailErrorGeneric: "Could not subscribe. Write to info@crel.ch instead.",
+  // капча Turnstile: обычно невидима, текст всплывает только если её скрипт
+  // заблокирован или проверка провалилась. [VERIFY: вычитка заказчиком]
+  emailVerifyError: "Verification did not load. Reload the page or write to info@crel.ch.",
   consentPrefix: "By subscribing you accept the ",
   consentLinkLabel: "privacy policy",
   ctaPrimary: "Talk to us_",
@@ -52,6 +76,8 @@ export const contact: ContactContent = {
   successTitle: "Message sent",
   successBody: "We reply within one business day.",
   errorGeneric: "Could not send. Write to info@crel.ch and we will pick it up there.",
+  // капча Turnstile — см. finale.emailVerifyError [VERIFY]
+  verifyError: "Verification did not load. Reload the page or write to info@crel.ch.",
   errors: {
     nameRequired: "Tell us who is writing",
     emailRequired: "We need an address to reply to",
@@ -63,10 +89,22 @@ export const contact: ContactContent = {
 export const footer = {
   legal:
     "Crel [AG], [street, postcode] Zurich, Switzerland. [Company / VAT registration numbers]", // [VERIFY: credentials от Roman]
+  // Реквизиты футера парами «label · value» (docs/refs/footer-milkyway/design.md):
+  // та же строка legal, разбитая на моно-колонки. Значения — [VERIFY] до
+  // credentials от Roman; label'ы уже финальные.
+  meta: [
+    { label: "studio", value: "Zurich, Switzerland" }, // [VERIFY: улица, индекс]
+    { label: "reg.", value: "[company no.]" }, // [VERIFY]
+    { label: "vat", value: "[VAT no.]" }, // [VERIFY]
+  ] as { label: string; value: string }[],
   complianceStrip:
     "[Placeholder: certifications / registrations, pending confirmation]", // [VERIFY]
   email: "info@crel.ch",
   copyright: "© Crel 2026",
+  // Заголовок шапки футера и слово вордмарка (курсор «_» дорисовывает разметка,
+  // как в Header: LOGO_WORD + курсор)
+  heading: "Contact",
+  wordmark: "c:rel",
   // Расширение спекой 2026-08-13: футер финала — две группы ссылок
   // (навигация по секциям и легал-модалки, см. content/legal.ts).
   navLabel: "site",

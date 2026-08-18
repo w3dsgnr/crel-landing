@@ -4,7 +4,15 @@
 // правом крае окна (положение по эскизу заказчика: большая часть на панели,
 // правый край выступает наружу). Номера строк фона даёт текстура lines.
 // Макет утверждён 2026-08-10 (scratchpad/card-06-ongoing-support.html).
+//
+// Сцена (грамматика приборов, docs/motion-capabilities.md): «отчёты приходят
+// по такту» — сверка печатает значение → инцидентов нет → коридор загорается
+// последним, это и есть rollout. Контейнеры строк и круг статичны: анимируются
+// только вердикты, сами строки существуют и до отчёта.
+"use client";
+
 import { servicesGrid } from "@/content/services";
+import { usePlayOnce } from "@/lib/usePlayOnce";
 
 const feed = servicesGrid.cells.find((c) => c.title === "Ongoing support")!.statusFeed!;
 
@@ -13,14 +21,20 @@ const GHOSTS = [
   { t: "24 / 7", style: { left: "13%", bottom: "9%" } },
 ] as const;
 
+// такты от --wg-t0 ячейки, по типу вердикта (порядок строк в ленте — контентный)
+const AT = { type: 0, fade: 160, pop: 320 } as const;
+const at = (ms: number) => `calc(var(--wg-t0) + ${ms}ms)`;
+
 function RowIcon({ value }: { value: string }) {
   if (value === "live") {
     return (
+      // щёлкает вместе с ярлыком: точка — отклик системы, не декор
       <span
-        className="mx-[5px] size-2 flex-none rounded-full"
+        className="wg-pop mx-[5px] size-2 flex-none rounded-full"
         style={{
           background: "var(--v4-ok)",
           boxShadow: "0 0 0 3px rgb(52 199 89 / 0.14), 0 0 8px rgb(52 199 89 / 0.35)",
+          transitionDelay: at(AT.pop),
         }}
       />
     );
@@ -79,7 +93,18 @@ function Buoy() {
   );
 }
 
+// класс и такт вердикта по значению: сверка печатается, «0 open» проявляется,
+// live щёлкает последним
+function verdictMotion(value: string): { cls: string; delay: string } {
+  if (value === "live") return { cls: "wg-pop", delay: at(AT.pop) };
+  if (value.startsWith("0")) return { cls: "wg-fade", delay: at(AT.fade) };
+  return { cls: "wg-type", delay: at(AT.type) };
+}
+
 export function SupportScene() {
+  // привод сцены висит на панели, а не на фрагменте: IntersectionObserver
+  // нужен реальный бокс, а фон-виньетка сцены к прогону отношения не имеет
+  const { ref, playAttr } = usePlayOnce<HTMLDivElement>();
   return (
     <>
       <div aria-hidden className="pointer-events-none absolute inset-0 select-none">
@@ -99,7 +124,7 @@ export function SupportScene() {
       </div>
 
       {/* окно ops-консоли; сдвиг влево-вверх — круг дышит справа-снизу */}
-      <div className="relative w-[330px] -translate-x-7 -translate-y-3">
+      <div ref={ref} data-play={playAttr} className="relative w-[330px] -translate-x-7 -translate-y-3">
         <div className="rounded-(--radius-m) bg-surface" style={{ boxShadow: "var(--shadow-panel)" }}>
           <div className="flex items-center gap-[5px] px-3 pt-2.5 pb-2">
             <span className="size-[7px] rounded-full" style={{ background: "var(--v4-hairline)" }} />
@@ -113,23 +138,29 @@ export function SupportScene() {
             </span>
           </div>
           <div className="grid gap-1.5 px-2.5 pb-2.5">
-            {feed.map((row) => (
-              <div
-                key={row.label}
-                className="flex items-center gap-2 rounded-(--radius-s) bg-bg-mist px-2.5 py-2 text-[0.78125rem] font-medium"
-              >
-                <RowIcon value={row.value} />
-                {row.label}
-                <span
-                  className={`text-data ml-auto text-[0.625rem] font-medium ${
-                    row.value === "live" ? "text-[0.5625rem] uppercase tracking-[0.06em]" : "text-ink-soft"
-                  }`}
-                  style={row.value === "live" ? { color: "var(--v4-ok)" } : undefined}
+            {feed.map((row) => {
+              const motion = verdictMotion(row.value);
+              return (
+                <div
+                  key={row.label}
+                  className="flex items-center gap-2 rounded-(--radius-s) bg-bg-mist px-2.5 py-2 text-[0.78125rem] font-medium"
                 >
-                  {row.value}
-                </span>
-              </div>
-            ))}
+                  <RowIcon value={row.value} />
+                  {row.label}
+                  <span
+                    className={`${motion.cls} text-data ml-auto text-[0.625rem] font-medium ${
+                      row.value === "live" ? "text-[0.5625rem] uppercase tracking-[0.06em]" : "text-ink-soft"
+                    }`}
+                    style={{
+                      ...(row.value === "live" ? { color: "var(--v4-ok)" } : undefined),
+                      transitionDelay: motion.delay,
+                    }}
+                  >
+                    {row.value}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
         <Buoy />

@@ -26,16 +26,16 @@ export function Capabilities() {
   const terminal = byMockup("terminal");
   const widget = byMockup(null);
 
-  // Ход сцены (--wg-t0) — фора внутренней анимации прибора относительно
-  // момента, когда его увидел IntersectionObserver. Два слагаемых:
-  //  700ms — ячейка в это время ещё едет по data-reveal (600ms, autoAlpha:0),
-  //          а IO смотрит на геометрию и про невидимость не знает: без форы
-  //          прогон отыграл бы под непрозрачной карточкой;
-  //  +160ms правой ячейке ряда — соседи входят в кадр одновременно, и без
-  //          разведения ряд «вспыхивает» целиком. С форой он читается слева
+  // Ход сцены --wg-t0 = --wg-fora + --wg-stagger (правило [data-scene-cell] в
+  // globals.css). Здесь ставится только разведение ряда:
+  //  0 левой / 160ms правой ячейке — соседи входят в кадр одновременно, и без
+  //          разведения ряд «вспыхивает» целиком; с ним читается слева
   //          направо, как текст: эстафета, а не аккорд.
-  const T0_LEFT = "700ms";
-  const T0_RIGHT = "860ms";
+  //  --wg-fora (700ms — столько ячейка ещё едет по data-reveal, autoAlpha:0, а
+  //          IO про невидимость не знает) живёт в CSS и обнуляется приводом,
+  //          если в момент старта карточка уже проявлена (usePlayOnce.ts).
+  const T0_LEFT = "0ms";
+  const T0_RIGHT = "160ms";
 
   // ячейка = сцена: мокап-иллюстрация + тематическая текстура (спека §6)
   const grid: {
@@ -78,9 +78,10 @@ export function Capabilities() {
             <div
               key={cell.title}
               data-reveal
+              data-scene-cell
               data-hover-scene={hover ? "" : undefined}
               className={span}
-              style={{ "--wg-t0": t0 } as React.CSSProperties}
+              style={{ "--wg-stagger": t0 } as React.CSSProperties}
             >
               <BentoCard enableStars={false} className="h-full rounded-(--radius-xl)">
                 <CardScene title={cell.title} body={cell.body} illustration={illustration} texture={texture} />

@@ -9,7 +9,11 @@
 // Когда эндпоинт появится, правится РОВНО одно место — шов внутри submitContact.
 // Контракт наружу не меняется: ContactForm уже умеет и ok, и error.
 
-export type ContactPayload = { name: string; email: string; message: string };
+/** поля, которые вводит человек — ими оперируют форма и валидация */
+export type ContactFields = { name: string; email: string; message: string };
+/** то, что уходит на эндпоинт: поля + одноразовый токен Cloudflare Turnstile
+ *  (lib/useTurnstile.ts); сервер обязан проверить его через siteverify */
+export type ContactPayload = ContactFields & { turnstileToken: string };
 export type SubmitResult = { ok: true } | { ok: false; error: string };
 
 // Задержка заглушки. Смысл не в правдоподобии, а в том, что фаза "submitting"
@@ -24,6 +28,13 @@ export async function submitContact(payload: ContactPayload): Promise<SubmitResu
   //   const res = await fetch(ENDPOINT, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
   //   return res.ok ? { ok: true } : { ok: false, error: `HTTP ${res.status}` };
   //
+  // Эндпоинт ОБЯЗАН верифицировать payload.turnstileToken до отправки письма:
+  //   POST https://challenges.cloudflare.com/turnstile/v0/siteverify
+  //   body: { secret: TURNSTILE_SECRET_KEY, response: payload.turnstileToken, remoteip }
+  //   → { success: boolean, action, ... }; при !success отвечать 4xx, форма
+  //   покажет errorGeneric. Секрет живёт только на сервере (не NEXT_PUBLIC_).
+  //   Токен одноразовый и живёт ~5 минут — форма сбрасывает виджет после каждой
+  //   попытки, повторно один токен не приходит.
   // ──────────────────────────────────────────────────────────────────────────
 
   // payload не читается: заглушке нечего с ним делать, но имя держим в сигнатуре —

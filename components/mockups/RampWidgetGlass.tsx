@@ -22,6 +22,11 @@ import { usePlayOnce } from "@/lib/usePlayOnce";
 const PRESETS = ["250", "500", "1 000", "2 500"];
 const SELECTED = "1 000";
 
+// микротексты тост-квитка [VERIFY: сгенерированы 2026-08-12 по образцу «Bill has
+// been paid»]. Экспорт — тот же квиток стоит фрагментом в hero (HeroFloats.tsx),
+// строка живёт в одном месте. Вокруг точки-разделителя — U+2002 (ensp), как в квитке
+export const TOAST = { title: "Order settled", terms: "1.0960\u2002·\u2002fees included" };
+
 function Stepper({ sign }: { sign: "−" | "+" }) {
   return (
     <span className="flex size-9 items-center justify-center rounded-full bg-(--wg-surface-overlay) text-[1.0625rem] text-(--wg-text-muted) select-none">
@@ -111,30 +116,33 @@ export function RampWidgetGlass({
       </div>
 
       {/* тост-квиток вне корпуса — артефакт завершённой операции (полная версия).
-          Такт 3: артефакт прилетает снизу — оттуда, где он лежит. Пауза после
+          Такт 3: содержимое квитка садится на подложку снизу. Пауза после
           котировки кодирует причинность (котировка → расчёт) без фальшивого
-          нажатия Continue */}
+          нажатия Continue. Стеклянный корпус тоста статичен: .wg-rise висит на
+          внутренней обёртке, а не на узле с backdrop-blur — иначе блюр
+          пересемплировался бы каждый кадр (правило спеки §1, без исключения) */}
       {!compact && (
-      <div
-        className="wg-rise mt-3 flex items-center gap-3 rounded-full border border-(--wg-hairline) bg-(--wg-surface-base) px-5 py-3.5 backdrop-blur-xl"
-        style={{ transitionDelay: "calc(var(--wg-t0) + 520ms)" }}
-      >
-        <div className="min-w-0 flex-1">
-          {/* [VERIFY: микротекст квитка сгенерирован 2026-08-12 по образцу «Bill has been paid»] */}
-          <p className="text-[0.8125rem] font-medium">Order settled</p>
-          <p className="mt-0.5 font-mono text-[0.6875rem] text-(--wg-text-muted)">
-            {m.receiveValue} {m.receiveChip}&ensp;·&ensp;1.0960&ensp;·&ensp;fees included
-          </p>
-        </div>
-        {/* такт 4: тот же «щелчок вердикта», что в KYC — общая морфема семейства */}
-        <span
-          className="wg-pop flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-(--wg-accent)"
-          style={{ transitionDelay: "calc(var(--wg-t0) + 760ms)" }}
+      <div className="mt-3 flex items-center rounded-full border border-(--wg-hairline) bg-(--wg-surface-base) px-5 py-3.5 backdrop-blur-xl">
+        <div
+          className="wg-rise flex flex-1 items-center gap-3"
+          style={{ transitionDelay: "calc(var(--wg-t0) + 520ms)" }}
         >
-          <svg viewBox="0 0 12 12" className="size-3.5" aria-hidden>
-            <path d="M2 6.2 5 9l5-6" fill="none" stroke="var(--wg-accent)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-[0.8125rem] font-medium">{TOAST.title}</p>
+            <p className="mt-0.5 font-mono text-[0.6875rem] text-(--wg-text-muted)">
+              {m.receiveValue} {m.receiveChip}&ensp;·&ensp;{TOAST.terms}
+            </p>
+          </div>
+          {/* такт 4: тот же «щелчок вердикта», что в KYC — общая морфема семейства */}
+          <span
+            className="wg-pop flex size-8 shrink-0 items-center justify-center rounded-full border-2 border-(--wg-accent)"
+            style={{ transitionDelay: "calc(var(--wg-t0) + 760ms)" }}
+          >
+            <svg viewBox="0 0 12 12" className="size-3.5" aria-hidden>
+              <path d="M2 6.2 5 9l5-6" fill="none" stroke="var(--wg-accent)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+        </div>
       </div>
       )}
     </div>

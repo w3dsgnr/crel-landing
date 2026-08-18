@@ -7,8 +7,8 @@
 import { useEffect, useRef, useState } from "react";
 import { enqueue } from "./MockupStage";
 
-type Token = { t: string; c: TokenClass };
-type TokenClass = "kw" | "str" | "cmt" | "plain";
+export type Token = { t: string; c: TokenClass };
+export type TokenClass = "kw" | "str" | "cmt" | "plain";
 
 // две схемы: terminal — тёмное окно v3; light — белая панель v4
 // (референс «Identify code vulnerabilities»: синие ключевые слова,
@@ -30,7 +30,8 @@ const TOKEN_SCHEMES: Record<"terminal" | "light", Record<TokenClass, string>> = 
 
 const CHAR_MS = 12;
 
-function tokenize(line: string): Token[] {
+// токенизатор экспортирован: его же берёт терминал hero (HeroCodeTerminal)
+export function tokenize(line: string): Token[] {
   if (line.trim().startsWith("//")) return [{ t: line, c: "cmt" }];
   const out: Token[] = [];
   // строки в кавычках → str; внутри остального — ключевые слова

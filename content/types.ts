@@ -7,6 +7,14 @@ export interface HeroContent {
   ctaPrimary: string;
 }
 
+/** ветка hero (таб platform | services): подпись таба, подзаголовок и CTA к развилке */
+export interface HeroBranch {
+  tab: string;
+  subtitle: string;
+  /** лейбл CTA; хвост «_» — курсор, как у hero.ctaPrimary */
+  cta: string;
+}
+
 export interface SectionCopy {
   /** CLI-лейбл секции, формат "NN: name", строчные */
   label: string;
@@ -21,6 +29,9 @@ export interface CaseProject {
   id: string;
   name: string;
   body: string;
+  /** внешний сайт проекта — вся строка ведомости становится ссылкой на него;
+   *  абсолютный https-URL, hostname из него идёт в подпись кастомного курсора */
+  url: string;
   /** фото проекта в рельсе hover-ленты (путь в /public); без него — глиф ICONS[id] */
   image?: string;
 }
@@ -60,6 +71,8 @@ export interface FinaleContent {
   emailSuccess: string;
   /** сбой отправки — единственный текст на все сетевые причины, как в ContactContent */
   emailErrorGeneric: string;
+  /** капча (Cloudflare Turnstile) не выдала токен: скрипт заблокирован / проверка не прошла */
+  emailVerifyError: string;
   consentPrefix: string;
   consentLinkLabel: string;
   ctaPrimary: string;
@@ -84,6 +97,8 @@ export interface ContactContent {
   successBody: string;
   /** сбой отправки — единственный текст на все сетевые причины */
   errorGeneric: string;
+  /** капча (Cloudflare Turnstile) не выдала токен: скрипт заблокирован / проверка не прошла */
+  verifyError: string;
   /** ключи совпадают с тем, что возвращает validateField (lib/validateContact.ts) */
   errors: {
     nameRequired: string;

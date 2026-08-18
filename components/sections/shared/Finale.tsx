@@ -16,6 +16,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { contact, finale, hero } from "@/content/shared";
 import { submitLead, type SubmitResult } from "@/lib/submitLead";
 import { validateField } from "@/lib/validateContact";
+import { useTurnstile } from "@/lib/useTurnstile";
 import { useContactModal } from "@/components/contact/ContactModalProvider";
 import { useLegalModal } from "@/components/legal/LegalModalProvider";
 import { useTypewriter } from "@/lib/useTypewriter";
@@ -110,6 +111,24 @@ export function Finale() {
   const busy = phase === "submitting";
   const done = phase === "success";
 
+  // Капча Cloudflare Turnstile (lib/useTurnstile.ts) — та же, что в модалке
+  // контакта. Финал смонтирован с первого кадра, поэтому виджет включается
+  // только когда секция ХОТЬ РАЗ показалась на экране (флаг липкий: уход за
+  // экран не должен снимать уже полученный токен). interaction-only — виджет
+  // невидим, пока Cloudflare не попросит клика; тогда он раскроется под рядом
+  // формы. Тема light: на синей плоскости словарь белый (пилюля, кольцо-чек),
+  // тёмная плашка Turnstile здесь читалась бы дырой. size flexible — на всю
+  // ширину ряда (max-w 460px), фиксированные 300px не сошлись бы с пилюлей.
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    if (inView) setSeen(true);
+  }, [inView]);
+  const captcha = useTurnstile({ theme: "light", size: "flexible", action: "lead", enabled: seen });
+  // Кнопка невалидна без токена. Провал самой капчи (скрипт заблокирован,
+  // ключ не для домена) — тем же текстом-шторкой, что и провал отправки; на
+  // aria-invalid поля он не влияет: адрес тут ни при чём.
+  const captchaError = captcha.status === "error" && !done ? finale.emailVerifyError : null;
+
   // WCAG 2.4.3 (порядок фокуса): на успехе кнопка сабмита, на которой стоял
   // фокус, становится disabled — браузер снимает фокус на body, и Tab по
   // странице начинался бы заново с начала документа. Уводим фокус на строку
@@ -130,7 +149,9 @@ export function Finale() {
     const t = window.setTimeout(() => setHeld(null), D_QUICK_MS);
     return () => window.clearTimeout(t);
   }, [error]);
-  const shownError = error ?? held;
+  // ошибка поля/отправки приоритетнее ошибки капчи: она свежее по времени
+  const shownError = error ?? held ?? captchaError;
+  const alertOpen = Boolean(error || captchaError);
 
   const change = (v: string) => {
     setEmail(v);
@@ -147,9 +168,14 @@ export function Finale() {
     const found = validateField("email", email);
     setError(found);
     if (found) return;
+    // кнопка и так disabled без токена; страховка от Enter в поле
+    const turnstileToken = captcha.token;
+    if (!turnstileToken) return;
 
     setPhase("submitting");
-    const result: SubmitResult = await submitLead({ email });
+    const result: SubmitResult = await submitLead({ email, turnstileToken });
+    // токен одноразовый — виджет сбрасывается после любого исхода
+    captcha.reset();
     if (result.ok) {
       setPhase("success");
       return;
@@ -203,7 +229,7 @@ export function Finale() {
             onSubmit={onSubmit}
             noValidate
             data-phase={phase}
-            data-alert={error ? "on" : "off"}
+            data-alert={alertOpen ? "on" : "off"}
             className="mt-4"
           >
             <div className="finale-row grid" style={{ gridTemplateRows: done ? "0fr" : "1fr" }} inert={done}>
@@ -233,7 +259,9 @@ export function Finale() {
                   {/* белая пилюля — словарь инвертированного CTA (hero на чёрном) */}
                   <button
                     type="submit"
-                    disabled={busy || done}
+                    // без токена капчи — тоже disabled: до первого показа
+                    // секции и ~секунду после (Turnstile молча проходит проверку)
+                    disabled={busy || done || captcha.token === null}
                     className={`shrink-0 cursor-pointer ${PILL} px-5 py-2.5 disabled:cursor-not-allowed disabled:opacity-70`}
                   >
                     {busy ? finale.emailSending : finale.emailSubmit}
@@ -241,6 +269,12 @@ export function Finale() {
                 </div>
               </div>
             </div>
+
+            {/* Контейнер капчи — под рядом, на всю его ширину (size flexible).
+                В interaction-only он пуст по высоте, пока Turnstile не попросит
+                клика; отступ сверху даём только на это время, чтобы в чистой
+                форме между рядом и шторкой ошибки не стоял пустой зазор */}
+            <div ref={captcha.containerRef} className={captcha.interactive && !done ? "pt-3" : ""} />
 
             {/* шторка ошибки: grid-template-rows 0fr → 1fr, как у поля формы
                 контакта. Цвет предупреждения на синем взять неоткуда
@@ -250,7 +284,7 @@ export function Finale() {
               id={errorId}
               role="alert"
               className="finale-alert grid"
-              style={{ gridTemplateRows: error ? "1fr" : "0fr" }}
+              style={{ gridTemplateRows: alertOpen ? "1fr" : "0fr" }}
             >
               <div className="overflow-hidden">
                 <p className="px-5 pt-2 text-[0.8125rem]">{shownError}</p>
@@ -295,37 +329,44 @@ export function Finale() {
           </form>
         </div>
 
-        {/* второй путь того же разговора: не письмо в список, а прямой контакт */}
-        <div data-reveal className="mt-10">
-          <CtaButton label={finale.ctaPrimary} onClick={open} />
-        </div>
       </div>
+
+      {/* второй путь того же разговора: не письмо в список, а прямой контакт.
+          CTA вынесен из контейнера: это отдельный блок-кнопка на всю ширину
+          плоскости, край в край, под контентом финала (см. CtaButton) */}
+      <CtaButton label={finale.ctaPrimary} onClick={open} />
     </section>
   );
 }
 
-/** CTA финала — белая пилюля на синем (инверсия словаря hero). Глиф «_»
- *  проявляется по наведению акцентным синим: на белой кнопке он читается,
- *  на самой плоскости — нет. */
+/** CTA финала — кнопка во весь экран: полоса на всю ширину плоскости, край в
+ *  край, высотой в большую часть вьюпорта, текст display-калибра. В покое она
+ *  и есть плоскость финала (тот же синий, шва с футером по-прежнему нет), а
+ *  глиф «_» мигает белым — та же грамматика курсора, что у логотипа выше.
+ *  Единственный жест — инверсия по наведению/фокусу: полоса становится белой,
+ *  текст — синим #2668d9 (словарь белой пилюли, растянутый до экрана).
+ *  Геометрия, инверсия и фокус — .finale-cta в globals.css: глобальное белое
+ *  кольцо фокуса на белой полосе было бы невидимо. */
 function CtaButton({ label, onClick }: { label: string; onClick(): void }) {
   const text = label.endsWith("_") ? label.slice(0, -1) : label;
   const hasCursor = label.endsWith("_");
   return (
-    // cursor-pointer — компенсация preflight Tailwind v4: у <button> его нет
+    // cursor-pointer — компенсация preflight Tailwind v4: у <button> его нет.
+    // w-full: секция — flex-col, кнопка растягивается на всю плоскость сама.
     <button
       type="button"
       onClick={onClick}
-      className={`group inline-flex cursor-pointer items-baseline ${PILL} px-7 py-3.5`}
+      data-reveal
+      className="finale-cta flex w-full cursor-pointer items-center justify-center px-5 md:px-12"
     >
-      {text}
-      {hasCursor && (
-        <span
-          aria-hidden
-          className="text-accent opacity-0 transition-opacity duration-(--d-quick) group-hover:opacity-100"
-        >
-          _
-        </span>
-      )}
+      <span className="text-finale-cta">
+        {text}
+        {hasCursor && (
+          <span aria-hidden className="cursor-blink">
+            _
+          </span>
+        )}
+      </span>
     </button>
   );
 }

@@ -165,7 +165,7 @@ body {
   border: 1px solid rgb(255 255 255 / 0.8);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.9),
-    0 1px 0 rgb(4 41 27 / 0.04);
+    0 1px 0 rgb(0 0 0 / 0.04);
 }
 
 .glass-tint {
@@ -176,8 +176,9 @@ body {
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.38);
 }
 
+/* нейтральный чёрный (шкала v4), без зелёного подтона v3 */
 .glass-dark {
-  background: rgb(4 21 14 / 0.58);
+  background: rgb(10 10 10 / 0.58);
   -webkit-backdrop-filter: blur(28px) saturate(160%);
   backdrop-filter: blur(28px) saturate(160%);
   border: 1px solid rgb(255 255 255 / 0.1);
@@ -193,7 +194,7 @@ body {
   box-shadow: var(--shadow-panel), inset 0 1px 0 rgb(255 255 255 / 0.95);
 }
 .glass-panel-dark {
-  background: rgb(4 21 14 / 0.58);
+  background: rgb(10 10 10 / 0.58);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
   backdrop-filter: blur(16px) saturate(160%);
   border: 1px solid rgb(255 255 255 / 0.14);
@@ -211,7 +212,7 @@ body {
   }
   .glass-dark,
   .glass-panel-dark {
-    background: rgb(8 32 22 / 0.96);
+    background: rgb(12 12 12 / 0.96);
   }
 }
 
@@ -425,6 +426,81 @@ body {
   background-size: 12px 12px;
 }
 
+/* ── Курсор-пилюля selected work (Cases.tsx, useWorkCursor) ────────────────
+   Одна пилюля на список, fixed относительно вьюпорта: JS пишет только
+   transform (translate3d под курсор), центровка на точке — независимым
+   translate: -50% -50%, появление — независимым scale. Белая пилюля с ink
+   текстом сидит и на серой статике, и на синей ленте hovered-строки.
+   Существует только для мыши: под hover:none элемент вовсе не отображается,
+   а у названия проекта проступает постоянная стрелка «наружу» (.ext-mark).
+   cursor: none вешаем лишь после того, как JS выставил data-cursor="on" —
+   без скрипта системный курсор остаётся. */
+.work-cursor {
+  display: none;
+}
+
+.ext-mark {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  /* внешний слой — только позиция: scale появления живёт на внутренней пилюле,
+     иначе он умножил бы и translate3d курсора (подлёт из угла вьюпорта) */
+  .work-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 40;
+    display: block;
+    pointer-events: none;
+    translate: -50% -50%;
+    will-change: transform;
+  }
+
+  .work-cursor > .work-cursor-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.4375rem 0.75rem;
+    border-radius: 999px;
+    background: #fff;
+    color: var(--color-ink);
+    font-size: 0.75rem;
+    line-height: 1;
+    white-space: nowrap;
+    box-shadow:
+      0 0 0 1px rgb(29 29 31 / 0.06),
+      0 4px 14px rgb(29 29 31 / 0.14);
+    scale: 0.6;
+    opacity: 0;
+    transition:
+      opacity var(--d-base) var(--ease-out-expo),
+      scale var(--d-base) var(--ease-out-expo);
+  }
+
+  .work-cursor[data-on] > .work-cursor-pill {
+    scale: 1;
+    opacity: 1;
+  }
+
+  /* системный курсор прячем на строках только при живом кастомном */
+  [data-cursor="on"] a[data-case-link] {
+    cursor: none;
+  }
+}
+
+@media (hover: none) {
+  .ext-mark {
+    display: inline-block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-cursor > .work-cursor-pill {
+    transition: none;
+  }
+}
+
 /* ── Модификатор «чёрный hero» поверх слоя v4 (анатомия Krida) ─────────────
    Вешается на секцию ВМЕСТЕ с .layer-v4 — идёт в css позже, поэтому при равной
    специфичности выигрывает. Инвертирует только роли, живущие на фоне секции;
@@ -592,7 +668,7 @@ body {
     transform 0.28s var(--ease-out-expo) 0.2s;
 }
 /* кольцо щёлкает последним — отклик системы, а не ещё один въезжающий блок
-   (грамматика .wg-pop: 0.6 → 1, коротко) */
+   (родня .wg-pop; здесь 0.6 — кольцо крупнее, 0.8 читалось бы как дрожь) */
 .contact-success-ring {
   transition:
     opacity 0.18s var(--ease-out-expo) 0.34s,
@@ -749,6 +825,26 @@ body {
    — конечных значений opacity в правилах нет: элемент возвращается к
      значению своего класса (напр. opacity-55 у приглушённой строки). */
 
+/* Посадка в стартовую позу (static → off) обязана быть мгновенной. В "off"
+   транзишены не объявлены, но инлайновый transitionDelay всё равно
+   действует: transition-property по умолчанию all, duration 0, а delay —
+   t0+X, и поза садилась бы спустя до ~1.6s после монтирования. Если человек
+   долистывает до секции быстрее — часть узлов не проиграет. Поэтому в "off"
+   транзишен запрещён явно. На переход off → on это не влияет: транзишен
+   берётся из after-change стиля, то есть из правил [data-play="on"]. */
+[data-play="off"] :is(.wg-rise, .wg-fade, .wg-pop, .wg-type, .wg-ink, .wg-fan, .wg-doc, .wg-arc) {
+  transition: none;
+}
+
+/* Ход сцены ячейки = фора под data-reveal + разведение ряда. Грид ставит на
+   ячейке только --wg-stagger (0 левой, 160ms правой — ряд читается слева
+   направо); --wg-fora (700ms — столько карточка ещё едет по autoAlpha ревила)
+   привод обнуляет по факту, если в момент старта ячейка уже непрозрачна
+   (usePlayOnce.ts). Replay пишет --wg-t0: 0ms инлайном поверх этого calc. */
+[data-scene-cell] {
+  --wg-t0: calc(var(--wg-fora, 700ms) + var(--wg-stagger, 0ms));
+}
+
 /* появление узла: посадка снизу вверх — «завелось», а не «нарисовано».
    Амплитуда — одна переменная на три калибра: узел-строка 8px, мелкий
    инлайн-статус 4px (8px для строчки в 13px — это уже прыжок), панель
@@ -778,7 +874,9 @@ body {
 }
 
 /* отклик системы — щёлкает (асимметрия: намерение медленнее отклика).
-   scale(0.6), а не scale(0): ничто не появляется из ничего */
+   scale(0.8), а не scale(0): ничто не появляется из ничего; и не 0.6 —
+   на кольце 28–32px такой старт «выстреливает» (норма 0.9–0.97, здесь
+   чуть шире ради щелчка) */
 [data-play="on"] .wg-pop {
   transition:
     opacity 0.18s ease,
@@ -786,7 +884,7 @@ body {
 }
 [data-play="off"] .wg-pop {
   opacity: 0;
-  transform: scale(0.6);
+  transform: scale(0.8);
 }
 
 /* выдача значения: маска слева направо. Отрицательные insets по трём
@@ -811,17 +909,33 @@ body {
   color: var(--wg-text-muted);
 }
 
-/* веер карт. Два трансформа на одну карту не помещаются в одно свойство,
+/* дуга прогресса KYC закрывается в кольцо вместе с чек-кольцом островка.
+   Сознательное исключение из «только transform / opacity / clip-path»:
+   stroke-dashoffset — paint одного SVG-контура 2.5px, без layout и без
+   пересэмплирования блюра (SVG лежит над тёмной капсулой, не над стеклом).
+   Шкала — pathLength=100 на rect: dasharray "100 100", смещение 24 = дуга
+   на 76% (стартовая поза), 0 = полный круг (конечное; static/SSR/
+   reduced-motion получают его сразу). Финиш подогнан к .wg-pop чека:
+   старт t0+220, 500ms expo — глазу дуга замыкается на ~300-й мс (98%),
+   то есть ровно к щелчку на t0+520; формальный хвост незаметен. */
+[data-play="on"] .wg-arc {
+  transition: stroke-dashoffset 0.5s var(--ease-out-expo);
+}
+[data-play="off"] .wg-arc {
+  stroke-dashoffset: 24;
+}
+
+/* стопка карт. Два трансформа на одну карту не помещаются в одно свойство,
    поэтому роли разведены по узлам: .wg-slot (обёртка) держит раскрытие по
-   наведению, .wg-fan (сама карта) — вход и угол покоя. Композиция бесплатна,
-   конфликта источников нет. Утилиты rotate-* с карт сняты: два источника
-   угла давали бы прыжок в первом кадре. */
+   наведению, .wg-fan (сама карта) — вход. Композиция бесплатна, конфликта
+   источников нет. Углы покоя сняты 2026-08-18 (решение заказчика: карты лежат
+   ровно) — переменная угла --fr из трансформа убрана целиком, чтобы не
+   оставлять второй возможный источник поворота. */
 .wg-stage {
   perspective: 900px;
 }
 .wg-fan {
-  transform: translate3d(var(--fx, 0px), var(--fy, 0px), 0) rotate(var(--fr, 0deg))
-    rotateX(var(--frx, 0deg));
+  transform: translate3d(var(--fx, 0px), var(--fy, 0px), 0) rotateX(var(--frx, 0deg));
 }
 [data-play="on"] .wg-fan {
   transition:
@@ -831,33 +945,39 @@ body {
 [data-play="off"] .wg-fan {
   opacity: 0;
 }
-/* стартовые позы: виртуальная карта сдаётся в веер первой (instant issue),
+/* стартовые позы: виртуальная карта выпускается первой (instant issue),
    пластик приходит следом и ложится сверху */
 [data-play="off"] .wg-fan-back {
   --fx: 10px;
   --fy: -12px;
-  --fr: 0deg;
 }
 [data-play="off"] .wg-fan-front {
   --fx: -8px;
   --fy: 16px;
-  --fr: 0deg;
   --frx: 10deg;
 }
 
 /* раскрытие веера по наведению на ячейку — единственный hover-моушн секции.
    Он оправдан ровно тем, чего нет у остальных пяти приборов: окклюзией.
    Пластик закрывает ~80% виртуальной карты, и на статике их легко прочитать
-   как одну; hover ОТКРЫВАЕТ информацию, а не украшает. */
+   как одну; hover ОТКРЫВАЕТ информацию, а не украшает. Амплитуда — от этой
+   же задачи: стопка раздвигается на ~24px по диагонали, чтобы тег virtual и
+   хвост PAN задней карты вышли из-под пластика (при 8/−5 они оставались под
+   ним, и hover ничего не открывал). Потолок задаёт корпус: стопка стоит
+   впритык к паддингу (p-5), при 16px вправо угол задней карты резал кромку
+   корпуса — замер 2026-08-17; 12px даёт запас. Дальше раздвигать нельзя, PAN
+   целиком не выходит по геометрии (перекрытие карт 56% ширины сцены).
+   Поворотов нет (сняты 2026-08-18 вместе с углами покоя): раскрытие — чистый
+   параллельный сдвиг, стопка остаётся ровной. */
 .wg-slot {
   transition: transform 0.2s ease;
 }
 @media (hover: hover) and (pointer: fine) {
   [data-hover-scene]:hover .wg-slot-back {
-    transform: translate3d(8px, -5px, 0) rotate(2deg);
+    transform: translate3d(12px, -10px, 0);
   }
   [data-hover-scene]:hover .wg-slot-front {
-    transform: translate3d(-5px, 3px, 0) rotate(-1deg);
+    transform: translate3d(-10px, 6px, 0);
   }
 }
 
@@ -875,17 +995,298 @@ body {
     clip-path: none;
     transition: none;
   }
+  /* дуга KYC: без хода, сразу полный круг */
+  [data-play="on"] .wg-arc,
+  [data-play="off"] .wg-arc {
+    stroke-dashoffset: 0;
+    transition: none;
+  }
   [data-play="off"] .wg-fan {
     --fx: 0px;
     --fy: 0px;
     --frx: 0deg;
   }
-  /* пространственный жест смягчить нечем — веер по наведению выключен */
-  .wg-slot,
-  [data-hover-scene]:hover .wg-slot-back,
-  [data-hover-scene]:hover .wg-slot-front {
+  /* раскрытие стопки по наведению остаётся, но без хода: мгновенное
+     переключение состояния. Hover здесь ОТКРЫВАЕТ заднюю карту, и при
+     reduced-motion эта информация не должна пропадать — уходит движение,
+     не состояние (правка 2026-08-18, plans/001). */
+  .wg-slot {
+    transition: none;
+  }
+}
+
+/* ── Веер документов (Licensing) ──
+   Задний лист стопки выезжает из-под переднего в свой угол покоя. По образцу
+   .wg-fan, но со своими переменными: угол покоя здесь — ненулевой (26px, −12px,
+   5°) и задаётся инлайном на листе (--dx/--dy/--dr), а стартовая поза — это
+   transform: none, то есть ровно под передним листом. Утилиты translate/rotate
+   с листа сняты — два источника transform дали бы прыжок в первом кадре.
+   Hover'а у стопки нет: окклюзия тут смысловая («второй трек позади»), а не
+   информационная — открывать нечего. */
+.wg-doc {
+  transform: translate3d(var(--dx, 0px), var(--dy, 0px), 0) rotate(var(--dr, 0deg));
+}
+[data-play="on"] .wg-doc {
+  transition:
+    transform 0.5s var(--ease-out-expo),
+    opacity 0.26s var(--ease-out-expo);
+}
+[data-play="off"] .wg-doc {
+  opacity: 0;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  /* веер без перемещения: лист сразу в угле покоя, остаётся только проявление */
+  [data-play="off"] .wg-doc {
+    transform: translate3d(var(--dx, 0px), var(--dy, 0px), 0) rotate(var(--dr, 0deg));
+  }
+}
+
+/* ── Hero floats: парящие фрагменты приборов по бокам hero (2026-08-18) ─────
+   Материал — матовое стекло на ЧЁРНОЙ плоскости (референс Arlo): белое
+   стекло .10 + hairline .14 + inset-блик по верхней кромке (та же логика
+   толщины, что у .glass-*), radius 20 — мельче корпуса виджета (36), потому
+   что и объект мельче. Свои токены --hf-*: рецепты .glass-dark (зелёная
+   подложка v3) и .widget-glass (светлое стекло на сером) не подходят и не
+   трогаются. Акцент — синий Crel, на чёрном на ступень ярче (#3b87ff): чистый
+   #2e7cf6 на чёрном стекле проваливается в 3.9:1 для тонких штрихов.
+   Вариант .hf-dark — целиком тёмная плашка (код-панель API): для ритма
+   четырёх плашек, рифма с тёмной панелью WidgetApiGlass в capabilities.
+   Разметка — components/mockups/HeroFloats.tsx (четыре плашки, по две на
+   сторону: KYC, IBAN слева; квиток ramp, код-панель API справа).
+
+   Моушн — только hover, только CSS, только transform / opacity / color /
+   clip-path. Правило проекта (docs/motion-capabilities.md): hover ОТВЕЧАЕТ,
+   а не украшает — здесь он переигрывает финальный такт сцены прибора: у KYC
+   решение подсвечивается и чек-кольцо щёлкает, у IBAN номер печатается заново
+   и точка статуса щёлкает, у квитка окрашивается сумма и щёлкает чек, у API
+   приходит ответ. Всё на transition — жест интерруптибельный, повторный hover
+   переигрывает снова, без keyframes и без циклов.
+   Плашка при этом лифтится (−4px), доворачивается (--hf-ry → 0) и
+   уплотняется: плотность — через opacity псевдоэлемента, а не
+   background-color, чтобы блюр не перекрашивался.
+   Осознанное исключение из «не двигать узел с backdrop-filter»: четыре мелкие
+   плашки, 200ms по наведению, блюр над почти чёрным — пересэмплирование дёшево.
+   Обёртки в Hero.tsx — pointer-events-none (декор), плашка возвращает себе
+   pointer-events, иначе hover не дошёл бы. */
+.hero-float {
+  --hf-accent: #3b87ff;
+  --hf-ry: 0deg; /* угол покоя по Y (плашка чуть отвёрнута), по наведению → 0 */
+  pointer-events: auto;
+  position: relative;
+  isolation: isolate;
+  border-radius: 20px;
+  color: #fff;
+  background: rgb(255 255 255 / 0.1);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgb(255 255 255 / 0.14);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.18),
+    0 24px 48px -20px rgb(0 0 0 / 0.6);
+  /* perspective внутри transform: обёртка чужая (Hero.tsx), preserve-3d на ней
+     не гарантирован; конечная поза объявлена явно — интерполяция от значения */
+  transform: perspective(900px) translate3d(0, 0, 0) rotateY(var(--hf-ry));
+  transition: transform 0.2s var(--ease-out-expo);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .hero-float {
+    background: rgb(255 255 255 / 0.16);
+  }
+}
+/* слой плотности: под контентом (z −1 внутри isolate-контекста), над фоном */
+.hero-float::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: rgb(255 255 255 / 0.06);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+/* тёмный вариант: графит код-панели WidgetApiGlass, но полупрозрачный —
+   стекло остаётся стеклом (блюр и блик те же), меняется только плотность.
+   Блик по кромке слабее: на тёмном материале .18 читался бы как белая линия */
+.hero-float.hf-dark {
+  background: rgb(22 22 25 / 0.72);
+  border-color: rgb(255 255 255 / 0.1);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.1),
+    0 24px 48px -20px rgb(0 0 0 / 0.7);
+}
+.hero-float.hf-dark::before {
+  background: rgb(255 255 255 / 0.04);
+}
+
+/* KYC и квиток: чек-кольцо на покое пустое и белое, по наведению — синее с
+   галкой (.hf-check щёлкает: scale .8 → 1, как .wg-pop; не от 0 — ничто не
+   появляется из ничего). Рабочая строка (.hf-ink: решение у KYC, сумма у
+   квитка) — цвет через ease (правило 3 стандарта: цвет → ease). Порядок как
+   в сцене прибора: строка окрашивается первой, кольцо отвечает через 80ms
+   (асимметрия «намерение → отклик») */
+.hf-ring {
+  border-color: rgb(255 255 255 / 0.28);
+  color: var(--hf-accent);
+  transition: border-color 0.2s ease 80ms;
+}
+.hf-check {
+  opacity: 0;
+  transform: scale(0.8);
+  transition:
+    opacity 0.18s ease 80ms,
+    transform 0.18s var(--ease-out-expo) 80ms;
+}
+.hf-ink {
+  transition: color 0.2s ease;
+}
+
+/* IBAN: белая копия номера лежит поверх приглушённой, срезанная маской до
+   нуля (та же геометрия, что .wg-type: отрицательные insets по трём сторонам,
+   чтобы tracking не подрезался). По наведению маска уходит слева направо за
+   300ms — потолок вайпа, выше он становится шиммером; уход с плашки —
+   обратный вайп, транзишен интерруптибельный. Статус подтверждается ПОСЛЕ
+   выдачи номера (как в приборе: at(340) после at(140)): точка на покое
+   приглушена и на .8 меньше, через 220ms щёлкает и загорается синим вместе
+   с ярлыком */
+.hf-type {
+  clip-path: inset(-0.14em 100% -0.14em 0);
+  transition: clip-path 0.3s var(--ease-out-expo);
+}
+.hf-status {
+  color: rgb(255 255 255 / 0.55);
+  transition: color 0.2s ease 220ms;
+}
+.hf-dot {
+  background: rgb(255 255 255 / 0.28);
+  transform: scale(0.8);
+  transition:
+    background-color 0.18s ease 220ms,
+    transform 0.18s var(--ease-out-expo) 220ms;
+}
+
+/* API: строка ответа на покое ждёт — приглушена и на 4px ниже (калибр
+   .wg-rise-s: инлайн-статус в 11px, 8px были бы прыжком). По наведению
+   приходит: садится на место и окрашивается в акцент — «201 пришёл».
+   Цвет ответа — акцент, а не зелёный: в WidgetApiGlass статус белый
+   контрастом материала, зелёного статуса в системе нет (память
+   crel-accent-blue), а на hover нужен именно сигнал «данные пришли» */
+.hf-resp {
+  color: rgb(255 255 255 / 0.4);
+  transform: translate3d(0, 4px, 0);
+  transition:
+    color 0.2s ease,
+    transform 0.2s var(--ease-out-expo);
+}
+
+/* Стопка (2026-08-18): пара плашек одной стороны — .hf-pair в Hero.tsx, B
+   наезжает на A на ~24px. По наведению на ЛЮБУЮ из двух пара разъезжается:
+   A уходит вверх, B — вниз (по 8px, вместе 16px — ровно чтобы открылась
+   закрытая строка, не «разлёт»), наведённая всплывает над соседкой (z).
+   Это hover при окклюзии (память crel-motion-rules): жест ОТКРЫВАЕТ то,
+   что перекрыто, а не украшает. Двигается обёртка-слот, а не .hero-float —
+   у той свой transform (лифт + rotateY). Сдвиг — через свойство translate,
+   НЕ через transform: 3D-transform на предке плашки (translate3d) в Chrome
+   уводит её в отдельный композитный слой, и backdrop-filter теряет фон под
+   собой — блюр «слетает». Tailwind-наклон/масштаб слота лежат в rotate/scale,
+   translate свободен. Направление задано через --hf-spread, чтобы левая и
+   правая пара расходились одинаково без зеркалирования правил. */
+.hf-slot {
+  position: relative;
+  translate: 0 0;
+  transition: translate 0.3s var(--ease-out-expo);
+}
+.hf-slot-a {
+  --hf-spread: -8px;
+}
+.hf-slot-b {
+  --hf-spread: 8px;
+}
+/* второй план B — прозрачность на самой плашке, а не на слоте: opacity < 1
+   на предке делает его backdrop root, и блюр B видел бы только пустоту */
+.hf-slot-b > .hero-float {
+  opacity: 0.95;
+}
+
+/* Пара — одна точка запуска (правка 2026-08-18): наведение на ЛЮБУЮ из двух
+   плашек даёт одно и то же состояние — разъезд, всплытие/лифт НИЖНЕЙ (B) и
+   микросостояния обеих. Раньше лифт и z шли за наведённой плашкой, и при
+   переходе с A на B стопка переигрывала: A садилась, B всплывала — читалось
+   как второй такт. Теперь A не лифтится и не всплывает над B, переход между
+   плашками ничего не меняет. Селектор состояния — .hf-pair:has(.hero-float:hover):
+   обёртки pointer-events-none, hover ловят только сами плашки. */
+@media (hover: hover) and (pointer: fine) {
+  .hf-pair:has(.hero-float:hover) .hf-slot {
+    translate: 0 var(--hf-spread);
+  }
+  .hf-pair:has(.hero-float:hover) .hf-slot-b > .hero-float {
+    transform: perspective(900px) translate3d(0, -4px, 0) rotateY(0deg);
+  }
+  .hf-pair:has(.hero-float:hover) .hero-float::before {
+    opacity: 1;
+  }
+  .hf-pair:has(.hero-float:hover) .hf-ring {
+    border-color: var(--hf-accent);
+  }
+  .hf-pair:has(.hero-float:hover) .hf-check {
+    opacity: 1;
+    transform: none;
+  }
+  .hf-pair:has(.hero-float:hover) .hf-ink {
+    color: var(--hf-accent);
+  }
+  .hf-pair:has(.hero-float:hover) .hf-type {
+    clip-path: inset(-0.14em -0.2em -0.14em 0);
+    opacity: 1; /* только для reduced-motion ниже, где вайп заменён проявлением */
+  }
+  .hf-pair:has(.hero-float:hover) .hf-status {
+    color: var(--hf-accent);
+  }
+  .hf-pair:has(.hero-float:hover) .hf-dot {
+    background: var(--hf-accent);
+    transform: none;
+  }
+  .hf-pair:has(.hero-float:hover) .hf-resp {
+    color: var(--hf-accent);
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* движение уходит, проявление и цвет остаются: плашка стоит прямо и не
+     лифтится, галка и точка проявляются/окрашиваются без хода, ответ API
+     только окрашивается, вайп IBAN снят — маска это движение (белая копия
+     без маски, по наведению просто проявляется поверх приглушённой).
+     Последовательность (80ms кольца, 220ms точки) сохраняется — как и в
+     сценах приборов, это порядок, не движение */
+  .hero-float,
+  .hf-pair:has(.hero-float:hover) .hf-slot-b > .hero-float {
     transform: none;
     transition: none;
+  }
+  /* стопка не разъезжается; перекрытое открывает всплытие наведённой (z) */
+  .hf-slot,
+  .hf-pair:has(.hero-float:hover) .hf-slot {
+    translate: 0 0;
+    transition: none;
+  }
+  .hf-check {
+    transform: none;
+    transition: opacity 0.18s ease 80ms;
+  }
+  .hf-dot {
+    transform: none;
+    transition: background-color 0.18s ease 220ms;
+  }
+  .hf-resp {
+    transform: none;
+    transition: color 0.2s ease;
+  }
+  .hf-type {
+    clip-path: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
   }
 }
 
@@ -933,6 +1334,46 @@ body {
   outline-color: #ffffff;
 }
 
+/* ── CTA финала во весь экран ──────────────────────────────────────────────
+   Полоса-кнопка на всю ширину плоскости и ~60% высоты вьюпорта: последний
+   объект перед футером — сама кнопка, а не пилюля в тексте. В покое фон
+   прозрачен — она и есть нижний, ровный край .grad-finale (#2668d9), футер
+   продолжает тот же цвет без шва. Единственный жест — инверсия: полоса
+   белеет, текст берёт синий плоскости (словарь белой пилюли, растянутый до
+   экрана). Цвет глифа «_» — currentColor, мигание даёт .cursor-blink. */
+.finale-cta {
+  min-height: 60svh;
+  padding-block: 3rem;
+  color: #ffffff;
+  background-color: transparent;
+  transition:
+    background-color var(--d-quick) var(--ease-swap),
+    color var(--d-quick) var(--ease-swap);
+}
+.finale-cta:hover,
+.finale-cta:focus-visible {
+  background-color: #ffffff;
+  color: #2668d9;
+}
+/* Кольцо фокуса на белой полосе — синим и внутрь: белое кольцо секции здесь
+   невидимо, а наружное упёрлось бы в край вьюпорта. Специфичность равна
+   правилу выше, порядок в файле решает. */
+.finale-cta:focus-visible {
+  outline: 3px solid #2668d9;
+  outline-offset: -8px;
+}
+/* Калибр текста: анатомия .text-finale, потолок ещё выше — «Talk to us_»
+   короче логотипа, а полоса шире контейнера. 16vw — строка ≈ 5em занимает
+   ~80vw и «не переносится на 360px» с полями по 20px; nowrap страхует
+   ширину. Потолок 16rem — на широких мониторах слово перестаёт расти. */
+.text-finale-cta {
+  font-size: clamp(2.75rem, 16vw, 16rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 /* ── Форма захвата e-mail: шторки и фазы ───────────────────────────────────
    Грамматика дословно contact-хореографии (см. §«Отправка» выше), укороченная
    до одного ряда: схлопывается ряд формы, на его месте прирастает строка
@@ -967,7 +1408,7 @@ body {
     opacity 0.28s var(--ease-out-expo) 0.2s,
     transform 0.28s var(--ease-out-expo) 0.2s;
 }
-/* кольцо щёлкает последним — отклик системы (грамматика .wg-pop: 0.6 → 1) */
+/* кольцо щёлкает последним — отклик системы (родня .wg-pop; здесь 0.6 — кольцо крупнее) */
 .finale-success-ring {
   transition:
     opacity 0.18s var(--ease-out-expo) 0.34s,
@@ -993,7 +1434,8 @@ body {
   [data-alert="on"] .finale-alert,
   .finale-success,
   .finale-success-body,
-  .finale-success-ring {
+  .finale-success-ring,
+  .finale-cta {
     transition: none;
   }
   @starting-style {

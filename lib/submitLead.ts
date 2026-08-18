@@ -11,7 +11,9 @@
 
 import type { SubmitResult } from "@/lib/submitContact";
 
-export type LeadPayload = { email: string };
+/** email + одноразовый токен Cloudflare Turnstile (lib/useTurnstile.ts) —
+ *  тот же контракт, что у ContactPayload: сервер проверяет токен через siteverify */
+export type LeadPayload = { email: string; turnstileToken: string };
 
 // Реэкспорт, чтобы форма финала брала и функцию, и её результат из одного
 // модуля: тип у двух адаптеров общий, и разводить его по двум импортам значило
@@ -30,6 +32,10 @@ export async function submitLead(payload: LeadPayload): Promise<SubmitResult> {
   //   const res = await fetch(ENDPOINT, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
   //   return res.ok ? { ok: true } : { ok: false, error: `HTTP ${res.status}` };
   //
+  // Эндпоинт ОБЯЗАН верифицировать payload.turnstileToken до записи в список
+  // (см. тот же блок в submitContact.ts): POST …/turnstile/v0/siteverify с
+  // секретом сервера, при !success — 4xx. Токен одноразовый, форма сбрасывает
+  // виджет после каждой попытки.
   // ──────────────────────────────────────────────────────────────────────────
 
   // payload не читается: заглушке нечего с ним делать, но имя держим в сигнатуре —

@@ -24,13 +24,22 @@ function cellByTitle(title: string): Cell {
 }
 
 // сцена и текстура каждой услуги (метафоры — спека §5)
-const SCENES: { title: string; scene: React.ReactNode; texture: MicroTextureKind; span: string }[] = [
-  { title: "Platform implementation", scene: <ImplementationScene />, texture: "grid", span: "" },
-  { title: "Architecture consulting", scene: <ArchitectureScene />, texture: "grid", span: "md:col-span-2" },
-  { title: "Licensing and compliance", scene: <LicensingScene />, texture: "binary", span: "md:col-span-2" },
-  { title: "Vendor selection", scene: <VendorScene />, texture: "ms", span: "" },
-  { title: "Mobile apps", scene: <MobileScene />, texture: "amounts", span: "" },
-  { title: "Ongoing support", scene: <SupportScene />, texture: "lines", span: "md:col-span-2" },
+// Ход сцены --wg-t0 = --wg-fora + --wg-stagger (правило [data-scene-cell] в
+// globals.css; та же арифметика, что в Capabilities). Здесь ставится только
+// разведение ряда: +160ms второй ячейке — ряд читается слева направо, а не
+// вспыхивает аккордом. Ряды тут 1+2 / 2+1 / 1+2, поэтому разведение у второй
+// ячейки ряда, а не «у правой колонки». Фора под data-reveal (700ms) живёт в
+// CSS и обнуляется приводом, если карточка к старту уже проявлена.
+const T0_FIRST = "0ms";
+const T0_SECOND = "160ms";
+
+const SCENES: { title: string; scene: React.ReactNode; texture: MicroTextureKind; span: string; t0: string }[] = [
+  { title: "Platform implementation", scene: <ImplementationScene />, texture: "grid", span: "", t0: T0_FIRST },
+  { title: "Architecture consulting", scene: <ArchitectureScene />, texture: "grid", span: "md:col-span-2", t0: T0_SECOND },
+  { title: "Licensing and compliance", scene: <LicensingScene />, texture: "binary", span: "md:col-span-2", t0: T0_FIRST },
+  { title: "Vendor selection", scene: <VendorScene />, texture: "ms", span: "", t0: T0_SECOND },
+  { title: "Mobile apps", scene: <MobileScene />, texture: "amounts", span: "", t0: T0_FIRST },
+  { title: "Ongoing support", scene: <SupportScene />, texture: "lines", span: "md:col-span-2", t0: T0_SECOND },
 ];
 
 export function ServicesGrid() {
@@ -46,10 +55,10 @@ export function ServicesGrid() {
           enableBorderGlow={false}
           className="mt-16 grid grid-cols-1 gap-7 md:grid-cols-3"
         >
-          {SCENES.map(({ title, scene, texture, span }) => {
+          {SCENES.map(({ title, scene, texture, span, t0 }) => {
             const cell = cellByTitle(title);
             return (
-              <div key={title} data-reveal className={span}>
+              <div key={title} data-reveal data-scene-cell className={span} style={{ "--wg-stagger": t0 } as React.CSSProperties}>
                 <BentoCard enableStars={false} className="h-full rounded-(--radius-xl)">
                   <CardScene title={cell.title} body={cell.body} illustration={scene} texture={texture} />
                 </BentoCard>

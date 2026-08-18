@@ -39,16 +39,14 @@ export function IbanAccountGlass() {
             >
               <div className="flex items-center justify-between text-[0.8125rem]">
                 <span className="font-medium">{row.name}</span>
-                {/* статус подтверждается ПОСЛЕ того, как номер выдан */}
+                {/* статус подтверждается ПОСЛЕ того, как номер выдан. Точка-live
+                    проявляется вместе с ярлыком: .wg-pop на 6px даёт 1.2px хода —
+                    невидим и лишь дублирует fade родителя (ревью 2026-08-18) */}
                 <span
                   className="wg-fade flex items-center gap-1.5 font-mono text-[0.6875rem] lowercase text-(--wg-accent)"
                   style={{ transitionDelay: at(340, i) }}
                 >
-                  <span
-                    className="wg-pop size-1.5 rounded-full bg-(--wg-accent)"
-                    style={{ transitionDelay: at(340, i) }}
-                    aria-hidden
-                  />
+                  <span className="size-1.5 rounded-full bg-(--wg-accent)" aria-hidden />
                   {row.chip}
                 </span>
               </div>

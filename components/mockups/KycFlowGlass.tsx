@@ -10,10 +10,12 @@
 // Сцена (спека анимации карточек 01, 2026-08-13). Прибор изображает
 // ЗАВЕРШЁННУЮ проверку, поэтому анимируются не строки, а ВЕРДИКТЫ: строки шагов
 // существуют и до проверки, приходят ответы. Такты: четыре чипа каскадом →
-// решение окрашивает строку → кольцо-чек островка щёлкает.
-// Дуга прогресса намеренно НЕ анимируется: она стоит на 76% (strokeDasharray
-// "76 24"), а все четыре чипа зелёные и в островке уже галка — движущаяся дуга
-// сделала бы это расхождение заметным. Вопрос к контенту, не к моушну.
+// решение окрашивает строку → дуга прогресса замыкается в кольцо синхронно с
+// щелчком чек-кольца островка. Решение 2026-08-17: конечное состояние дуги —
+// 100% (все четыре чипа зелёные, в островке галка — 76% на статике этому
+// противоречило); в static/SSR/reduced-motion полный круг сразу, в сцене
+// стартовая поза 76% и ход .wg-arc (globals.css) — единственный paint-такт
+// секции, оговорён там же.
 import { mockups } from "@/content/platform";
 import { usePlayOnce } from "@/lib/usePlayOnce";
 
@@ -49,7 +51,9 @@ const STEP_ICONS: Record<string, React.ReactNode> = {
   ),
 };
 
-function StepGlyph({ label }: { label: string }) {
+// экспорт — глиф переиспользует фрагмент KYC в hero (HeroFloats.tsx),
+// чтобы один шаг проверки рисовался одним и тем же знаком по всей странице
+export function StepGlyph({ label }: { label: string }) {
   return (
     <svg viewBox="0 0 16 16" className="size-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       {STEP_ICONS[label]}
@@ -70,10 +74,17 @@ export function KycFlowGlass() {
           (та же двухплоскостная анатомия, что у ramp: корпус + квиток) */}
       <div className="relative">
           {/* дуга прогресса: ровно по контуру капсулы (stroke центрован на кромке),
-              ~3/4 пути, синяя. Высота капсулы зафиксирована (h-[60px] ниже),
-              rx = (60 − stroke)/2 — иначе SVG клампит rx/ry независимо и рисует эллипс */}
+              синяя. Высота капсулы зафиксирована (h-[60px] ниже),
+              rx = (60 − stroke)/2 — иначе SVG клампит rx/ry независимо и рисует эллипс.
+              pathLength=100 задаёт шкалу; dasharray "100 100" — сплошной контур,
+              стартовое смещение (76%) и ход даёт .wg-arc, финиш — вместе с чеком
+              (t0+520): старт t0+220, 500ms expo — на 300-й мс кривая уже на 98%,
+              то есть глазу дуга замыкается ровно к щелчку, а не за 200 мс до него
+              (замер 2026-08-17: при старте t0+20 кольцо стояло закрытым к t0+300) */}
           <svg className="pointer-events-none absolute inset-0 size-full" aria-hidden>
             <rect
+              className="wg-arc"
+              style={{ transitionDelay: "calc(var(--wg-t0) + 220ms)" }}
               x="1.25" y="1.25"
               width="calc(100% - 2.5px)" height="calc(100% - 2.5px)"
               rx="28.75" ry="28.75"
@@ -82,8 +93,7 @@ export function KycFlowGlass() {
               stroke="var(--wg-accent)"
               strokeWidth="2.5"
               strokeLinecap="round"
-              strokeDasharray="76 24"
-              strokeDashoffset="-12"
+              strokeDasharray="100 100"
             />
           </svg>
           {/* тень — только у парящего островка (плоскость выше подложки) */}

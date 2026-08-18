@@ -1,9 +1,18 @@
+"use client";
+
 // 02: services / Platform implementation — сцена «предмет на серой сцене»
 // по референсу (docs/refs/todesktop/design.md §1.3, §3): белое окно-чеклист
 // модулей платформы + объёмный куб-модуль внахлёст на угол окна (проп Level 2);
 // кастомный модуль ещё не встал — в его строке пунктирный пустой слот.
 // Макет утверждён 2026-08-10 (scratchpad/card-01-platform-implementation.html).
+//
+// Сцена «сборка» (грамматика docs/motion-capabilities.md, привод usePlayOnce):
+// строки модулей садятся stagger 70, чипы статуса подтверждаются через 200 мс
+// после своей строки, пунктирный слот щёлкает последним. Куб приходит СВЕРХУ
+// синхронно с третьей строкой — «модуль пришёл и ещё не встал»; в слот он не
+// влетает и слот галкой не становится: незавершённость и есть тезис карточки.
 import { servicesGrid } from "@/content/services";
+import { usePlayOnce } from "@/lib/usePlayOnce";
 
 const rows = servicesGrid.cells.find((c) => c.title === "Platform implementation")!.miniMockup!;
 
@@ -28,22 +37,33 @@ function Check() {
   );
 }
 
-// пустой слот кастомного модуля — куб сверху «встанет» сюда
+// пустой слот кастомного модуля — куб сверху «встанет» сюда.
+// Появляется последним тактом сцены (.wg-pop): место под модуль — отклик системы
 function Slot() {
-  return <span className="size-[18px] flex-none rounded-[5px] border-[1.5px] border-dashed border-accent opacity-55" />;
+  return (
+    <span
+      className="wg-pop size-[18px] flex-none rounded-[5px] border-[1.5px] border-dashed border-accent opacity-55"
+      style={{ transitionDelay: "calc(var(--wg-t0) + 380ms)" }}
+    />
+  );
 }
 
-// куб-модуль: скруглённые рёбра — stroke того же градиента с round join
+// куб-модуль: скруглённые рёбра — stroke того же градиента с round join.
+// .wg-rise-drop (−6px сверху) в такт третьей строке: drop-shadow на движущемся
+// узле допустим ровно потому, что прогон один и короче 500 мс
 function ModuleCube() {
   return (
     <svg
-      className="absolute -top-[38px] -right-5 z-10"
+      className="wg-rise wg-rise-drop absolute -top-[38px] -right-5 z-10"
       width="58"
       height="62"
       viewBox="0 0 58 62"
       fill="none"
       aria-hidden
-      style={{ filter: "drop-shadow(0 16px 16px rgb(25 60 130 / 0.25))" }}
+      style={{
+        filter: "drop-shadow(0 16px 16px rgb(25 60 130 / 0.25))",
+        transitionDelay: "calc(var(--wg-t0) + 140ms)",
+      }}
     >
       <defs>
         <linearGradient id="impl-cube-top" x1="12" y1="4" x2="46" y2="26" gradientUnits="userSpaceOnUse">
@@ -70,6 +90,8 @@ function ModuleCube() {
 }
 
 export function ImplementationScene() {
+  // корень сцены — само окно: призраки и свет фона в прогоне не участвуют
+  const { ref, playAttr } = usePlayOnce<HTMLDivElement>();
   return (
     <>
       <div aria-hidden className="pointer-events-none absolute inset-0 select-none">
@@ -91,6 +113,8 @@ export function ImplementationScene() {
 
       {/* окно платформы; сдвиг вниз-влево — куб дышит в верхнем правом углу */}
       <div
+        ref={ref}
+        data-play={playAttr}
         className="relative w-[248px] -translate-x-2 translate-y-2 rounded-(--radius-m) bg-surface"
         style={{ boxShadow: "var(--shadow-panel)" }}
       >
@@ -107,20 +131,24 @@ export function ImplementationScene() {
           </span>
         </div>
         <div className="grid gap-1.5 px-2.5 pb-2.5">
-          {rows.map((row) => {
+          {rows.map((row, i) => {
             const enabled = row.chip === "enabled";
+            // строка садится в такт (t0 + 70·i), её чип подтверждается через 200 мс
+            const rowDelay = `calc(var(--wg-t0) + ${i * 70}ms)`;
+            const chipDelay = `calc(var(--wg-t0) + ${i * 70 + 200}ms)`;
             return (
               <div
                 key={row.label}
-                className={`flex items-center gap-2 rounded-(--radius-s) bg-bg-mist px-2.5 py-2 text-[0.78125rem] font-medium ${
+                className={`wg-rise flex items-center gap-2 rounded-(--radius-s) bg-bg-mist px-2.5 py-2 text-[0.78125rem] font-medium ${
                   enabled ? "" : "text-ink-soft"
                 }`}
+                style={{ transitionDelay: rowDelay }}
               >
                 {enabled ? <Check /> : <Slot />}
                 {row.label}
                 <span
-                  className="text-data ml-auto text-[0.5625rem] font-medium tracking-[0.06em] uppercase"
-                  style={{ color: enabled ? "var(--v4-ok)" : "var(--v4-warn)" }}
+                  className="wg-fade text-data ml-auto text-[0.5625rem] font-medium tracking-[0.06em] uppercase"
+                  style={{ color: enabled ? "var(--v4-ok)" : "var(--v4-warn)", transitionDelay: chipDelay }}
                 >
                   {row.chip}
                 </span>

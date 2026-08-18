@@ -3,7 +3,7 @@
 // словарь «ключ → строка» в компоненте означал бы копирайт в двух местах, а
 // весь текст проекта живёт в content/* (как mockups.* у стеклянных приборов).
 import { contact } from "@/content/shared";
-import type { ContactPayload } from "@/lib/submitContact";
+import type { ContactFields } from "@/lib/submitContact";
 
 export type FieldName = "name" | "email" | "message";
 
@@ -46,7 +46,7 @@ export function validateField(name: FieldName, value: string): string | null {
  * Проверка всей формы на сабмите. В результате только упавшие поля — пустой
  * объект читается как «можно отправлять» (Object.keys(...).length === 0).
  */
-export function validateAll(p: ContactPayload): Partial<Record<FieldName, string>> {
+export function validateAll(p: ContactFields): Partial<Record<FieldName, string>> {
   const out: Partial<Record<FieldName, string>> = {};
   (Object.keys(p) as FieldName[]).forEach((name) => {
     const error = validateField(name, p[name]);

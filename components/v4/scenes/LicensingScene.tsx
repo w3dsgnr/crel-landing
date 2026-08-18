@@ -1,10 +1,19 @@
+"use client";
+
 // 02: services / Licensing and compliance — сцена «предмет на серой сцене»
 // по референсу (docs/refs/todesktop/design.md §1.3, §3): стопка документов
 // двух регуляторных треков + объёмная зубчатая печать-розетка внахлёст на
 // край листа (оммаж оранжевой награде референса; оранжевый — точечный второй
 // акцент). Бинарные цифры фона даёт штатная текстура binary в CardScene.
 // Макет утверждён 2026-08-10 (scratchpad/card-03-licensing-compliance.html).
+//
+// Сцена «два регуляторных трека» (грамматика docs/motion-capabilities.md,
+// привод usePlayOnce): передний лист садится, задний ВЫЕЗЖАЕТ из-под него в
+// свой угол покоя (.wg-doc, globals.css § «Веер документов»), строки текста
+// проявляются stagger 50, чип in review — последним. Печать статична: её
+// появление спорило бы с in review (печать = решение, которого ещё нет).
 import { servicesGrid } from "@/content/services";
+import { usePlayOnce } from "@/lib/usePlayOnce";
 
 const rows = servicesGrid.cells.find((c) => c.title === "Licensing and compliance")!.miniMockup!;
 const front = rows[0]; // casp application — in review
@@ -58,6 +67,8 @@ function Rosette() {
 }
 
 export function LicensingScene() {
+  // корень сцены — стопка листов с печатью; призраки фона в прогоне не участвуют
+  const { ref, playAttr } = usePlayOnce<HTMLDivElement>();
   return (
     <>
       <div aria-hidden className="pointer-events-none absolute inset-0 select-none">
@@ -77,10 +88,21 @@ export function LicensingScene() {
       </div>
 
       {/* стопка документов: передний трек + второй лист под углом позади */}
-      <div className="relative h-[196px] w-[232px] -translate-y-2">
+      <div ref={ref} data-play={playAttr} className="relative h-[196px] w-[232px] -translate-y-2">
+        {/* задний лист: угол покоя (26px, −12px, 5°) — переменными .wg-doc,
+            а не утилитами translate/rotate: два источника transform дали бы
+            прыжок в первом кадре. Стартует из-под переднего (transform: none) */}
         <div
-          className="absolute inset-0 translate-x-[26px] -translate-y-3 rotate-[5deg] rounded-(--radius-m) bg-surface p-4"
-          style={{ boxShadow: "var(--shadow-panel)" }}
+          className="wg-doc absolute inset-0 rounded-(--radius-m) bg-surface p-4"
+          style={
+            {
+              "--dx": "26px",
+              "--dy": "-12px",
+              "--dr": "5deg",
+              boxShadow: "var(--shadow-panel)",
+              transitionDelay: "calc(var(--wg-t0) + 90ms)",
+            } as React.CSSProperties
+          }
         >
           <div
             className="text-data text-[0.5625rem] font-medium tracking-[0.08em] uppercase opacity-70"
@@ -90,8 +112,8 @@ export function LicensingScene() {
           </div>
         </div>
         <div
-          className="absolute inset-0 rounded-(--radius-m) bg-surface px-[18px] py-4"
-          style={{ boxShadow: "var(--shadow-panel)" }}
+          className="wg-rise absolute inset-0 rounded-(--radius-m) bg-surface px-[18px] py-4"
+          style={{ boxShadow: "var(--shadow-panel)", transitionDelay: "var(--wg-t0)" }}
         >
           <div
             className="text-data text-[0.5625rem] font-medium tracking-[0.08em] uppercase"
@@ -99,12 +121,18 @@ export function LicensingScene() {
           >
             {front.label}
           </div>
-          {DOC_LINES.map((w) => (
-            <div key={w} className="mt-3 h-1.5 rounded-full bg-[#e9e9ee]" style={{ width: w }} />
+          {/* строки документа проявляются stagger 50 — лист заполняется */}
+          {DOC_LINES.map((w, i) => (
+            <div
+              key={w}
+              className="wg-fade mt-3 h-1.5 rounded-full bg-[#e9e9ee]"
+              style={{ width: w, transitionDelay: `calc(var(--wg-t0) + ${100 + i * 50}ms)` }}
+            />
           ))}
+          {/* статус — последним: подтверждение приходит после заполнения */}
           <div
-            className="absolute bottom-4 left-[18px] flex items-center gap-[7px] rounded-(--radius-s) px-2.5 py-1.5"
-            style={{ background: "#fff4e0" }}
+            className="wg-fade absolute bottom-4 left-[18px] flex items-center gap-[7px] rounded-(--radius-s) px-2.5 py-1.5"
+            style={{ background: "#fff4e0", transitionDelay: "calc(var(--wg-t0) + 300ms)" }}
           >
             <span className="size-[7px] rounded-full" style={{ background: "var(--v4-warn)" }} />
             <span

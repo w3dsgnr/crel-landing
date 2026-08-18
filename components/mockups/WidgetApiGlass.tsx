@@ -21,6 +21,10 @@ import { usePlayOnce } from "@/lib/usePlayOnce";
 // оба входа выдают один результат в один кадр
 const RESULT_AT = "calc(var(--wg-t0) + 470ms)";
 
+// строки код-панели [VERIFY: сгенерированы 2026-08-12]. Экспорт — та же панель
+// стоит фрагментом в hero (HeroFloats.tsx), строки живут в одном месте
+export const API_LINES = { request: "POST /v1/ramp", response: "201 created" };
+
 export function WidgetApiGlass() {
   const m = mockups.ramp;
   const { ref, playAttr } = usePlayOnce<HTMLDivElement>();
@@ -34,19 +38,18 @@ export function WidgetApiGlass() {
             <span className="size-2 rounded-full bg-white/15" />
             <span className="size-2 rounded-full bg-white/15" />
           </div>
-          {/* [VERIFY: строки запроса сгенерированы 2026-08-12] */}
           <div className="mt-3 font-mono text-[0.6875rem] leading-relaxed">
             {/* вайп строкой целиком, а не посимвольно: даёт «набралось» без
                 джиттера символов и без второй печатной машинки на странице */}
             <p className="wg-type" style={{ transitionDelay: "var(--wg-t0)" }}>
-              POST /v1/ramp
+              {API_LINES.request}
             </p>
             <p className="wg-type text-white/45" style={{ transitionDelay: "calc(var(--wg-t0) + 70ms)" }}>
               {"{"} amount: {m.sendValue}, currency: {m.sendChip.toLowerCase()} {"}"}
             </p>
             {/* ответ не может существовать в один момент с запросом */}
             <p className="wg-rise wg-rise-s" style={{ transitionDelay: RESULT_AT }}>
-              201 created
+              {API_LINES.response}
             </p>
           </div>
         </div>

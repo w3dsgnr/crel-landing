@@ -10,8 +10,9 @@
 // проекта живёт только в content/*.
 import { useEffect, useRef, useState } from "react";
 import { contact } from "@/content/shared";
-import { submitContact, type ContactPayload, type SubmitResult } from "@/lib/submitContact";
+import { submitContact, type ContactFields, type SubmitResult } from "@/lib/submitContact";
 import { validateAll, validateField, type FieldName } from "@/lib/validateContact";
+import { useTurnstile } from "@/lib/useTurnstile";
 import { Field } from "./Field";
 
 export type FormPhase = "editing" | "submitting" | "success" | "error";
@@ -155,17 +156,30 @@ function CollapsibleRow({
   );
 }
 
-const EMPTY: ContactPayload = { name: "", email: "", message: "" };
+const EMPTY: ContactFields = { name: "", email: "", message: "" };
 
 export function ContactForm({ onClose }: { onClose(): void }) {
-  const [values, setValues] = useState<ContactPayload>(EMPTY);
+  const [values, setValues] = useState<ContactFields>(EMPTY);
   const [errors, setErrors] = useState<Partial<Record<FieldName, string>>>({});
   const [phase, setPhase] = useState<FormPhase>("editing");
   // текст провала отправки: адаптер возвращает свой, generic — на всякий случай
   const [failure, setFailure] = useState<string | null>(null);
 
+  // Капча Cloudflare Turnstile (lib/useTurnstile.ts). Скрипт подгружается при
+  // монтировании формы, то есть по клику «talk to us», а не на старте страницы.
+  // interaction-only: в обычном случае виджет невидим и токен приходит сам за
+  // ~секунду; клика человека он попросит только у подозрительного трафика —
+  // тогда сам станет видимым в своём ряду. Тема light — панель модалки светлое
+  // стекло (.widget-glass), size flexible растягивает виджет на ширину рядов.
+  const captcha = useTurnstile({ theme: "light", size: "flexible", action: "contact" });
+
   const busy = phase === "submitting";
   const done = phase === "success";
+  // Кнопка невалидна, пока нет токена: без него эндпоинт письмо не примет, и
+  // честнее не давать нажать, чем показать ошибку после «Sending». Провал
+  // самой капчи (скрипт заблокирован адблоком, ключ не для этого домена)
+  // объясняется текстом в том же ряду, что и провал отправки.
+  const captchaBlocked = captcha.token === null;
 
   // Ключ в errors существует, ТОЛЬКО пока ошибка показана: на этом стоит
   // «early revalidation» ниже, поэтому валидное поле ключ теряет, а не
@@ -228,10 +242,16 @@ export function ContactForm({ onClose }: { onClose(): void }) {
     const found = validateAll(values);
     setErrors(found);
     if (Object.keys(found).length > 0) return;
+    // кнопка и так disabled без токена; страховка от Enter в поле
+    const turnstileToken = captcha.token;
+    if (!turnstileToken) return;
 
     setPhase("submitting");
     setFailure(null);
-    const result: SubmitResult = await submitContact(values);
+    const result: SubmitResult = await submitContact({ ...values, turnstileToken });
+    // токен одноразовый — виджет сбрасывается после ЛЮБОГО исхода: на повтор
+    // после ошибки нужен новый, а после успеха модалка всё равно закрывается
+    captcha.reset();
     if (result.ok) {
       setPhase("success");
       return;
@@ -241,6 +261,11 @@ export function ContactForm({ onClose }: { onClose(): void }) {
     setFailure(result.error || contact.errorGeneric);
     setPhase("error");
   };
+
+  // Провал капчи показывается той же шторкой, что провал отправки: это один
+  // и тот же вердикт «отправить не выйдет», а два живых региона в панели
+  // читались бы дважды. Ошибка отправки приоритетнее — она свежее по времени.
+  const shownFailure = failure ?? (captcha.status === "error" && !done ? contact.verifyError : null);
 
   // «свежая ссылка»: таймер успеха не должен перезаводиться из-за того, что
   // родитель пересоздал onClose на очередном рендере
@@ -290,6 +315,17 @@ export function ContactForm({ onClose }: { onClose(): void }) {
         </CollapsibleRow>
       ))}
 
+      {/* Контейнер капчи. В режиме interaction-only он пуст по высоте, пока
+          Turnstile не попросит клика; отступ снизу даём ровно на это время —
+          иначе между message и кнопкой стоял бы пустой зазор в 8px. Отдельный
+          ряд без CollapsibleRow: iframe виджета не участвует в очереди
+          схлопывания и на успехе просто уходит из потока вместе с формой
+          (модалка закрывается через 3s). */}
+      <div
+        ref={captcha.containerRef}
+        className={captcha.interactive && !done ? "pb-2" : ""}
+      />
+
       <CollapsibleRow collapsed={done} step={0}>
         {/* главное действие — тёмная пилюля (RampWidgetGlass.tsx:105) плюс круг
             со стрелкой у правого края; текст остаётся отцентрованным по ряду.
@@ -299,8 +335,10 @@ export function ContactForm({ onClose }: { onClose(): void }) {
         <button
           type="submit"
           // на успехе тоже disabled: ряд схлопнут и inert, но фокус-трап модалки
-          // отбирает кандидатов по :not([disabled]) — не отдаём ему пустой ряд
-          disabled={busy || done}
+          // отбирает кандидатов по :not([disabled]) — не отдаём ему пустой ряд.
+          // Без токена капчи — тоже: первую секунду после открытия кнопка
+          // приглушена (opacity-70), пока Turnstile молча проходит проверку
+          disabled={busy || done || captchaBlocked}
           className="contact-submit relative w-full cursor-pointer rounded-full bg-(--wg-action) py-3.5 text-center text-[0.875rem] font-medium text-(--wg-text-on-action) disabled:cursor-not-allowed disabled:opacity-70"
         >
           {busy ? contact.sending : contact.submit}
@@ -312,10 +350,10 @@ export function ContactForm({ onClose }: { onClose(): void }) {
       <div
         className="contact-alert grid"
         role="alert"
-        style={{ gridTemplateRows: failure ? "1fr" : "0fr" }}
+        style={{ gridTemplateRows: shownFailure ? "1fr" : "0fr" }}
       >
         <div className="overflow-hidden">
-          <p className="pt-2 text-center text-[0.8125rem] text-(--v4-warn)">{failure}</p>
+          <p className="pt-2 text-center text-[0.8125rem] text-(--v4-warn)">{shownFailure}</p>
         </div>
       </div>
 

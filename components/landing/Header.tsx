@@ -2,30 +2,61 @@
 
 // Шапка v4 — плавающая стеклянная капсула (glass-light, pill). Контент страницы
 // просвечивает и размывается под ней: отделение средой, не линией (v3.2 §1).
-// Анатомия: лого слева (статичный c:rel_, курсор НЕ мигает — живой курсор
-// принадлежит hero), якоря секций по центру капсулы, CTA-pill справа.
+// Анатомия: лого слева (c:rel_ в стиле «text type»: курсор мигает всегда,
+// раз в ~5с слово стирается и печатается заново — useLogoCycle), якоря секций
+// по центру капсулы, CTA-pill справа.
+import { useRef } from "react";
 import { navAnchors, hero } from "@/content/shared";
 import { useContactModal } from "@/components/contact/ContactModalProvider";
+import { useTypewriter } from "@/lib/useTypewriter";
+import { useLogoCycle } from "@/lib/useLogoCycle";
 
 interface HeaderProps {
   scrolled: boolean;
 }
 
+// слово лого без курсора; SSG отдаёт его целиком — без пустой шапки до JS
+const LOGO_WORD = "c:rel";
+
 export function Header({ scrolled }: HeaderProps) {
   const { open } = useContactModal();
+  const wordRef = useRef<HTMLSpanElement>(null);
+  const cursorRef = useRef<HTMLSpanElement>(null);
+  const typewriter = useTypewriter(wordRef, cursorRef);
+  useLogoCycle(typewriter, LOGO_WORD);
   return (
     <header className="fixed inset-x-0 top-0 z-40 px-3 pt-3 md:px-6 md:pt-5">
-      {/* над чёрным hero (не проскроллено) капсула тёмная: glass-dark +
-          инверсия ink-токенов (.layer-v4-invert) перекрашивает нав/CTA сами */}
+      {/* капсула всегда в скоупе .layer-v4: акцент синий, ink — нейтральный
+          чёрный, зелёных теней/glow v3 нет. Над чёрным hero (не проскроллено)
+          капсула тёмная: glass-dark + инверсия ink-токенов (.layer-v4-invert)
+          перекрашивает нав/CTA сами */}
       <div
-        className={`relative mx-auto flex h-14 max-w-[1104px] items-center justify-between rounded-(--radius-pill) pr-2 pl-5 transition-shadow duration-(--d-quick) md:pr-2.5 md:pl-7 ${
+        className={`layer-v4 relative mx-auto flex h-14 max-w-[1104px] items-center justify-between rounded-(--radius-pill) pr-2 pl-5 transition-shadow duration-(--d-quick) md:pr-2.5 md:pl-7 ${
           scrolled
-            ? "glass-light shadow-[0_16px_48px_rgb(4_41_27/0.14)]"
+            ? "glass-light shadow-[0_16px_48px_rgb(0_0_0/0.12)]"
             : "glass-dark layer-v4-invert"
         }`}
       >
-        <a href="/" className="text-[1.15rem] font-bold tracking-[-0.02em]">
-          c:rel<span className="inline-block">_</span>
+        {/* inline-grid: невидимая копия полного лого держит ширину, чтобы
+            стирание/печать не двигали соседей; живой текст лежит поверх в той же
+            ячейке. aria-label — читалкам полное имя, а не полуслово. */}
+        <a
+          href="/"
+          aria-label={`${LOGO_WORD}_`}
+          className="inline-grid text-[1.15rem] font-bold tracking-[-0.02em]"
+        >
+          <span aria-hidden className="invisible col-start-1 row-start-1">
+            {LOGO_WORD}_
+          </span>
+          <span aria-hidden className="col-start-1 row-start-1 whitespace-nowrap">
+            {/* textContent правит машина печати мимо React — как в Hero */}
+            <span ref={wordRef} suppressHydrationWarning>
+              {LOGO_WORD}
+            </span>
+            <span ref={cursorRef} className="cursor-blink">
+              _
+            </span>
+          </span>
         </a>
 
         {/* абсолютное центрирование: якоря стоят по оси капсулы независимо

@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { Header } from "./Header";
 import { Hero } from "./Hero";
 import { SectionRenderer } from "./SectionRenderer";
-import { LogoBand } from "@/components/sections/shared/LogoBand";
+// import { LogoBand } from "@/components/sections/shared/LogoBand"; // скрыта 2026-08-17
 import { Finale } from "@/components/sections/shared/Finale";
 import { Footer } from "@/components/sections/shared/Footer";
 import { ContactModalProvider } from "@/components/contact/ContactModalProvider";
@@ -58,8 +58,9 @@ export function Landing() {
         <Header scrolled={scrolled} />
         <main ref={mainRef} className="flex-1">
           <Hero selected={null} argRef={argRef} cursorRef={cursorRef} subWrapRef={subWrapRef} />
-          {/* общий каркас: лента логотипов под hero, финал и футер — persistent */}
-          <LogoBand />
+          {/* общий каркас: финал и футер — persistent. Лента логотипов под hero
+              (LogoBand) скрыта по решению 2026-08-17; компонент оставлен,
+              вернуть — одной строкой <LogoBand /> перед SectionRenderer */}
           <SectionRenderer />
           <Finale />
         </main>

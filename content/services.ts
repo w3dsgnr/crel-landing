@@ -122,27 +122,35 @@ export const licensing = {
 // подтверждённые кейсы (тексты — бриф из чата 2026-08-13, вне docs/content.md):
 // одна фактическая строка на проект, без цифр — номер строки выводится из
 // позиции в массиве («01»…). Опциональный image (путь в /public) кладёт
-// фото проекта в рельс ленты вместо глифа
+// фото проекта в рельс ленты вместо глифа. url — сайт проекта, строка целиком
+// кликабельна (проверены 2026-08-17: bitbeon.com, trientes.com, meinbit.io
+// отвечают 200; teslapay.eu режет ботов 403, но домен подтверждён поиском)
 const caseProjects: CaseProject[] = [
   {
     id: "bitbeon",
     name: "BitBeon",
     body: "Multi-currency wallet holding fiat and crypto in one balance — dedicated IBANs, SEPA and SWIFT transfers, virtual and plastic Mastercard.",
+    url: "https://bitbeon.com",
   },
   {
     id: "trientes",
     name: "Trientes",
     body: "Crypto and fiat wallet built around instant transfers and one-screen conversion between currencies.",
+    url: "https://trientes.com",
   },
   {
     id: "teslapay",
     name: "Tesla Pay",
     body: "Neobank with one account and up to ten virtual cards, plastic issuance and two-factor protection.",
+    url: "https://www.teslapay.eu", // [VERIFY: teslapay.eu — тот ли это Tesla Pay, что в портфолио]
   },
   {
-    id: "taler",
-    name: "Taler",
-    body: "Wallet and staking for the Taler UNO blockchain — mobile and desktop clients for macOS and Windows, a block explorer and an ecosystem site in seven languages.",
+    // фактура — лендинг meinbit.io (2026-08-17): fiat + crypto в одном счёте,
+    // IBAN, SEPA/SWIFT, до десяти Mastercard, VASP-регистрация в Польше
+    id: "meinbit",
+    name: "Meinbit",
+    body: "Multi-currency account for Europe with fiat and crypto side by side — personal IBAN, SEPA and SWIFT payments, instant swaps and Mastercards funded from any balance.",
+    url: "https://meinbit.io", // [VERIFY: meinbit.com в og:url сайта, но домен припаркован — рабочий хост .io]
   },
 ];
 
