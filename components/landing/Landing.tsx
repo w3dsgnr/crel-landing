@@ -26,7 +26,7 @@ export function Landing() {
 
   const typewriter = useTypewriter(argRef, cursorRef);
 
-  // Авто-цикл заголовка hero: rel → platform → services, бессрочно
+  // Авто-цикл заголовка hero: rel → services → platform, бессрочно
   useHeroCycle(typewriter, true);
 
   useEffect(() => {

@@ -10,7 +10,7 @@ import type {
 
 // Hero объединённой страницы: команда в покое — c:rel_, подзаголовок держит
 // оба направления одной строкой (content.md §ОБЩЕЕ, вариант A). После таба
-// platform | services (2026-08-18) subtitle — fallback/общая формула, в hero
+// services | platform (2026-08-18) subtitle — fallback/общая формула, в hero
 // показываются heroBranches; ctaPrimary остаётся у капсулы шапки.
 export const hero: HeroContent = {
   restArg: "rel",
@@ -23,17 +23,17 @@ export const hero: HeroContent = {
 // меняются вместе с прибором под текстом; CTA ведёт к развилке (scrollToBranch).
 // [VERIFY: подзаголовки и лейблы CTA написаны 2026-08-18 в тоне content.md §ОБЩЕЕ]
 export const heroBranches: Record<LandingState, HeroBranch> = {
-  platform: {
-    tab: "platform",
-    subtitle:
-      "One platform for on- and off-ramps, KYC and cards: a drop-in widget or a white label API on a Swiss-regulated rail.",
-    cta: "See the platform_",
-  },
   services: {
     tab: "services",
     subtitle:
       "A Swiss consulting practice for digital assets: licensing, architecture and implementation, run by the team that operates the rail.",
     cta: "See the services_",
+  },
+  platform: {
+    tab: "platform",
+    subtitle:
+      "One platform for on- and off-ramps, KYC and cards: a drop-in widget or a white label API on a Swiss-regulated rail.",
+    cta: "See the platform_",
   },
 };
 

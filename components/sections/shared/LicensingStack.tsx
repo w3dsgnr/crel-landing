@@ -20,6 +20,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { licensing } from "@/content/services";
 import { ensureEases } from "@/lib/easing";
+import { CursorGrid } from "@/components/vendor/CursorGrid";
 
 const N = licensing.cards.length;
 
@@ -378,6 +379,11 @@ export function LicensingStack() {
       {scrub ? (
         <div ref={wrapRef} className="relative" style={{ height: WRAP_HEIGHT }}>
           <div ref={stageRef} className="sticky top-0 h-dvh overflow-hidden">
+            {/* cursor-grid как в hero (правка 2026-08-19): клетки вспыхивают под
+                курсором на чёрной сцене. Сцены ниже pointer-events-none, поэтому
+                pointermove приходит на сам sticky-контейнер — слой берёт события
+                с него (parentElement) */}
+            <CursorGrid />
             {/* сцены тезисов: герой (фон) + текст по центру; слои inset-0 лежат
                 стопкой, видимость каждого ведёт timeline. Вся сцена декоративно-
                 текстовая, без интерактива — pointer-events выключены, скролл

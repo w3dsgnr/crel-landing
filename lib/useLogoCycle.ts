@@ -6,8 +6,11 @@
 // → напечатать то же слово → 5000мс выдержка → … по кругу. Пауза между
 // стиранием и печатью — два вызова retype: retype("") + retype(word); машина
 // сама держит грамматику курсора (горит при работе, мигает в паузах).
-// Цикл гаснет, пока вкладка скрыта (document.hidden), и перезапускается с полной
-// выдержки при возврате; на unmount все таймеры снимаются.
+// Цикл живёт только при active (правка 2026-08-19: шапка передаёт scrolled —
+// у верха страницы, над hero, лого статично; цикл включается, когда юзер
+// проскроллил вниз, и гаснет при возврате к верху — с возвратом полного слова).
+// Также гаснет, пока вкладка скрыта (document.hidden), и перезапускается
+// с полной выдержки при возврате; на unmount все таймеры снимаются.
 import { useEffect, useRef } from "react";
 import type { TypewriterHandle } from "./useTypewriter";
 
@@ -17,12 +20,13 @@ const GAP_MS = 600; // пауза между стиранием и печать�
 // (там константа не экспортируется; при изменении держать в синхроне).
 const CHAR_MS = 40;
 
-export function useLogoCycle(typewriter: TypewriterHandle, word: string): void {
+export function useLogoCycle(typewriter: TypewriterHandle, word: string, active = true): void {
   // машина печати через ref: цикл не перезапускается от смены её identity
   const typewriterRef = useRef(typewriter);
   typewriterRef.current = typewriter;
 
   useEffect(() => {
+    if (!active) return;
     // reduced-motion: печать не запускаем вовсе — статичное лого, курсор
     // по глобальному правилу .cursor-blink тоже не мигает
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -66,9 +70,11 @@ export function useLogoCycle(typewriter: TypewriterHandle, word: string): void {
     document.addEventListener("visibilitychange", onVisibility);
     if (!document.hidden) start();
 
+    // деактивация (вернулись к верху) / unmount: таймеры снять, слово — целиком
     return () => {
       document.removeEventListener("visibilitychange", onVisibility);
       clear();
+      typewriterRef.current.skipTo(word);
     };
-  }, [word]);
+  }, [word, active]);
 }

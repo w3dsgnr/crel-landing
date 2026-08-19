@@ -1,13 +1,16 @@
 "use client";
 
-// Финал страницы (спека 2026-08-13) — синяя плоскость во весь экран: та же
+// Финал страницы (спека 2026-08-13) — плоскость во весь экран: та же
 // машина печати, что в hero, форма захвата e-mail и CTA модалки контакта.
 // Заменяет FinalCta; якорь #contact переехал сюда вместе с ролью «конец
 // разговора».
 //
-// Цвет: .grad-finale — свечение бренда #2e7cf6 за логотипом, к низу ровный
-// #2668d9. Мелкий белый текст живёт ТОЛЬКО на ровной части (5.17:1, AA);
-// вторичный калибр — white/85, ниже не опускаемся (правило v4).
+// Цвет (правка 2026-08-19): .grad-finale — чёрный #0a0a0a, как hero, с
+// cursor-grid по движению курсора; до этого была синяя плоскость #2668d9 со
+// свечением бренда. Белый текст на чёрном — AA с запасом; вторичный калибр
+// остаётся white/90, словарь (белая пилюля, белые кольца) — тот же, что у
+// инвертированного hero. Упоминания «#2668d9» в комментариях ниже — история
+// расчётов контраста, на чёрном они выполняются с запасом.
 //
 // Директива "use client" здесь нужна не ради контекста модалок (Landing уже
 // клиентский), а ради собственных хуков: машина печати, IntersectionObserver
@@ -21,6 +24,7 @@ import { useContactModal } from "@/components/contact/ContactModalProvider";
 import { useLegalModal } from "@/components/legal/LegalModalProvider";
 import { useTypewriter } from "@/lib/useTypewriter";
 import { useHeroCycle } from "@/lib/useHeroCycle";
+import { CursorGrid } from "@/components/vendor/CursorGrid";
 
 /** Фазы формы захвата. «error» фазой не является: провал отправки и ошибка
  *  валидации — это одна и та же шторка под рядом, а сам ряд остаётся живым и
@@ -116,14 +120,14 @@ export function Finale() {
   // только когда секция ХОТЬ РАЗ показалась на экране (флаг липкий: уход за
   // экран не должен снимать уже полученный токен). interaction-only — виджет
   // невидим, пока Cloudflare не попросит клика; тогда он раскроется под рядом
-  // формы. Тема light: на синей плоскости словарь белый (пилюля, кольцо-чек),
-  // тёмная плашка Turnstile здесь читалась бы дырой. size flexible — на всю
+  // формы. Тема dark: плоскость чёрная (2026-08-19), светлая плашка Turnstile
+  // здесь читалась бы пятном. size flexible — на всю
   // ширину ряда (max-w 460px), фиксированные 300px не сошлись бы с пилюлей.
   const [seen, setSeen] = useState(false);
   useEffect(() => {
     if (inView) setSeen(true);
   }, [inView]);
-  const captcha = useTurnstile({ theme: "light", size: "flexible", action: "lead", enabled: seen });
+  const captcha = useTurnstile({ theme: "dark", size: "flexible", action: "lead", enabled: seen });
   // Кнопка невалидна без токена. Провал самой капчи (скрипт заблокирован,
   // ключ не для домена) — тем же текстом-шторкой, что и провал отправки; на
   // aria-invalid поля он не влияет: адрес тут ни при чём.
@@ -191,21 +195,26 @@ export function Finale() {
       id="contact"
       // min-h-dvh + my-auto у контейнера: финал занимает экран целиком, контент
       // стоит по его центру. Футер ниже несёт тот же #2668d9 — шва не видно.
-      className="grad-finale flex min-h-dvh flex-col text-white"
+      className="grad-finale relative isolate flex min-h-dvh flex-col text-white"
     >
+      {/* cursor-grid как в hero (правка 2026-08-19): клетки вспыхивают под
+          курсором на чёрной плоскости; события — с секции, слой -z-10 под
+          контентом (isolate) */}
+      <CursorGrid />
       <div className="mx-auto my-auto w-full max-w-[1200px] px-5 py-28 md:px-12">
         {/* смысл секции для скринридера: логотип ниже — декорация */}
         <h2 className="sr-only">{finale.srTitle}</h2>
 
         {/* Разметка машины печати — дословно hero: "c:" статичен, аргументом
             после монтирования владеет useTypewriter (пишет в textContent).
-            Курсор БЕЛЫЙ: акцентный синий на синей плоскости невидим. */}
+            Курсор акцентный синий, как в hero (плоскость чёрная с 2026-08-19;
+            на прежней синей был белым). */}
         <div aria-hidden className="text-finale select-none">
           c:
           <span ref={argRef} suppressHydrationWarning>
             {hero.restArg}
           </span>
-          <span ref={cursorRef} className="cursor-blink">
+          <span ref={cursorRef} className="cursor-blink text-accent">
             _
           </span>
         </div>

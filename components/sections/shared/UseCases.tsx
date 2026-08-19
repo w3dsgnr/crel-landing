@@ -18,6 +18,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useCases } from "@/content/platform";
 import { ensureEases } from "@/lib/easing";
+import { CursorGrid } from "@/components/vendor/CursorGrid";
 import { getLenis } from "@/lib/lenis";
 
 const N = useCases.tabs.length;
@@ -363,6 +364,12 @@ export function UseCases() {
             scrub ? "sticky top-0 flex h-dvh flex-col justify-center overflow-hidden pt-[96px] md:pt-[104px]" : ""
           }
         >
+          {/* cursor-grid как в hero (правка 2026-08-19): на чёрной сцене клетки
+              вспыхивают под курсором. Лежит в sticky-окне — canvas ровно на
+              видимый экран, события снимает с этого же контейнера; только в
+              scrub-режиме (на мобиле курсора нет, reduced-motion слой сам
+              отключает) */}
+          {scrub && <CursorGrid />}
           <div className={`mx-auto w-full max-w-[1200px] px-5 md:px-12 ${scrub ? "" : "py-28 md:py-40"}`}>
             {/* mobile / фолбэк: заголовок обычным потоком над стопкой
                 (лейбл «03: use cases» удалён по решению design.md) */}

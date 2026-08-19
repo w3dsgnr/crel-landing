@@ -2,10 +2,11 @@
 
 // Шапка v4 — плавающая стеклянная капсула (glass-light, pill). Контент страницы
 // просвечивает и размывается под ней: отделение средой, не линией (v3.2 §1).
-// Анатомия: лого слева (c:rel_ в стиле «text type»: курсор мигает всегда,
-// раз в ~5с слово стирается и печатается заново — useLogoCycle), якоря секций
+// Анатомия: лого слева (c:rel_ в стиле «text type»: над hero полностью
+// статично — ни мигания, ни печати; после скролла вниз курсор мигает и раз
+// в ~5с слово стирается и печатается заново — useLogoCycle), якоря секций
 // по центру капсулы, CTA-pill справа.
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { navAnchors, hero } from "@/content/shared";
 import { useContactModal } from "@/components/contact/ContactModalProvider";
 import { useTypewriter } from "@/lib/useTypewriter";
@@ -23,7 +24,16 @@ export function Header({ scrolled }: HeaderProps) {
   const wordRef = useRef<HTMLSpanElement>(null);
   const cursorRef = useRef<HTMLSpanElement>(null);
   const typewriter = useTypewriter(wordRef, cursorRef);
-  useLogoCycle(typewriter, LOGO_WORD);
+  // цикл печати лого — только после скролла вниз (над hero лого статично)
+  useLogoCycle(typewriter, LOGO_WORD, scrolled);
+  // Мигание курсора — тоже только после скролла: над hero лого полностью
+  // статично, включая «_». Класс правится мимо React (как и textContent —
+  // машина печати сама тогглит .cursor-blink на паузах), поэтому эффект стоит
+  // ПОСЛЕ useLogoCycle: при деактивации его cleanup делает skipTo (снова
+  // включает blink), а этот эффект отрабатывает следом и гасит его.
+  useEffect(() => {
+    cursorRef.current?.classList.toggle("cursor-blink", scrolled);
+  }, [scrolled]);
   return (
     <header className="fixed inset-x-0 top-0 z-40 px-3 pt-3 md:px-6 md:pt-5">
       {/* капсула всегда в скоупе .layer-v4: акцент синий, ink — нейтральный
@@ -53,7 +63,9 @@ export function Header({ scrolled }: HeaderProps) {
             <span ref={wordRef} suppressHydrationWarning>
               {LOGO_WORD}
             </span>
-            <span ref={cursorRef} className="cursor-blink">
+            {/* без .cursor-blink в SSR: над hero курсор статичен, класс
+                включает эффект выше после скролла */}
+            <span ref={cursorRef}>
               _
             </span>
           </span>

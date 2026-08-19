@@ -7,7 +7,7 @@ export interface HeroContent {
   ctaPrimary: string;
 }
 
-/** ветка hero (таб platform | services): подпись таба, подзаголовок и CTA к развилке */
+/** ветка hero (таб services | platform): подпись таба, подзаголовок и CTA к развилке */
 export interface HeroBranch {
   tab: string;
   subtitle: string;
